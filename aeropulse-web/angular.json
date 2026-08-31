@@ -51,6 +51,7 @@
               }
             ],
             "styles": [
+              "src/styles-material-theme.css",
               "src/styles.css"
             ]
           },

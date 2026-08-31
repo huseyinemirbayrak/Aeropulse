@@ -1,0 +1,214 @@
+/* ===== AEROPULSE AVIATION THEME - Material Design ===== */
+/* Color Palette: Aviation Blue (#1976D2) + Silver (#E0E0E0) */
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+:root {
+  /* Aviation Primary Colors */
+  --primary-blue: #1976D2;
+  --primary-blue-light: #42A5F5;
+  --primary-blue-dark: #1565C0;
+  
+  /* Silver Accent */
+  --silver: #E0E0E0;
+  --silver-dark: #BDBDBD;
+  --silver-light: #F5F5F5;
+  
+  /* Status Colors - Aviation Standard */
+  --operational: #4CAF50;      /* Green */
+  --maintenance: #FF9800;       /* Orange */
+  --grounded: #F44336;          /* Red */
+  --warning: #FFC107;           /* Amber */
+  --info: #2196F3;             /* Blue */
+  
+  /* Backgrounds */
+  --bg-light: #FFFFFF;
+  --bg-light-secondary: #F5F5F5;
+  --bg-light-tertiary: #EEEEEE;
+  
+  /* Text */
+  --text-dark: #212121;
+  --text-secondary: #757575;
+  --text-disabled: #BDBDBD;
+  
+  /* Borders */
+  --border-light: #E0E0E0;
+  --border-medium: #BDBDBD;
+  
+  /* Shadows */
+  --shadow-elevation-1: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --shadow-elevation-2: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  --shadow-elevation-3: 0px 4px 2px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  --shadow-elevation-4: 0px 8px 5px -5px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+}
+
+html, body {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Material Button Styling */
+.mat-mdc-button, .mat-mdc-raised-button {
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.mat-mdc-raised-button {
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.mat-mdc-raised-button:hover {
+  box-shadow: var(--shadow-elevation-3);
+}
+
+/* Material Card Styling */
+.mat-mdc-card {
+  box-shadow: var(--shadow-elevation-1);
+  border-radius: 8px;
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s ease-out;
+}
+
+.mat-mdc-card:hover {
+  box-shadow: var(--shadow-elevation-3);
+  transform: translateY(-2px);
+}
+
+/* Material Input Styling */
+.mat-mdc-text-field-wrapper {
+  padding-bottom: 1.25rem;
+}
+
+.mdc-text-field {
+  width: 100%;
+}
+
+.mdc-text-field--filled {
+  background-color: var(--bg-light-secondary);
+}
+
+/* Material Form Field */
+.mat-mdc-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.mat-mdc-form-field-appearance-fill {
+  background-color: var(--bg-light-secondary);
+}
+
+/* Typography */
+h1, .mat-mdc-headline-1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.015625em;
+  margin: 0;
+}
+
+h2, .mat-mdc-headline-2 {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+h3, .mat-mdc-headline-3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Utility Classes */
+.container-fluid {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.mt-4 { margin-top: 1.5rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.p-4 { padding: 1.5rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  h1, .mat-mdc-headline-1 {
+    font-size: 1.5rem;
+  }
+  
+  h2, .mat-mdc-headline-2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ===== SNACKBAR / TOAST NOTIFICATIONS ===== */
+.snackbar-success {
+  background-color: #4CAF50 !important;
+  color: white;
+}
+
+.snackbar-success .mat-mdc-snack-bar-label {
+  color: white;
+}
+
+.snackbar-error {
+  background-color: #F44336 !important;
+  color: white;
+}
+
+.snackbar-error .mat-mdc-snack-bar-label {
+  color: white;
+}
+
+.snackbar-warning {
+  background-color: #FF9800 !important;
+  color: white;
+}
+
+.snackbar-warning .mat-mdc-snack-bar-label {
+  color: white;
+}
+
+.snackbar-info {
+  background-color: #2196F3 !important;
+  color: white;
+}
+
+.snackbar-info .mat-mdc-snack-bar-label {
+  color: white;
+}
+
+/* ===== CUSTOM ANIMATIONS ===== */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideInUp 0.4s ease-out;
+}
+
