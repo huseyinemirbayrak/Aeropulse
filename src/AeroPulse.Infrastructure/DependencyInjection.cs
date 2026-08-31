@@ -17,8 +17,8 @@ public static class DependencyInjection
     {
         // Database
         services.AddDbContext<AeroPulseDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
+            options.UseSqlite(
+                configuration.GetConnectionString("DefaultConnection") ?? "Data Source=AeroPulse.db",
                 b => b.MigrationsAssembly(typeof(AeroPulseDbContext).Assembly.FullName)));
 
         services.AddScoped<IAeroPulseDbContext>(provider => provider.GetRequiredService<AeroPulseDbContext>());
