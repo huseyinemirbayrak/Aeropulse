@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AeroPulse.API/AeroPulse.API.csproj" />
+    <Project Path="src/AeroPulse.Application/AeroPulse.Application.csproj" />
+    <Project Path="src/AeroPulse.Domain/AeroPulse.Domain.csproj" />
+    <Project Path="src/AeroPulse.Infrastructure/AeroPulse.Infrastructure.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,11 @@
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\bin\Debug\net10.0\AeroPulse.Domain.deps.json
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\bin\Debug\net10.0\AeroPulse.Domain.dll
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\bin\Debug\net10.0\AeroPulse.Domain.pdb
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.AssemblyInfoInputs.cache
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.AssemblyInfo.cs
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.dll
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\refint\AeroPulse.Domain.dll
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\AeroPulse.Domain.pdb
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.Domain\obj\Debug\net10.0\ref\AeroPulse.Domain.dll
