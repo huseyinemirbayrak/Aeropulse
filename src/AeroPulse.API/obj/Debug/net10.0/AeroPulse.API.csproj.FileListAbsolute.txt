@@ -174,3 +174,4 @@ C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\obj\
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\obj\Debug\net10.0\AeroPulse.API.pdb
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\obj\Debug\net10.0\AeroPulse.API.genruntimeconfig.cache
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\obj\Debug\net10.0\ref\AeroPulse.API.dll
+C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\obj\Debug\net10.0\AeroPulse.API.sourcelink.json
