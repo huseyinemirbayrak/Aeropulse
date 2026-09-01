@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {}
+    "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
+    "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj",
+        "projectUniqueName": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj",
         "projectName": "AeroPulse.Application",
-        "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj",
+        "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj",
         "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\obj\\",
+        "outputPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -27,8 +27,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj": {
-                "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj"
+              "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj": {
+                "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj"
               }
             }
           }
@@ -353,14 +353,14 @@
         }
       }
     },
-    "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj": {
+    "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
         "projectName": "AeroPulse.Domain",
-        "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
+        "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
         "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\obj\\",
+        "outputPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -688,14 +688,14 @@
         }
       }
     },
-    "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {
+    "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj",
         "projectName": "AeroPulse.Infrastructure",
-        "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -711,8 +711,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
-                "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj"
+              "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
+                "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj"
               }
             }
           }
@@ -738,7 +738,7 @@
               "target": "Package",
               "version": "[10.0.11, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
+            "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
               "version": "[10.0.11, )"
             },

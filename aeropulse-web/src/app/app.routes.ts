@@ -5,7 +5,7 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {
     path: 'login',
-    loadComponent: () => import('./features/login/login').then(m => m.LoginComponent)
+    loadComponent: () => import('./features/login/login-material').then(m => m.LoginComponent)
   },
   {
     path: 'forbidden',
@@ -16,7 +16,7 @@ export const routes: Routes = [
     canActivate: [roleGuard('Admin')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
     children: [
-      { path: 'dashboard', loadComponent: () => import('./features/admin/dashboard/dashboard').then(m => m.AdminDashboardComponent) },
+      { path: 'dashboard', loadComponent: () => import('./features/admin/dashboard/dashboard-material').then(m => m.AdminDashboardComponent) },
       { path: 'users', loadComponent: () => import('./features/admin/users/users').then(m => m.UsersComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
