@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
+      "projectUniqueName": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
       "projectName": "AeroPulse.Domain",
-      "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
+      "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\AeroPulse.Domain.csproj",
       "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Domain\\obj\\",
+      "outputPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Domain\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
