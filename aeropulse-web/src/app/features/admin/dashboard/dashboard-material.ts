@@ -97,16 +97,16 @@ import { AdminDashboard } from '../../../core/models';
           <mat-card-content>
             <table mat-table [dataSource]="recentActivities">
               <ng-container matColumnDef="activity">
-                <th mat-header-cell>Activity</th>
-                <td mat-cell>{{ row.activity }}</td>
+                <th mat-header-cell *matHeaderCellDef>Activity</th>
+                <td mat-cell *matCellDef="let row">{{ row.activity }}</td>
               </ng-container>
               <ng-container matColumnDef="user">
-                <th mat-header-cell>User</th>
-                <td mat-cell>{{ row.user }}</td>
+                <th mat-header-cell *matHeaderCellDef>User</th>
+                <td mat-cell *matCellDef="let row">{{ row.user }}</td>
               </ng-container>
               <ng-container matColumnDef="status">
-                <th mat-header-cell>Status</th>
-                <td mat-cell>
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let row">
                   <mat-chip [color]="getStatusColor(row.status)" selected>{{ row.status }}</mat-chip>
                 </td>
               </ng-container>
