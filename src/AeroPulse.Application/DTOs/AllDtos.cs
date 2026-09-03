@@ -455,3 +455,107 @@ public class PagedResult<T>
     public int PageSize { get; set; }
     public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
 }
+
+// ========== WEATHER DTOs ==========
+
+/// <summary>
+/// Güncel hava durumu verisi. OpenWeatherMap API yanıtından parse edilir.
+/// </summary>
+public class WeatherData
+{
+    /// <summary>Havalimanı/şehir kodu (ICAO veya IATA)</summary>
+    public string CityCode { get; set; } = string.Empty;
+
+    /// <summary>Şehir adı</summary>
+    public string CityName { get; set; } = string.Empty;
+
+    /// <summary>Sıcaklık (°C)</summary>
+    public double Temperature { get; set; }
+
+    /// <summary>Hissedilen sıcaklık (°C)</summary>
+    public double FeelsLike { get; set; }
+
+    /// <summary>Minimum sıcaklık (°C)</summary>
+    public double TempMin { get; set; }
+
+    /// <summary>Maksimum sıcaklık (°C)</summary>
+    public double TempMax { get; set; }
+
+    /// <summary>Nem oranı (%)</summary>
+    public int Humidity { get; set; }
+
+    /// <summary>Basınç (hPa)</summary>
+    public int Pressure { get; set; }
+
+    /// <summary>Hava durumu açıklaması (ör: "Parçalı bulutlu")</summary>
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>Hava durumu ikonu kodu (OpenWeatherMap ikon ID'si)</summary>
+    public string Icon { get; set; } = string.Empty;
+
+    /// <summary>Rüzgâr hızı (m/s)</summary>
+    public double WindSpeed { get; set; }
+
+    /// <summary>Rüzgâr yönü (derece, 0-360)</summary>
+    public int WindDeg { get; set; }
+
+    /// <summary>Rüzgâr esinti hızı (m/s), varsa</summary>
+    public double? WindGust { get; set; }
+
+    /// <summary>Görüş mesafesi (metre)</summary>
+    public int Visibility { get; set; }
+
+    /// <summary>Bulut oranı (%)</summary>
+    public int CloudCoverage { get; set; }
+
+    /// <summary>Gün doğumu saati (UTC)</summary>
+    public DateTime? Sunrise { get; set; }
+
+    /// <summary>Gün batımı saati (UTC)</summary>
+    public DateTime? Sunset { get; set; }
+
+    /// <summary>Verinin alındığı zaman (UTC)</summary>
+    public DateTime RetrievedAt { get; set; }
+
+    /// <summary>Hava durumu ikon URL'si</summary>
+    public string IconUrl => $"https://openweathermap.org/img/wn/{Icon}@2x.png";
+}
+
+/// <summary>
+/// Saatlik hava durumu tahmin verisi.
+/// </summary>
+public class WeatherForecastItem
+{
+    /// <summary>Tahmin zamanı (UTC)</summary>
+    public DateTime DateTime { get; set; }
+
+    /// <summary>Sıcaklık (°C)</summary>
+    public double Temperature { get; set; }
+
+    /// <summary>Hissedilen sıcaklık (°C)</summary>
+    public double FeelsLike { get; set; }
+
+    /// <summary>Nem oranı (%)</summary>
+    public int Humidity { get; set; }
+
+    /// <summary>Hava durumu açıklaması</summary>
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>Hava durumu ikonu kodu</summary>
+    public string Icon { get; set; } = string.Empty;
+
+    /// <summary>Rüzgâr hızı (m/s)</summary>
+    public double WindSpeed { get; set; }
+
+    /// <summary>Rüzgâr yönü (derece)</summary>
+    public int WindDeg { get; set; }
+
+    /// <summary>Görüş mesafesi (metre)</summary>
+    public int Visibility { get; set; }
+
+    /// <summary>Yağış olasılığı (%)</summary>
+    public double PrecipitationProbability { get; set; }
+
+    /// <summary>Hava durumu ikon URL'si</summary>
+    public string IconUrl => $"https://openweathermap.org/img/wn/{Icon}@2x.png";
+}

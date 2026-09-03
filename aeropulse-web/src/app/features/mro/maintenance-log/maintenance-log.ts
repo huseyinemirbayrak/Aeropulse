@@ -64,10 +64,10 @@ export class MaintenanceLogComponent implements OnInit {
   records: any[] = [];
   loading = true;
   error = '';
-  
-  private apiUrl = 'http://localhost:5146/api/maintenance'; 
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = 'http://localhost:5146/api/maintenance';
+
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.fetchLogs();

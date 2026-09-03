@@ -1,6 +1,7 @@
 using System.Text;
 using AeroPulse.Application.Interfaces;
 using AeroPulse.Application.Services;
+using AeroPulse.Infrastructure.BackgroundServices;
 using AeroPulse.Infrastructure.Data;
 using AeroPulse.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -73,6 +74,21 @@ public static class DependencyInjection
         // Production'a geçmek için: InMemoryCacheService → RedisCacheService
         services.AddMemoryCache(); // IMemoryCache için gerekli
         services.AddScoped<ICacheService, InMemoryCacheService>();
+
+        // ===== HAVA DURUMU SERVİSİ (OpenWeatherMap) =====
+        // API anahtarı olmadan mock modda çalışır.
+        // Gerçek veri için appsettings.json: "Weather": { "ApiKey": "YOUR_KEY" }
+        services.AddHttpClient<IWeatherService, OpenWeatherService>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.Add("User-Agent", "AeroPulse/1.0");
+        });
+
+        // ===== MODÜL 7: DIŞ VERİ & KRİZ YÖNETİMİ =====
+        services.AddScoped<IWeatherCrisisService, WeatherCrisisService>();
+
+        // ===== ARKA PLAN İŞÇİLERİ (Background Services / Workers) =====
+        services.AddHostedService<WeatherMonitorWorker>();
 
         return services;
     }
