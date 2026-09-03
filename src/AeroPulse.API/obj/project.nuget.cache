@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jcOlCGJ5a/o=",
+  "dgSpecHash": "eSQVYJDmtwA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
+  "projectFilePath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\LENOVO\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\LENOVO\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
