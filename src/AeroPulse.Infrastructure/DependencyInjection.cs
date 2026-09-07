@@ -86,6 +86,7 @@ public static class DependencyInjection
 
         // ===== MODÜL 7: DIŞ VERİ & KRİZ YÖNETİMİ =====
         services.AddScoped<IWeatherCrisisService, WeatherCrisisService>();
+        services.AddScoped<IFlightEventProcessorService, FlightEventProcessorService>();
 
         // ===== ARKA PLAN İŞÇİLERİ (Background Services / Workers) =====
         services.AddHostedService<WeatherMonitorWorker>();
