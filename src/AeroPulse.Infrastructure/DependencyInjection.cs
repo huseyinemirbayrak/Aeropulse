@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 
 namespace AeroPulse.Infrastructure;
 
@@ -64,16 +65,31 @@ public static class DependencyInjection
         // ===== MODÜL 4: NOTIFICATIONS =====
         services.AddScoped<INotificationService, NotificationService>();
 
-        // ===== MESAJ KUYRUĞU (RabbitMQ simülatörü) =====
-        // Geliştirme ortamı: in-memory (log'a yazar)
-        // Production'a geçmek için: InMemoryMessageBusService → RabbitMqMessageBusService
-        services.AddScoped<IMessageBusService, InMemoryMessageBusService>();
+        // ===== MESAJ KUYRUĞU =====
+        var rabbitMqConnection = configuration.GetConnectionString("RabbitMQ");
+        if (!string.IsNullOrEmpty(rabbitMqConnection))
+        {
+            services.AddScoped<IMessageBusService, RabbitMqMessageBusService>();
+        }
+        else
+        {
+            services.AddScoped<IMessageBusService, InMemoryMessageBusService>();
+        }
 
-        // ===== CACHE (Redis simülatörü) =====
-        // Geliştirme ortamı: IMemoryCache kullanan in-memory implementasyon
-        // Production'a geçmek için: InMemoryCacheService → RedisCacheService
+        // ===== CACHE =====
         services.AddMemoryCache(); // IMemoryCache için gerekli
-        services.AddScoped<ICacheService, InMemoryCacheService>();
+        
+        var redisConnection = configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(redisConnection))
+        {
+            services.AddSingleton<IConnectionMultiplexer>(sp => 
+                ConnectionMultiplexer.Connect(redisConnection));
+            services.AddScoped<ICacheService, RedisCacheService>();
+        }
+        else
+        {
+            services.AddScoped<ICacheService, InMemoryCacheService>();
+        }
 
         // ===== HAVA DURUMU SERVİSİ (OpenWeatherMap) =====
         // API anahtarı olmadan mock modda çalışır.

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
-import 'screens/tasks_screen.dart';
+import 'screens/main_layout.dart';
 import 'services/api_service.dart';
 
 void main() async {
@@ -17,7 +17,7 @@ void main() async {
       providers: [
         Provider<ApiService>(create: (_) => ApiService()),
       ],
-      child: AeroPulseApp(initialRoute: token != null ? '/tasks' : '/login'),
+      child: AeroPulseApp(initialRoute: token != null ? '/main' : '/login'),
     ),
   );
 }
@@ -43,7 +43,7 @@ class AeroPulseApp extends StatelessWidget {
       initialRoute: initialRoute,
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/tasks': (context) => const TasksScreen(),
+        '/main': (context) => const MainLayoutScreen(),
       },
     );
   }

@@ -90,4 +90,55 @@ class ApiService {
       return false;
     }
   }
+
+  Future<Map<String, dynamic>?> getDashboardMetrics() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return null;
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/Dashboard/viewer'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // data or data['data'] depending on ApiResponse wrapper. The API returns ApiResponse<T> mostly, but wait, DashboardController does `return Ok(result);` and result is already wrapped in some services, or maybe not. We will just return data. Let's assume ApiResponse format or direct.
+        // I will return data to be safe, the UI can parse it.
+        return data['data'] ?? data;
+      }
+      return null;
+    } catch (e) {
+      print('Dashboard metrics error: $e');
+      return null;
+    }
+  }
+
+  Future<bool> createFaultReport(String aircraftId, int priority, String description) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return false;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/fault-reports'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'aircraftId': aircraftId,
+          'priority': priority,
+          'description': description,
+        }),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print('Create fault error: $e');
+      return false;
+    }
+  }
 }
