@@ -334,3 +334,7 @@ C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\bin\
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\RESPite.dll
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\StackExchange.Redis.dll
 C:\Users\LENOVO\OneDrive\Desktop\Staj 2 projesi\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\System.IO.Hashing.dll
+C:\Users\LENOVO\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\RabbitMQ.Client.dll
+C:\Users\LENOVO\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\RESPite.dll
+C:\Users\LENOVO\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\StackExchange.Redis.dll
+C:\Users\LENOVO\Aeropulse\src\AeroPulse.API\bin\Debug\net10.0\System.IO.Hashing.dll
