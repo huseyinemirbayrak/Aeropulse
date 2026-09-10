@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AeroPulse.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8e717c5bf5ce6e5a0db96d190c6facfec02d5435")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5375f072ec2467ff835eb1a45adfe4837687edb")]
+>>>>>>> 090a0e9c95d7eebc29ed41b7c2e7326199b78101
 [assembly: System.Reflection.AssemblyProductAttribute("AeroPulse.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AeroPulse.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

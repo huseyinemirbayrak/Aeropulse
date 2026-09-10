@@ -93,7 +93,7 @@ public class OpenWeatherService : IWeatherService
 
         if (_useMock)
         {
-            _logger.LogWarning(
+            _logger.LogInformation(
                 "Weather:ApiKey yapılandırılmamış. OpenWeatherService mock modda çalışacak. " +
                 "Gerçek veri için appsettings.json'a Weather:ApiKey ekleyin.");
         }

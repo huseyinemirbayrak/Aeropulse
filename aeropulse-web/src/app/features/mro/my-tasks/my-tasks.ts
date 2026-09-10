@@ -58,7 +58,7 @@ export class MyTasksComponent implements OnInit {
   loading = true;
   error = '';
   
-  // Note: Backend might be on a different port during dev, e.g., http://localhost:5146/api/fault-reports/my-faults
+  // Note: Backend might be on a different port during dev, e.g., http://localhost:5253/api/fault-reports/my-faults
   // Using relative path assuming a proxy or exact same host is used.
   private apiUrl = 'http://localhost:5253/api/fault-reports/my-faults'; 
 
