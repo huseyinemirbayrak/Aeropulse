@@ -6,6 +6,11 @@ public static class StoredProceduresAndViews
 {
     public static async Task CreateStoredProceduresAndViewsAsync(AeroPulseDbContext context)
     {
+        if (context.Database.IsSqlite())
+        {
+            return;
+        }
+
         // View: vw_ActiveFaultReports
         await context.Database.ExecuteSqlRawAsync(@"
             IF OBJECT_ID('vw_ActiveFaultReports', 'V') IS NOT NULL
