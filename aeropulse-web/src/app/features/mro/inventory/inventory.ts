@@ -94,7 +94,7 @@ export class InventoryComponent implements OnInit {
   pageSize = 20;
   totalCount = 0;
   
-  private apiUrl = 'http://localhost:5146/api/parts'; 
+  private apiUrl = 'http://localhost:5253/api/parts'; 
 
   constructor(private http: HttpClient) {}
 
