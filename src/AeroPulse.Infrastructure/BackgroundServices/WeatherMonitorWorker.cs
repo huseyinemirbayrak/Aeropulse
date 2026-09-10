@@ -47,7 +47,15 @@ public class WeatherMonitorWorker : BackgroundService
             cityCode, checkInterval, thresholdKmH);
 
         // Başlangıçta uygulamanın tamamen ayağa kalkması için kısa bir bekleme
-        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("🛑 WeatherMonitorWorker durduruluyor; başlangıç beklemesi iptal edildi.");
+            return;
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
