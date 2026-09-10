@@ -65,7 +65,7 @@ export class MaintenanceLogComponent implements OnInit {
   loading = true;
   error = '';
 
-  private apiUrl = 'http://localhost:5146/api/maintenance';
+  private apiUrl = 'http://localhost:5253/api/maintenance';
 
   constructor(private http: HttpClient) { }
 
