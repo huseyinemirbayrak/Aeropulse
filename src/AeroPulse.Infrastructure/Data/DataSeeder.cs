@@ -215,4 +215,119 @@ public static class DataSeeder
 
         await context.SaveChangesAsync();
     }
+
+    public static async Task EnsureExtraDemoDataAsync(AeroPulseDbContext context)
+    {
+        var demoUsers = new[]
+        {
+            new User
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000007"),
+                FullName = "Demo Engineer",
+                Email = "demo.engineer@aeropulse.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
+                Role = UserRole.MROEngineer,
+                IsActive = true
+            },
+            new User
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000008"),
+                FullName = "Demo Operations",
+                Email = "demo.ops@aeropulse.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
+                Role = UserRole.OperationsManager,
+                IsActive = true
+            },
+            new User
+            {
+                Id = Guid.Parse("10000000-0000-0000-0000-000000000009"),
+                FullName = "Demo Viewer",
+                Email = "demo.viewer@aeropulse.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
+                Role = UserRole.Viewer,
+                IsActive = true
+            }
+        };
+
+        foreach (var user in demoUsers)
+        {
+            var exists = await context.Users.AnyAsync(u => u.Email == user.Email);
+            if (!exists)
+            {
+                context.Users.Add(user);
+            }
+        }
+
+        var demoAircrafts = new[]
+        {
+            new Aircraft
+            {
+                Id = Guid.Parse("20000000-0000-0000-0000-000000000006"),
+                TailNumber = "TC-DEMO1",
+                Model = "Airbus A321neo",
+                ManufactureYear = 2023,
+                StatusCode = AircraftStatus.Active,
+                TotalFlightHours = 3200,
+                Operator = "AeroPulse Airlines"
+            },
+            new Aircraft
+            {
+                Id = Guid.Parse("20000000-0000-0000-0000-000000000007"),
+                TailNumber = "TC-DEMO2",
+                Model = "Boeing 787-9",
+                ManufactureYear = 2024,
+                StatusCode = AircraftStatus.Active,
+                TotalFlightHours = 1800,
+                Operator = "AeroPulse Airlines"
+            }
+        };
+
+        foreach (var aircraft in demoAircrafts)
+        {
+            var exists = await context.Aircraft.AnyAsync(a => a.TailNumber == aircraft.TailNumber);
+            if (!exists)
+            {
+                context.Aircraft.Add(aircraft);
+            }
+        }
+
+        var demoOpsManager = await context.Users.FirstOrDefaultAsync(u => u.Email == "demo.ops@aeropulse.com");
+        var demoAircraft1 = await context.Aircraft.FirstOrDefaultAsync(a => a.TailNumber == "TC-DEMO1");
+        var demoAircraft2 = await context.Aircraft.FirstOrDefaultAsync(a => a.TailNumber == "TC-DEMO2");
+
+        if (demoOpsManager is not null)
+        {
+            if (demoAircraft1 is not null && !await context.Operations.AnyAsync(o => o.FlightNumber == "AP777"))
+            {
+                context.Operations.Add(new Operation
+                {
+                    Id = Guid.Parse("60000000-0000-0000-0000-000000000005"),
+                    AircraftId = demoAircraft1.Id,
+                    GateNo = "D11",
+                    ArrivalTime = DateTime.UtcNow.AddHours(3),
+                    DepartureTime = DateTime.UtcNow.AddHours(7),
+                    Status = OperationStatus.Scheduled,
+                    FlightNumber = "AP777",
+                    OperationsManagerId = demoOpsManager.Id
+                });
+            }
+
+            if (demoAircraft2 is not null && !await context.Operations.AnyAsync(o => o.FlightNumber == "AP888"))
+            {
+                context.Operations.Add(new Operation
+                {
+                    Id = Guid.Parse("60000000-0000-0000-0000-000000000006"),
+                    AircraftId = demoAircraft2.Id,
+                    GateNo = "E07",
+                    ArrivalTime = DateTime.UtcNow.AddHours(8),
+                    DepartureTime = DateTime.UtcNow.AddHours(12),
+                    Status = OperationStatus.Scheduled,
+                    FlightNumber = "AP888",
+                    OperationsManagerId = demoOpsManager.Id
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
 }
