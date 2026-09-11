@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +17,7 @@ import { AdminDashboard } from '../../../core/models';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatCardModule,
     MatGridListModule,
     MatIconModule,
@@ -45,37 +47,37 @@ import { AdminDashboard } from '../../../core/models';
       <div class="dashboard-content" *ngIf="data">
         <mat-grid-list cols="4" rowHeight="160px" gutterSize="16px">
           <mat-grid-tile>
-            <mat-card class="metric-card aircraft-card">
+            <mat-card class="metric-card aircraft-card clickable-card" routerLink="/ops/operations">
               <mat-card-content>
                 <mat-icon class="metric-icon">airplanemode_active</mat-icon>
-                <div><h3>{{ data.totalAircraft }}</h3><p>Total Aircraft</p><small>{{ data.activeAircraft }} active</small></div>
+                <div><h3>{{ data.totalAircraft }}</h3><p>Total Aircraft</p><small>{{ data.activeAircraft }} active ➔</small></div>
               </mat-card-content>
             </mat-card>
           </mat-grid-tile>
 
           <mat-grid-tile>
-            <mat-card class="metric-card maintenance-card">
+            <mat-card class="metric-card maintenance-card clickable-card" routerLink="/mro/maintenance-log">
               <mat-card-content>
                 <mat-icon class="metric-icon">build</mat-icon>
-                <div><h3>{{ data.inMaintenanceAircraft }}</h3><p>In Maintenance</p><small>{{ data.totalMaintenanceRecords }} records</small></div>
+                <div><h3>{{ data.inMaintenanceAircraft }}</h3><p>In Maintenance</p><small>{{ data.totalMaintenanceRecords }} records ➔</small></div>
               </mat-card-content>
             </mat-card>
           </mat-grid-tile>
 
           <mat-grid-tile>
-            <mat-card class="metric-card fault-card">
+            <mat-card class="metric-card fault-card clickable-card" routerLink="/ops/fault-reports">
               <mat-card-content>
                 <mat-icon class="metric-icon">warning</mat-icon>
-                <div><h3>{{ data.openFaults }}</h3><p>Open Faults</p><small>{{ data.criticalFaults }} critical</small></div>
+                <div><h3>{{ data.openFaults }}</h3><p>Open Faults</p><small>{{ data.criticalFaults }} critical ➔</small></div>
               </mat-card-content>
             </mat-card>
           </mat-grid-tile>
 
           <mat-grid-tile>
-            <mat-card class="metric-card users-card">
+            <mat-card class="metric-card users-card clickable-card" routerLink="/admin/users">
               <mat-card-content>
                 <mat-icon class="metric-icon">people</mat-icon>
-                <div><h3>{{ data.totalUsers }}</h3><p>Active Users</p><small>{{ data.slaBreaches }} SLA issues</small></div>
+                <div><h3>{{ data.totalUsers }}</h3><p>Active Users</p><small>{{ data.slaBreaches }} SLA issues ➔</small></div>
               </mat-card-content>
             </mat-card>
           </mat-grid-tile>
@@ -128,16 +130,19 @@ import { AdminDashboard } from '../../../core/models';
 
     .metric-card {
       height: 100%;
-      border-radius: 12px;
-      transition: all 0.3s;
-      cursor: pointer;
+      border-radius: 8px;
       position: relative;
       overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .metric-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    .clickable-card {
+      cursor: pointer;
+    }
+
+    .clickable-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .metric-card::before {

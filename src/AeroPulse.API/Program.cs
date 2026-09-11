@@ -1,3 +1,6 @@
+using AeroPulse.API.Hubs;
+using AeroPulse.API.Services;
+using AeroPulse.Application.Interfaces;
 using AeroPulse.Infrastructure;
 using AeroPulse.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +12,12 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
+
+// Real-Time SignalR Hub & Notifier
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IRealTimeNotifier, SignalRRealTimeNotifier>();
 
 // Infrastructure (DB, Auth, Services)
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -43,14 +51,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS
+// CORS - SignalR WebSockets requires credentials and flexible origin matching
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => true)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -61,8 +70,10 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AeroPulseDbContext>();
     await context.Database.EnsureCreatedAsync();
+    await DataSeeder.EnsureTenantDataAsync(context);
     await DataSeeder.SeedAsync(context);
     await DataSeeder.EnsureExtraDemoDataAsync(context);
+    await DataSeeder.EnsureOperationalDataAsync(context);
     try { await StoredProceduresAndViews.CreateStoredProceduresAndViewsAsync(context); } catch { /* LocalDB might not support all features */ }
 }
 
@@ -145,5 +156,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<AeroPulseHub>("/hubs/aeropulse");
 
 app.Run();

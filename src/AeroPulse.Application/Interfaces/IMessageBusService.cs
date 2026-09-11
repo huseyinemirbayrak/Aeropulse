@@ -39,3 +39,70 @@ public class FaultAssignedMessage
     public Guid AssignedEngineerId { get; set; }
     public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
 }
+
+// Operasyonel event modelleri (kuyruk mesajlari icin)
+
+public class TurnaroundTaskUpdatedEvent
+{
+    public Guid TaskId { get; set; }
+    public Guid OperationId { get; set; }
+    public string FlightNumber { get; set; } = string.Empty;
+    public string TaskType { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public int ProgressPercentage { get; set; }
+    public string? Notes { get; set; }
+    public string? AssignedUserName { get; set; }
+    public string? AssignedGSECode { get; set; }
+    public DateTime? ActualStartTime { get; set; }
+    public DateTime? ActualEndTime { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class FlightGateOverrideEvent
+{
+    public Guid OperationId { get; set; }
+    public string FlightNumber { get; set; } = string.Empty;
+    public string? OldGateNumber { get; set; }
+    public string NewGateNumber { get; set; } = string.Empty;
+    public string? Reason { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class GSEStatusChangedEvent
+{
+    public Guid GSEId { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty; // Idle, Busy, OutOfService
+    public int FuelLevelPercentage { get; set; }
+    public string? ApronZone { get; set; }
+    public string? CurrentTaskDescription { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class BoardingProgressEvent
+{
+    public Guid ManifestId { get; set; }
+    public Guid OperationId { get; set; }
+    public string FlightNumber { get; set; } = string.Empty;
+    public int BoardedCount { get; set; }
+    public int TotalPassengers { get; set; }
+    public int LoadedBaggageCount { get; set; }
+    public int TotalBaggageCount { get; set; }
+    public string BoardingStatus { get; set; } = string.Empty;
+    public bool LuggageMatchComplete { get; set; }
+    public bool LoadsheetApproved { get; set; }
+    public string? ApprovedByRedcap { get; set; }
+    public string? ActionDescription { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class FlightAlertEvent
+{
+    public string FlightNumber { get; set; } = string.Empty;
+    public string AlertType { get; set; } = string.Empty; // GateChange, DepartureClearance, Delay, GSEWarning
+    public string Message { get; set; } = string.Empty;
+    public string Severity { get; set; } = "Info"; // Info, Warning, Danger
+    public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
+}

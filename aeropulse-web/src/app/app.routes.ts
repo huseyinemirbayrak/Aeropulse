@@ -50,6 +50,11 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./features/ops/dashboard/dashboard').then(m => m.OpsDashboardComponent) },
       { path: 'operations', loadComponent: () => import('./features/ops/operations/operations').then(m => m.OperationsComponent) },
       { path: 'checklist/:id', loadComponent: () => import('./features/ops/checklist/checklist').then(m => m.ChecklistComponent) },
+      { path: 'turnaround/:id', loadComponent: () => import('./features/ops/checklist/checklist').then(m => m.ChecklistComponent) },
+      { path: 'gate-agent/:id', loadComponent: () => import('./features/ops/checklist/checklist').then(m => m.ChecklistComponent) },
+      { path: 'loadsheet/:id', loadComponent: () => import('./features/ops/checklist/checklist').then(m => m.ChecklistComponent) },
+      { path: 'gse-fleet', loadComponent: () => import('./features/ops/gse-fleet/gse-fleet').then(m => m.GseFleetComponent) },
+      { path: 'ramp', loadComponent: () => import('./features/tech/ramp-tasks/ramp-tasks').then(m => m.RampTasksComponent) },
       { path: 'fault-reports', loadComponent: () => import('./features/ops/fault-reports/fault-reports').then(m => m.FaultReportsComponent) },
       { path: 'jet-bridges', loadComponent: () => import('./features/ops/jet-bridges/jet-bridges').then(m => m.JetBridgesComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
@@ -60,9 +65,11 @@ export const routes: Routes = [
     canActivate: [roleGuard('FieldTechnician', 'Admin')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
     children: [
+      { path: 'ramp-tasks', loadComponent: () => import('./features/tech/ramp-tasks/ramp-tasks').then(m => m.RampTasksComponent) },
+      { path: 'gse-fleet', loadComponent: () => import('./features/ops/gse-fleet/gse-fleet').then(m => m.GseFleetComponent) },
       { path: 'my-faults', loadComponent: () => import('./features/tech/my-faults/my-faults').then(m => m.MyFaultsComponent) },
       { path: 'fault-form', loadComponent: () => import('./features/tech/fault-form/fault-form').then(m => m.FaultFormComponent) },
-      { path: '', redirectTo: 'my-faults', pathMatch: 'full' }
+      { path: '', redirectTo: 'ramp-tasks', pathMatch: 'full' }
     ]
   },
   { path: '**', redirectTo: '/login' }

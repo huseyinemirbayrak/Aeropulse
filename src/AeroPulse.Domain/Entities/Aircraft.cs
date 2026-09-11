@@ -1,9 +1,13 @@
+using AeroPulse.Domain.Common;
 using AeroPulse.Domain.Enums;
 
 namespace AeroPulse.Domain.Entities;
 
-public class Aircraft : BaseEntity
+public class Aircraft : BaseEntity, ITenantEntity
 {
+    public Guid? TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
+
     public string TailNumber { get; set; } = string.Empty;
     public string Model { get; set; } = string.Empty;
     public int ManufactureYear { get; set; }

@@ -207,5 +207,64 @@ export class ApiService {
   markAllNotificationsAsRead(): Observable<ApiResponse<boolean>> {
     return this.http.put<ApiResponse<boolean>>(`${this.API}/notifications/read-all`, {});
   }
+
+  // Operasyon ve ucus donus (turnaround) istekleri
+  getOccOverview(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API}/occ/overview`);
+  }
+
+  getRunways(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/occ/runways`);
+  }
+
+  updateRunwayStatus(id: string, data: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/runways/${id}/status`, data);
+  }
+
+  getGates(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/occ/gates`);
+  }
+
+  overrideGate(data: { operationId: string; newGateNumber: string; reason: string }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/occ/gates/override`, data);
+  }
+
+  getGSE(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/occ/gse`);
+  }
+
+  updateGSEStatus(id: string, data: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/gse/${id}/status`, data);
+  }
+
+  getTurnaroundDetail(operationId: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API}/occ/turnaround/${operationId}`);
+  }
+
+  updateTurnaroundTask(taskId: string, data: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/turnaround/task/${taskId}`, data);
+  }
+
+  approveLoadsheet(manifestId: string, redcapName: string, approved: boolean = true): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/occ/manifest/${manifestId}/approve-loadsheet`, { redcapName, approved });
+  }
+
+  updateBoarding(manifestId: string, data: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/manifest/${manifestId}/boarding`, data);
+  }
+
+  refuelGSE(id: string): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/gse/${id}/refuel`, {});
+  }
+
+  getRampTasks(filter?: string): Observable<ApiResponse<any[]>> {
+    let params = new HttpParams();
+    if (filter) params = params.set('filter', filter);
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/occ/ramp-tasks`, { params });
+  }
+
+  executeRampWorkflow(taskId: string, data: { action: string; userId?: string; progressPercentage?: number; notes?: string; gseId?: string }): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/occ/ramp-tasks/${taskId}/workflow`, data);
+  }
 }
 

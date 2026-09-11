@@ -18,6 +18,9 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         // Database
+        services.AddHttpContextAccessor();
+        services.AddScoped<ITenantService, TenantService>();
+
         services.AddDbContext<AeroPulseDbContext>(options =>
             options.UseSqlite(
                 configuration.GetConnectionString("DefaultConnection") ?? "Data Source=AeroPulse.db",

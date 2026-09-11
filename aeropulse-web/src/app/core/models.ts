@@ -378,3 +378,75 @@ export interface Metrics {
   connectedJetBridges: number;
   generatedAt: string;
 }
+
+// SignalR canli bildirim modelleri
+export interface TurnaroundTaskUpdatedEvent {
+  taskId: string;
+  operationId: string;
+  flightNumber: string;
+  taskType: string;
+  status: string;
+  progressPercentage: number;
+  notes?: string;
+  assignedUserName?: string;
+  assignedGSECode?: string;
+  actualStartTime?: string;
+  actualEndTime?: string;
+  updatedAt: string;
+}
+
+export interface FlightGateOverrideEvent {
+  operationId: string;
+  flightNumber: string;
+  oldGateNumber?: string;
+  newGateNumber: string;
+  reason?: string;
+  updatedAt: string;
+}
+
+export interface GSEStatusChangedEvent {
+  gseId: string;
+  code: string;
+  name: string;
+  type: string;
+  status: string;
+  fuelLevelPercentage: number;
+  apronZone?: string;
+  currentTaskDescription?: string;
+  updatedAt: string;
+}
+
+export interface BoardingProgressEvent {
+  manifestId: string;
+  operationId: string;
+  flightNumber: string;
+  boardedCount: number;
+  totalPassengers: number;
+  loadedBaggageCount: number;
+  totalBaggageCount: number;
+  boardingStatus: string;
+  luggageMatchComplete: boolean;
+  loadsheetApproved: boolean;
+  approvedByRedcap?: string;
+  actionDescription?: string;
+  updatedAt: string;
+}
+
+export interface FlightAlertEvent {
+  flightNumber: string;
+  alertType: string;
+  message: string;
+  severity: 'Info' | 'Warning' | 'Danger';
+  occurredAt: string;
+}
+
+export interface Tenant {
+  id: string;
+  name: string;
+  code: string;
+  type: string;
+  primaryColor: string;
+  description?: string;
+  contactEmail?: string;
+  isActive: boolean;
+}

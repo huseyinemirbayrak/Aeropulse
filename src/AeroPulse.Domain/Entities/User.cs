@@ -1,9 +1,13 @@
+using AeroPulse.Domain.Common;
 using AeroPulse.Domain.Enums;
 
 namespace AeroPulse.Domain.Entities;
 
-public class User : BaseEntity
+public class User : BaseEntity, ITenantEntity
 {
+    public Guid? TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
+
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;

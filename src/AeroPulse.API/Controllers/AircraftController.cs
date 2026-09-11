@@ -18,7 +18,7 @@ public class AircraftController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null)
     {
         var result = await _aircraftService.GetAllAsync(page, pageSize, search);
@@ -26,7 +26,7 @@ public class AircraftController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _aircraftService.GetByIdAsync(id);

@@ -559,3 +559,117 @@ public class WeatherForecastItem
     /// <summary>Hava durumu ikon URL'si</summary>
     public string IconUrl => $"https://openweathermap.org/img/wn/{Icon}@2x.png";
 }
+
+// ========== PHASE 1: RUNWAY & GATE & TURNAROUND DTOs ==========
+public class RunwayDto
+{
+    public Guid Id { get; set; }
+    public string RunwayCode { get; set; } = string.Empty;
+    public RunwayStatus Status { get; set; }
+    public string StatusName => Status.ToString();
+    public int LengthMeters { get; set; }
+    public string SurfaceType { get; set; } = string.Empty;
+    public string? CurrentFlightNumber { get; set; }
+    public DateTime? StatusChangedAt { get; set; }
+}
+
+public class UpdateRunwayStatusDto
+{
+    public RunwayStatus Status { get; set; }
+    public string? CurrentFlightNumber { get; set; }
+}
+
+public class GateDto
+{
+    public Guid Id { get; set; }
+    public string GateNumber { get; set; } = string.Empty;
+    public string TerminalCode { get; set; } = string.Empty;
+    public bool HasJetBridge { get; set; }
+    public GateStatus Status { get; set; }
+    public string StatusName => Status.ToString();
+    public string? CurrentFlightNumber { get; set; }
+    public Guid? CurrentAircraftId { get; set; }
+    public string? CurrentAircraftTailNumber { get; set; }
+}
+
+public class UpdateGateStatusDto
+{
+    public GateStatus Status { get; set; }
+    public string? CurrentFlightNumber { get; set; }
+    public Guid? CurrentAircraftId { get; set; }
+}
+
+public class TurnaroundTaskDto
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public string FlightNumber { get; set; } = string.Empty;
+    public TurnaroundTaskType TaskType { get; set; }
+    public string TaskTypeName => TaskType.ToString();
+    public TurnaroundTaskStatus Status { get; set; }
+    public string StatusName => Status.ToString();
+    public int TargetDurationMinutes { get; set; }
+    public DateTime? ScheduledStartTime { get; set; }
+    public DateTime? ActualStartTime { get; set; }
+    public DateTime? ActualEndTime { get; set; }
+    public int ProgressPercentage { get; set; }
+    public string? Notes { get; set; }
+    public Guid? AssignedUserId { get; set; }
+    public string? AssignedUserName { get; set; }
+    public Guid? AssignedGSEId { get; set; }
+    public string? AssignedGSECode { get; set; }
+}
+
+public class UpdateTurnaroundTaskDto
+{
+    public TurnaroundTaskStatus Status { get; set; }
+    public int? ProgressPercentage { get; set; }
+    public string? Notes { get; set; }
+    public Guid? AssignedUserId { get; set; }
+    public Guid? AssignedGSEId { get; set; }
+}
+
+public class GSEDTO
+{
+    public Guid Id { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public GSEType Type { get; set; }
+    public string TypeName => Type.ToString();
+    public GSEStatus Status { get; set; }
+    public string StatusName => Status.ToString();
+    public int FuelLevelPercentage { get; set; }
+    public string ApronZone { get; set; } = string.Empty;
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public string? OperatorName { get; set; }
+    public string? CurrentTaskDescription { get; set; }
+}
+
+public class UpdateGSEStatusDto
+{
+    public GSEStatus Status { get; set; }
+    public string? ApronZone { get; set; }
+    public int? FuelLevelPercentage { get; set; }
+    public string? CurrentTaskDescription { get; set; }
+}
+
+public class PassengerManifestDto
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public string FlightNumber { get; set; } = string.Empty;
+    public string Destination { get; set; } = string.Empty;
+    public string GateNo { get; set; } = string.Empty;
+    public int TotalBooked { get; set; }
+    public int BoardedCount { get; set; }
+    public int CheckedBaggageCount { get; set; }
+    public int LoadedBaggageCount { get; set; }
+    public BoardingStatus BoardingStatus { get; set; }
+    public string BoardingStatusName => BoardingStatus.ToString();
+    public bool LuggageMatchComplete { get; set; }
+    public bool LoadsheetApproved { get; set; }
+    public string? ApprovedByRedcap { get; set; }
+    public DateTime? DepartureClearanceGivenAt { get; set; }
+}
+

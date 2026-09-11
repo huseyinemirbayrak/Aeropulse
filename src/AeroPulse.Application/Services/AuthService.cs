@@ -18,6 +18,12 @@ public interface IAeroPulseDbContext
     DbSet<Notification> Notifications { get; }
     DbSet<JetBridge> JetBridges { get; }
     DbSet<JetBridgeAssignment> JetBridgeAssignments { get; }
+    DbSet<Runway> Runways { get; }
+    DbSet<Gate> Gates { get; }
+    DbSet<TurnaroundTask> TurnaroundTasks { get; }
+    DbSet<GroundSupportEquipment> GroundSupportEquipments { get; }
+    DbSet<PassengerManifest> PassengerManifests { get; }
+    DbSet<Tenant> Tenants { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 

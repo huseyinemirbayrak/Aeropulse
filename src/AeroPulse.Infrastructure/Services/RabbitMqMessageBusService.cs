@@ -1,5 +1,6 @@
 using AeroPulse.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System.Text;
@@ -11,10 +12,12 @@ public class RabbitMqMessageBusService : IMessageBusService
 {
     private readonly ILogger<RabbitMqMessageBusService> _logger;
     private readonly IConnectionFactory _connectionFactory;
+    private readonly IServiceProvider _serviceProvider;
 
-    public RabbitMqMessageBusService(ILogger<RabbitMqMessageBusService> logger, IConfiguration configuration)
+    public RabbitMqMessageBusService(ILogger<RabbitMqMessageBusService> logger, IConfiguration configuration, IServiceProvider serviceProvider)
     {
         _logger = logger;
+        _serviceProvider = serviceProvider;
         
         var connectionString = configuration.GetConnectionString("RabbitMQ") ?? "amqp://guest:guest@localhost:5672";
         _connectionFactory = new ConnectionFactory
@@ -56,8 +59,45 @@ public class RabbitMqMessageBusService : IMessageBusService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ [RABBITMQ] Error publishing message to {QueueName}", queueName);
-            throw; // Re-throw or handle based on resilience needs
+            _logger.LogWarning(ex, "⚠️ [RABBITMQ] AMQP broker erişilemedi veya hata verdi, yerel dağıtıma devam ediliyor.");
+        }
+
+        // Real-Time SignalR bildirimini her halükarda tetikle
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var notifier = scope.ServiceProvider.GetService<IRealTimeNotifier>();
+            if (notifier != null)
+            {
+                switch (message)
+                {
+                    case TurnaroundTaskUpdatedEvent turnaroundEvent:
+                        await notifier.SendTurnaroundUpdateAsync(turnaroundEvent);
+                        break;
+                    case FlightGateOverrideEvent gateOverrideEvent:
+                        await notifier.SendGateOverrideAsync(gateOverrideEvent);
+                        break;
+                    case GSEStatusChangedEvent gseEvent:
+                        await notifier.SendGseUpdateAsync(gseEvent);
+                        break;
+                    case BoardingProgressEvent boardingEvent:
+                        await notifier.SendBoardingUpdateAsync(boardingEvent);
+                        break;
+                    case FlightAlertEvent alertEvent:
+                        await notifier.SendFlightAlertAsync(alertEvent);
+                        break;
+                    default:
+                        if (message != null)
+                        {
+                            await notifier.SendRawEventAsync(queueName, message);
+                        }
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "⚠️ [RABBITMQ] Real-time notifier dağıtımında hata oluştu.");
         }
     }
 }

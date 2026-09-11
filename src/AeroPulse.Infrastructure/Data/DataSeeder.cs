@@ -330,4 +330,381 @@ public static class DataSeeder
 
         await context.SaveChangesAsync();
     }
+
+    public static async Task EnsureOperationalDataAsync(AeroPulseDbContext context)
+    {
+        // 1. ===== RUNWAYS =====
+        if (!await context.Runways.AnyAsync())
+        {
+            context.Runways.AddRange(
+                new Runway { Id = Guid.NewGuid(), RunwayCode = "35L", Status = RunwayStatus.Available, LengthMeters = 3750, SurfaceType = "Asphalt", StatusChangedAt = DateTime.UtcNow.AddMinutes(-30) },
+                new Runway { Id = Guid.NewGuid(), RunwayCode = "35R", Status = RunwayStatus.LandingInProgress, LengthMeters = 3750, SurfaceType = "Asphalt", CurrentFlightNumber = "TK1984", StatusChangedAt = DateTime.UtcNow.AddMinutes(-3) },
+                new Runway { Id = Guid.NewGuid(), RunwayCode = "17L", Status = RunwayStatus.Available, LengthMeters = 4100, SurfaceType = "Concrete", StatusChangedAt = DateTime.UtcNow.AddHours(-1) },
+                new Runway { Id = Guid.NewGuid(), RunwayCode = "17R", Status = RunwayStatus.TakeoffInProgress, LengthMeters = 3750, SurfaceType = "Asphalt", CurrentFlightNumber = "PC2024", StatusChangedAt = DateTime.UtcNow.AddMinutes(-1) },
+                new Runway { Id = Guid.NewGuid(), RunwayCode = "18/36", Status = RunwayStatus.ClosedForMaintenance, LengthMeters = 3500, SurfaceType = "Asphalt", StatusChangedAt = DateTime.UtcNow.AddDays(-1) }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 2. ===== GATES =====
+        if (!await context.Gates.AnyAsync())
+        {
+            var firstAircraft = await context.Aircraft.FirstOrDefaultAsync();
+            context.Gates.AddRange(
+                new Gate { Id = Guid.NewGuid(), GateNumber = "A1", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Occupied, CurrentFlightNumber = "TK1984", CurrentAircraftId = firstAircraft?.Id },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "A2", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Available },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "A3", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Reserved, CurrentFlightNumber = "AP777" },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "B1", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Occupied, CurrentFlightNumber = "PC2024" },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "B2", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Available },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "B4", TerminalCode = "T1", HasJetBridge = true, Status = GateStatus.Available },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "Stand-101", TerminalCode = "T1", HasJetBridge = false, Status = GateStatus.Available },
+                new Gate { Id = Guid.NewGuid(), GateNumber = "Stand-102", TerminalCode = "T1", HasJetBridge = false, Status = GateStatus.Occupied, CurrentFlightNumber = "AP888" }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 3. ===== GSE (Yer Destek Ekipmanları) =====
+        if (!await context.GroundSupportEquipments.AnyAsync())
+        {
+            context.GroundSupportEquipments.AddRange(
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-01", Name = "Cobus 3000 Yolcu Otobüsü #1", Type = GSEType.PassengerBus, Status = GSEStatus.Idle, FuelLevelPercentage = 92, ApronZone = "Terminal 1 Ramp", OperatorName = "Ahmet Yılmaz", Latitude = 41.2753, Longitude = 28.7519 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-02", Name = "Cobus 3000 Yolcu Otobüsü #2", Type = GSEType.PassengerBus, Status = GSEStatus.Busy, FuelLevelPercentage = 64, ApronZone = "Stand-102", OperatorName = "Mehmet Demir", CurrentTaskDescription = "AP888 Yolcu Transferi", Latitude = 41.2760, Longitude = 28.7530 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-03", Name = "Cobus 2700 Yolcu Otobüsü #3", Type = GSEType.PassengerBus, Status = GSEStatus.OutOfService, FuelLevelPercentage = 20, ApronZone = "Bakım Hangarı", OperatorName = "Serviste", CurrentTaskDescription = "Fren sistemi revizyonu", Latitude = 41.2710, Longitude = 28.7480 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-01", Name = "Jet A-1 Yakıt Tankeri 35.000L", Type = GSEType.FuelTanker, Status = GSEStatus.Busy, FuelLevelPercentage = 78, ApronZone = "Gate A1", OperatorName = "Can Kılıç", CurrentTaskDescription = "TK1984 Yakıt İkmali (8.500 kg)", Latitude = 41.2748, Longitude = 28.7512 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-02", Name = "Jet A-1 Yakıt Tankeri 25.000L", Type = GSEType.FuelTanker, Status = GSEStatus.Idle, FuelLevelPercentage = 95, ApronZone = "Güney Yakıt Deposu", OperatorName = "Emre Ak", Latitude = 41.2705, Longitude = 28.7550 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-01", Name = "Charlatte Bagaj Traktörü #1", Type = GSEType.BaggageTug, Status = GSEStatus.Busy, FuelLevelPercentage = 85, ApronZone = "Gate A1", OperatorName = "Ali Kaya", CurrentTaskDescription = "TK1984 Bagaj Yükleme", Latitude = 41.2747, Longitude = 28.7515 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-02", Name = "Charlatte Bagaj Traktörü #2", Type = GSEType.BaggageTug, Status = GSEStatus.Idle, FuelLevelPercentage = 90, ApronZone = "Bagaj Tasnif Alanı", OperatorName = "Hasan Çelik", Latitude = 41.2730, Longitude = 28.7525 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "PUSHBACK-01", Name = "Trepel Towbarless Pushback", Type = GSEType.PushbackTruck, Status = GSEStatus.Idle, FuelLevelPercentage = 80, ApronZone = "Gate A2", OperatorName = "Murat Polat", Latitude = 41.2745, Longitude = 28.7510 }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 4. ===== TURNAROUND TASKS & MANIFEST =====
+        var activeOp = await context.Operations.FirstOrDefaultAsync(o => o.Status == OperationStatus.InProgress)
+                    ?? await context.Operations.FirstOrDefaultAsync();
+
+        if (activeOp != null && !await context.TurnaroundTasks.AnyAsync(t => t.OperationId == activeOp.Id))
+        {
+            var tanker = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "TANKER-01");
+            var tug = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "TUG-01");
+            var pushback = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "PUSHBACK-01");
+            var technician = await context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.FieldTechnician);
+
+            context.TurnaroundTasks.AddRange(
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.BaggageUnload,
+                    Status = TurnaroundTaskStatus.Completed,
+                    TargetDurationMinutes = 20,
+                    ScheduledStartTime = activeOp.ArrivalTime,
+                    ActualStartTime = activeOp.ArrivalTime,
+                    ActualEndTime = activeOp.ArrivalTime.AddMinutes(18),
+                    ProgressPercentage = 100,
+                    Notes = "Tüm gelen bagajlar boşaltıldı ve tasnif bandına aktarıldı."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.Refueling,
+                    Status = TurnaroundTaskStatus.InProgress,
+                    TargetDurationMinutes = 25,
+                    ScheduledStartTime = activeOp.ArrivalTime.AddMinutes(15),
+                    ActualStartTime = activeOp.ArrivalTime.AddMinutes(15),
+                    ProgressPercentage = 65,
+                    AssignedGSEId = tanker?.Id,
+                    Notes = "Hedef: 8.500 kg Jet A-1. Mevcut: 5.500 kg basıldı."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.Cleaning,
+                    Status = TurnaroundTaskStatus.Completed,
+                    TargetDurationMinutes = 20,
+                    ScheduledStartTime = activeOp.ArrivalTime.AddMinutes(10),
+                    ActualStartTime = activeOp.ArrivalTime.AddMinutes(10),
+                    ActualEndTime = activeOp.ArrivalTime.AddMinutes(28),
+                    ProgressPercentage = 100,
+                    Notes = "Kabin dezenfeksiyonu ve çöp toplama tamamlandı."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.Catering,
+                    Status = TurnaroundTaskStatus.InProgress,
+                    TargetDurationMinutes = 20,
+                    ScheduledStartTime = activeOp.ArrivalTime.AddMinutes(20),
+                    ActualStartTime = activeOp.ArrivalTime.AddMinutes(22),
+                    ProgressPercentage = 80,
+                    Notes = "Galley arabaları ve ikram paketleri yükleniyor."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.BaggageLoad,
+                    Status = TurnaroundTaskStatus.InProgress,
+                    TargetDurationMinutes = 25,
+                    ScheduledStartTime = activeOp.ArrivalTime.AddMinutes(25),
+                    ActualStartTime = activeOp.ArrivalTime.AddMinutes(25),
+                    ProgressPercentage = 45,
+                    AssignedGSEId = tug?.Id,
+                    AssignedUserId = technician?.Id,
+                    Notes = "Giden bagajlar ön ve arka ambara yükleniyor (130/154 adet)."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.Boarding,
+                    Status = TurnaroundTaskStatus.InProgress,
+                    TargetDurationMinutes = 30,
+                    ScheduledStartTime = activeOp.DepartureTime.AddMinutes(-35),
+                    ActualStartTime = activeOp.DepartureTime.AddMinutes(-35),
+                    ProgressPercentage = 70,
+                    Notes = "Öncelikli yolcular ve grup 1-2 binişi tamamlandı (162/180 yolcu)."
+                },
+                new TurnaroundTask
+                {
+                    Id = Guid.NewGuid(),
+                    OperationId = activeOp.Id,
+                    TaskType = TurnaroundTaskType.Pushback,
+                    Status = TurnaroundTaskStatus.Pending,
+                    TargetDurationMinutes = 10,
+                    ScheduledStartTime = activeOp.DepartureTime,
+                    ProgressPercentage = 0,
+                    AssignedGSEId = pushback?.Id,
+                    Notes = "Körük ayrıldıktan ve takozlar alındıktan sonra başlayacak."
+                }
+            );
+
+            // Manifest
+            context.PassengerManifests.Add(new PassengerManifest
+            {
+                Id = Guid.NewGuid(),
+                OperationId = activeOp.Id,
+                FlightNumber = activeOp.FlightNumber,
+                Destination = "Frankfurt (FRA)",
+                GateNo = activeOp.GateNo,
+                TotalBooked = 180,
+                BoardedCount = 162,
+                CheckedBaggageCount = 154,
+                LoadedBaggageCount = 130,
+                BoardingStatus = BoardingStatus.Boarding,
+                LuggageMatchComplete = false,
+                LoadsheetApproved = false,
+                ApprovedByRedcap = "Sarah Operations"
+            });
+
+            await context.SaveChangesAsync();
+        }
+    }
+
+    public static async Task EnsureTenantDataAsync(AeroPulseDbContext context)
+    {
+        // 1. Dinamik SQLite Şema Güvencesi: Tablolar ve Kolonlar var mı kontrol et
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS ""Tenants"" (
+                    ""Id"" TEXT NOT NULL PRIMARY KEY,
+                    ""Code"" TEXT NOT NULL,
+                    ""Name"" TEXT NOT NULL,
+                    ""Type"" INTEGER NOT NULL,
+                    ""PrimaryColor"" TEXT NOT NULL,
+                    ""LogoUrl"" TEXT NULL,
+                    ""IsActive"" INTEGER NOT NULL,
+                    ""ContactEmail"" TEXT NULL,
+                    ""Description"" TEXT NULL,
+                    ""CreatedAt"" TEXT NOT NULL,
+                    ""UpdatedAt"" TEXT NULL
+                );
+            ");
+
+            string[] tables = { "Aircraft", "Operations", "GroundSupportEquipments", "TurnaroundTasks", "FaultReports", "PassengerManifests", "Users" };
+            foreach (var table in tables)
+            {
+                try
+                {
+                    await context.Database.ExecuteSqlRawAsync($@"ALTER TABLE ""{table}"" ADD COLUMN ""TenantId"" TEXT NULL;");
+                }
+                catch
+                {
+                    // Kolon zaten varsa SQLite hata fırlatır, bu beklenen ve güvenli bir durumdur.
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Tenant Schema Check] {ex.Message}");
+        }
+
+        // 2. 5 Temel Kiracıyı Ekle (THY, PGS, TGS, CLB, IGA)
+        var thyId = Guid.Parse("a0000000-0000-0000-0000-000000000001");
+        var pgsId = Guid.Parse("a0000000-0000-0000-0000-000000000002");
+        var tgsId = Guid.Parse("a0000000-0000-0000-0000-000000000003");
+        var clbId = Guid.Parse("a0000000-0000-0000-0000-000000000004");
+        var igaId = Guid.Parse("a0000000-0000-0000-0000-000000000005");
+
+        if (!await context.Tenants.IgnoreQueryFilters().AnyAsync())
+        {
+            context.Tenants.AddRange(
+                new Tenant
+                {
+                    Id = thyId,
+                    Code = "THY",
+                    Name = "Türk Hava Yolları",
+                    Type = TenantType.Airline,
+                    PrimaryColor = "#e30a17",
+                    Description = "Türkiye'nin bayrak taşıyıcı havayolu şirketi",
+                    ContactEmail = "occ@thy.com"
+                },
+                new Tenant
+                {
+                    Id = pgsId,
+                    Code = "PGS",
+                    Name = "Pegasus Airlines",
+                    Type = TenantType.Airline,
+                    PrimaryColor = "#f59e0b",
+                    Description = "Türkiye'nin lider düşük maliyetli havayolu şirketi",
+                    ContactEmail = "ops@flypgs.com"
+                },
+                new Tenant
+                {
+                    Id = tgsId,
+                    Code = "TGS",
+                    Name = "Turkish Ground Services",
+                    Type = TenantType.GroundHandler,
+                    PrimaryColor = "#2563eb",
+                    Description = "Apron ramp, otobüs ve bagaj yer hizmetleri taşeronu",
+                    ContactEmail = "ramp@tgs.aero"
+                },
+                new Tenant
+                {
+                    Id = clbId,
+                    Code = "CLB",
+                    Name = "Çelebi Havacılık",
+                    Type = TenantType.GroundHandler,
+                    PrimaryColor = "#10b981",
+                    Description = "Apron yakıt ikmali, de-icing ve yer destek hizmetleri",
+                    ContactEmail = "operations@celebiaviation.com"
+                },
+                new Tenant
+                {
+                    Id = igaId,
+                    Code = "IGA",
+                    Name = "İGA / Havalimanı Otoritesi",
+                    Type = TenantType.AirportAuthority,
+                    PrimaryColor = "#8b5cf6",
+                    Description = "Havalimanı Operasyon Kontrol Merkezi (OCC) & DHMİ Genel Bakış",
+                    ContactEmail = "occ@igairport.com"
+                }
+            );
+
+            await context.SaveChangesAsync();
+        }
+
+        // 3. Mevcut Verileri Kiracılara Bağla (Eğer TenantId atanmamışsa)
+        try
+        {
+            // Operasyonlar (Uçuşlar)
+            var ops = await context.Operations.IgnoreQueryFilters().Where(o => o.TenantId == null).ToListAsync();
+            foreach (var op in ops)
+            {
+                if (op.FlightNumber.StartsWith("PC", StringComparison.OrdinalIgnoreCase))
+                    op.TenantId = pgsId;
+                else
+                    op.TenantId = thyId;
+            }
+
+            // Uçaklar
+            var planes = await context.Aircraft.IgnoreQueryFilters().Where(a => a.TenantId == null).ToListAsync();
+            foreach (var plane in planes)
+            {
+                if (plane.TailNumber.Contains("PG") || (plane.Operator != null && plane.Operator.Contains("Pegasus")))
+                    plane.TenantId = pgsId;
+                else
+                    plane.TenantId = thyId;
+            }
+
+            // GSE Yer Araçları
+            var gseList = await context.GroundSupportEquipments.IgnoreQueryFilters().Where(g => g.TenantId == null).ToListAsync();
+            foreach (var gse in gseList)
+            {
+                if (gse.Code.StartsWith("BUS") || gse.Code.StartsWith("PUSHBACK"))
+                    gse.TenantId = tgsId;
+                else
+                    gse.TenantId = clbId;
+            }
+
+            // Turnaround Görevleri
+            var tasks = await context.TurnaroundTasks.IgnoreQueryFilters().Where(t => t.TenantId == null).ToListAsync();
+            foreach (var task in tasks)
+            {
+                task.TenantId = tgsId;
+            }
+
+            // Arıza Raporları
+            var faults = await context.FaultReports.IgnoreQueryFilters().Where(f => f.TenantId == null).ToListAsync();
+            foreach (var f in faults)
+            {
+                f.TenantId = thyId;
+            }
+
+            // Pegasus (PGS) için özel demo seferler
+            if (!await context.Operations.IgnoreQueryFilters().AnyAsync(o => o.FlightNumber == "PC202"))
+            {
+                var pgsPlane = new Aircraft
+                {
+                    Id = Guid.NewGuid(),
+                    TailNumber = "TC-PGX",
+                    Model = "Airbus A321neo",
+                    ManufactureYear = 2022,
+                    StatusCode = AircraftStatus.Active,
+                    TotalFlightHours = 6400,
+                    Operator = "Pegasus Airlines",
+                    TenantId = pgsId
+                };
+                context.Aircraft.Add(pgsPlane);
+                await context.SaveChangesAsync();
+
+                context.Operations.AddRange(
+                    new Operation
+                    {
+                        Id = Guid.NewGuid(),
+                        AircraftId = pgsPlane.Id,
+                        FlightNumber = "PC202",
+                        GateNo = "C1",
+                        AssignedRunwayCode = "35L",
+                        ArrivalTime = DateTime.UtcNow.AddMinutes(-15),
+                        DepartureTime = DateTime.UtcNow.AddMinutes(45),
+                        Status = OperationStatus.InProgress,
+                        TenantId = pgsId
+                    },
+                    new Operation
+                    {
+                        Id = Guid.NewGuid(),
+                        AircraftId = pgsPlane.Id,
+                        FlightNumber = "PC303",
+                        GateNo = "C2",
+                        AssignedRunwayCode = "18R",
+                        ArrivalTime = DateTime.UtcNow.AddMinutes(20),
+                        DepartureTime = DateTime.UtcNow.AddMinutes(80),
+                        Status = OperationStatus.Scheduled,
+                        TenantId = pgsId
+                    }
+                );
+            }
+
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Tenant Data Assignment] {ex.Message}");
+        }
+    }
 }

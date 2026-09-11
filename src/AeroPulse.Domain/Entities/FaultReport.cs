@@ -1,9 +1,13 @@
+using AeroPulse.Domain.Common;
 using AeroPulse.Domain.Enums;
 
 namespace AeroPulse.Domain.Entities;
 
-public class FaultReport : BaseEntity
+public class FaultReport : BaseEntity, ITenantEntity
 {
+    public Guid? TenantId { get; set; }
+    public Tenant? Tenant { get; set; }
+
     public Guid AircraftId { get; set; }
     public Guid ReportedByTechnicianId { get; set; }
     public Guid? AssignedEngineerId { get; set; }

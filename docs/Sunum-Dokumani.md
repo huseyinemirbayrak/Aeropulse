@@ -29,8 +29,8 @@ Proje, günümüz yazılım endüstrisinin standartları olan **"Kurumsal (Enter
 
 ### 2.3. Frontend (Ön Yüz) Teknolojileri
 - **Angular (TypeScript):** Ofis personeli ve yöneticiler için geliştirilen modern, bileşen (Component) bazlı web arayüzü.
-- **Angular Material & TailwindCSS:** Şık, tepkisel (Responsive) ve kullanıcı dostu bir Dashboard (Yönetim Paneli) tasarımı.
-- **Flutter (Dart):** Saha teknisyenlerinin ceplerinden erişebileceği, çapraz platform (iOS & Android) mobil uygulama.
+- **Angular Material & Modern CSS:** Şık, tepkisel (Responsive) ve kullanıcı dostu bir Dashboard (Yönetim Paneli) tasarımı.
+- **Responsive Web & Tablet Saha Arayüzü (Angular):** Saha teknisyenleri ve ramp görevlilerinin el terminalleri ve tabletlerinden doğrudan erişebileceği dokunmatik saha panelleri.
 
 ---
 
@@ -65,18 +65,17 @@ Proje, havalimanı yönetiminin farklı ihtiyaçlarını karşılayan 5 temel mo
 - Sistemin o günkü takvimine bakar. Eğer geciken uçak için rezerve edilmiş bir bakım ekibi varsa ve uçağın yeni geliş saati bakım ekibinin vardiyasını taşıyorsa (SLA İhlali) anında **Yüksek Öncelikli Kriz Raporu** oluşturur.
 - Eğer 1 saatten fazla gecikme varsa ve körük rezervasyonu başka uçaklarla çakışacaksa, yine Operasyon Yöneticisini "Körük Rezervasyonu Tehlikede!" diyerek sistem üzerinden uyarır.
 
-### Modül 6: Saha Teknisyenleri İçin Mobil Çözüm (Flutter)
-- Operasyonları ofis dışına taşıyan bu modül ile teknisyenler kendi hesaplarına telefonlarından giriş yaparlar (JWT ile güvenli geçiş).
-- Kendilerine atanan arızaları listelerler.
-- Arızayı tamir ettiklerinde uygulama üzerinden çözüm notunu yazıp "İşi Bitir" dediklerinde, merkezdeki C# API'ye istek gider ve arıza sistemden otomatik olarak düşülür.
+### Modül 6: Saha Teknisyenleri ve Ramp Görevlileri İçin Saha Paneli (Web/Tablet)
+- Saha personelinin apron üzerinde el terminalleri veya tabletlerle aktif iş emirlerini kabul etmesi, arıza bildirmesi ve görevleri tamamlaması.
+- Teknisyenin üzerine atanan arızaları anında görmesi ve durumu "İnceleniyor / Çözüldü" olarak güncellemesi.
 
 ---
 
-## 4. PROJENİN ŞİRKETLERE / SEKTÖRE SAĞLAYACAĞI FAYDALAR
+## 4. PROJENİN ŞİRKETE / SEKTÖRE SAĞLAYACAĞI FAYDALAR
 
-1. **İş Sağlığı ve Güvenliği:** Fırtına krizlerinde körüklerin otonom olarak devre dışı bırakılması hem milyon dolarlık ekipmanları hem de yolcu/personel can güvenliğini korur.
-2. **Finansal Tasarruf:** Geciken uçakların bakım ve körük planlarını bozmasını önceden haber veren analiz sistemi (SLA İhlal Modülü), rötarlardan kaynaklanan tazminatları ve zaman kayıplarını minimuma indirir.
-3. **Kağıtsız Operasyon (Paperless):** Teknisyenlerin arıza kağıtlarıyla dolaşması yerine Flutter mobil uygulamasıyla işleri dijitalde çözmesi süreçleri saatlerden saniyelere indirir.
+1. **Sıfır İletişim Hatası:** Telsiz anonsları veya telefon trafiği yerine tüm emirlerin merkezi sistemden otomatik ve anlık iletilmesi.
+2. **Otonom Emniyet:** Şiddetli hava koşullarında insanın panikleyip unutabileceği güvenlik adımlarının (körüklerin toplanması vb.) yazılım tarafından saniyeler içinde otonom yürütülmesi.
+3. **Kağıtsız Operasyon (Paperless):** Teknisyenlerin ve ramp görevlilerinin kağıt formlarla dolaşması yerine tablet/el terminali arayüzüyle işleri dijitalde çözmesi süreçleri saatlerden saniyelere indirir.
 4. **Ölçeklenebilirlik:** Clean Architecture, Redis ve RabbitMQ altyapıları sayesinde bu sistem sadece bir havalimanı için değil, aynı anda onlarca farklı havalimanının verisini kasmadan (darboğaza girmeden) yönetecek güce sahiptir.
 
 ---
