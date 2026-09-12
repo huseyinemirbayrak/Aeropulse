@@ -547,7 +547,9 @@ public static class DataSeeder
             {
                 try
                 {
+#pragma warning disable EF1002
                     await context.Database.ExecuteSqlRawAsync($@"ALTER TABLE ""{table}"" ADD COLUMN ""TenantId"" TEXT NULL;");
+#pragma warning restore EF1002
                 }
                 catch
                 {

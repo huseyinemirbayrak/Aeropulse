@@ -1,9 +1,37 @@
-const { spawn, exec } = require('child_process');
+const { spawn, exec, execSync } = require('child_process');
 const path = require('path');
 
 const rootDir = __dirname;
 const webDir = path.join(rootDir, 'aeropulse-web');
 const isWin = process.platform === 'win32';
+
+// Önceki oturumlardan kalan kilitli port veya süreçleri temizle
+function freePort(port) {
+  try {
+    if (isWin) {
+      const output = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+      const lines = output.split(/\r?\n/);
+      const pids = new Set();
+      for (const line of lines) {
+        const parts = line.trim().split(/\s+/);
+        if (parts.length >= 5 && parts[1].includes(`:${port}`)) {
+          const pid = parts[parts.length - 1];
+          if (pid && pid !== '0' && pid !== `${process.pid}`) {
+            pids.add(pid);
+          }
+        }
+      }
+      for (const pid of pids) {
+        try {
+          execSync(`taskkill /pid ${pid} /F /T`, { stdio: 'ignore' });
+        } catch {}
+      }
+    }
+  } catch {}
+}
+
+freePort(5253);
+freePort(4200);
 
 console.log('\x1b[32m============================================================\x1b[0m');
 console.log('\x1b[1m\x1b[36m   ✈️   AEROPULSE FULL-STACK BAŞLATILIYOR...\x1b[0m');
