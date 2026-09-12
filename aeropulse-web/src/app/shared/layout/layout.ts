@@ -65,7 +65,7 @@ interface MenuItem {
           <div class="header-right">
             <!-- Firma / Kiraci Secici -->
             <div class="tenant-switcher-wrapper">
-              <span class="tenant-label">Kurum:</span>
+              <span class="tenant-label">✈️ Aktif Havayolu / Firma:</span>
               <button type="button" class="tenant-select-box" (click)="toggleTenantDropdown()">
                 <span class="tenant-dot" [style.background-color]="selectedTenantColor"></span>
                 <span class="tenant-name">{{ selectedTenantName }}</span>
@@ -673,17 +673,23 @@ export class LayoutComponent implements OnInit, OnDestroy {
           { label: 'Genel Bakış', icon: '📊', route: '/admin/dashboard' },
           { label: 'Kullanıcılar', icon: '👥', route: '/admin/users' },
           { label: 'Uçuş Radarı', icon: '🛫', route: '/ops/dashboard' },
+          { label: 'Uçuş Seferleri', icon: '✈️', route: '/ops/operations' },
           { label: 'Apron Filosu', icon: '🚜', route: '/ops/gse-fleet' },
           { label: 'Ramp Görevleri', icon: '📋', route: '/ops/ramp' },
-          { label: 'Teknik Servis', icon: '🛠️', route: '/tech/ramp-tasks' }
+          { label: 'Körük ve Kapı', icon: '🔗', route: '/ops/jet-bridges' },
+          { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
+          { label: 'Mühendislik (MRO)', icon: '⚙️', route: '/mro/dashboard' },
+          { label: 'İzleyici Paneli', icon: '👁️', route: '/viewer/dashboard' }
         ];
         break;
       case UserRole.MROEngineer:
         this.menuItems = [
-          { label: 'Genel Bakış', icon: '📊', route: '/mro/dashboard' },
+          { label: 'Mühendislik Paneli', icon: '📊', route: '/mro/dashboard' },
           { label: 'Görevlerim', icon: '📋', route: '/mro/my-tasks' },
-          { label: 'Parça Stoğu', icon: '⚙️', route: '/mro/inventory' },
-          { label: 'Bakım Kayıtları', icon: '📝', route: '/mro/maintenance-log' },
+          { label: 'Yedek Parça Stoğu', icon: '⚙️', route: '/mro/inventory' },
+          { label: 'Bakım Günlüğü', icon: '📝', route: '/mro/maintenance-log' },
+          { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
+          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' }
         ];
         break;
       case UserRole.OperationsManager:
@@ -694,19 +700,24 @@ export class LayoutComponent implements OnInit, OnDestroy {
           { label: 'Saha Görevleri', icon: '📋', route: '/ops/ramp' },
           { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' },
           { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
+          { label: 'Mühendislik Durumu', icon: '⚙️', route: '/mro/dashboard' }
         ];
         break;
       case UserRole.FieldTechnician:
         this.menuItems = [
-          { label: 'İş Emirleri', icon: '📋', route: '/tech/ramp-tasks' },
+          { label: 'Ramp İş Emirleri', icon: '📋', route: '/tech/ramp-tasks' },
           { label: 'Apron Araçları', icon: '🚜', route: '/tech/gse-fleet' },
           { label: 'Arıza Kayıtlarım', icon: '🛠️', route: '/tech/my-faults' },
           { label: 'Arıza Bildir', icon: '⚠️', route: '/tech/fault-form' },
+          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' }
         ];
         break;
       case UserRole.Viewer:
         this.menuItems = [
-          { label: 'Genel Bakış', icon: '📊', route: '/viewer/dashboard' },
+          { label: 'İzleyici Paneli', icon: '📊', route: '/viewer/dashboard' },
+          { label: 'Uçuş Seferleri', icon: '✈️', route: '/ops/operations' },
+          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' },
+          { label: 'Apron Filosu', icon: '🚜', route: '/ops/gse-fleet' }
         ];
         break;
     }

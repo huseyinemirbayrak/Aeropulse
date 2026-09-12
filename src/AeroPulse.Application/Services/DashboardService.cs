@@ -85,23 +85,26 @@ public class DashboardService : IDashboardService
 
     public async Task<ApiResponse<MRODashboardDto>> GetMRODashboardAsync(Guid engineerId)
     {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == engineerId);
+        var isAdmin = user == null || user.Role == UserRole.Admin;
+
         var myOpenTasks = await _context.MaintenanceRecords
-            .CountAsync(m => m.EngineerId == engineerId && m.NextScheduledDate != null && m.NextScheduledDate > DateTime.UtcNow);
+            .CountAsync(m => (isAdmin || m.EngineerId == engineerId) && m.NextScheduledDate != null && m.NextScheduledDate > DateTime.UtcNow);
 
         var completedThisMonth = await _context.MaintenanceRecords
-            .CountAsync(m => m.EngineerId == engineerId && m.Date.Month == DateTime.UtcNow.Month && m.Date.Year == DateTime.UtcNow.Year);
+            .CountAsync(m => (isAdmin || m.EngineerId == engineerId) && m.Date.Month == DateTime.UtcNow.Month && m.Date.Year == DateTime.UtcNow.Year);
 
         var criticalPartsCount = await _context.Parts
             .CountAsync(p => p.UsedHours >= p.CriticalThresholdHours && p.IsActive);
 
         var pendingMaintenanceCount = await _context.MaintenanceRecords
-            .CountAsync(m => m.EngineerId == engineerId && m.NextScheduledDate != null && m.NextScheduledDate <= DateTime.UtcNow.AddDays(7));
+            .CountAsync(m => (isAdmin || m.EngineerId == engineerId) && m.NextScheduledDate != null && m.NextScheduledDate <= DateTime.UtcNow.AddDays(7));
 
         var upcomingMaintenance = await _context.MaintenanceRecords
             .Include(m => m.Aircraft)
             .Include(m => m.Part)
             .Include(m => m.Engineer)
-            .Where(m => m.EngineerId == engineerId && m.NextScheduledDate != null)
+            .Where(m => (isAdmin || m.EngineerId == engineerId) && m.NextScheduledDate != null)
             .OrderBy(m => m.NextScheduledDate)
             .Take(10)
             .Select(m => new MaintenanceRecordDto

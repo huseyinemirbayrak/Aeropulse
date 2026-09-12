@@ -35,7 +35,7 @@ public class JetBridgesController : ControllerBase
     // ============== JET BRIDGE ENDPOINTS ==============
 
     [HttpGet]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
     public async Task<IActionResult> GetAll([FromQuery] string? terminalNo = null)
     {
         var result = await _service.GetAllAsync(terminalNo);
@@ -43,7 +43,7 @@ public class JetBridgesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);

@@ -290,19 +290,19 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
         // SuperAdmin (veya kiracı seçilmemişse) tüm kiracıları cross-tenant izleyebilir;
         // Belirli bir kiracı (THY, Pegasus, TGS vb.) seçildiğinde sadece o kiracının verileri gelir.
         modelBuilder.Entity<Operation>()
-            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == _tenantService.CurrentTenantId);
+            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId);
 
         modelBuilder.Entity<Aircraft>()
-            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == _tenantService.CurrentTenantId);
+            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId);
 
         modelBuilder.Entity<GroundSupportEquipment>()
-            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == _tenantService.CurrentTenantId);
+            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId || (e.Tenant != null && e.Tenant.Type == Domain.Entities.TenantType.GroundHandler));
 
         modelBuilder.Entity<TurnaroundTask>()
-            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == _tenantService.CurrentTenantId);
+            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId || (e.Operation != null && e.Operation.TenantId == _tenantService.CurrentTenantId));
 
         modelBuilder.Entity<FaultReport>()
-            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == _tenantService.CurrentTenantId);
+            .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId || (e.Aircraft != null && e.Aircraft.TenantId == _tenantService.CurrentTenantId));
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

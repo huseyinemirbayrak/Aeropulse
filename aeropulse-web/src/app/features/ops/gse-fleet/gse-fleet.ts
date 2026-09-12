@@ -83,16 +83,16 @@ import { SignalRService } from '../../../core/signalr.service';
           <button class="filter-pill" [class.active]="selectedType === 'ALL'" (click)="selectedType = 'ALL'">
             Tüm Tipler ({{ gseList.length }})
           </button>
-          <button class="filter-pill" [class.active]="selectedType === '0'" (click)="selectedType = '0'">
+          <button class="filter-pill" [class.active]="selectedType === 'PassengerBus'" (click)="selectedType = 'PassengerBus'">
             🚌 Otobüsler
           </button>
-          <button class="filter-pill" [class.active]="selectedType === '1'" (click)="selectedType = '1'">
+          <button class="filter-pill" [class.active]="selectedType === 'FuelTanker'" (click)="selectedType = 'FuelTanker'">
             ⛽ Yakıt Tankerleri
           </button>
-          <button class="filter-pill" [class.active]="selectedType === '2'" (click)="selectedType = '2'">
+          <button class="filter-pill" [class.active]="selectedType === 'BaggageTug'" (click)="selectedType = 'BaggageTug'">
             🚜 Bagaj Çekicileri
           </button>
-          <button class="filter-pill" [class.active]="selectedType === '4'" (click)="selectedType = '4'">
+          <button class="filter-pill" [class.active]="selectedType === 'PushbackTruck'" (click)="selectedType = 'PushbackTruck'">
             🛫 Pushback Araçları
           </button>
         </div>
@@ -102,14 +102,14 @@ import { SignalRService } from '../../../core/signalr.service';
           <button class="status-pill-btn" [class.active]="selectedStatus === 'ALL'" (click)="selectedStatus = 'ALL'">
             Tüm Statüler
           </button>
-          <button class="status-pill-btn idle" [class.active]="selectedStatus === '0'" (click)="selectedStatus = '0'">
-            🟢 Boşta
+          <button class="status-pill-btn idle" [class.active]="selectedStatus === 'Idle'" (click)="selectedStatus = 'Idle'">
+            🟢 Boşta ({{ idleCount }})
           </button>
-          <button class="status-pill-btn busy" [class.active]="selectedStatus === '1'" (click)="selectedStatus = '1'">
-            🟡 Görevde
+          <button class="status-pill-btn busy" [class.active]="selectedStatus === 'Busy'" (click)="selectedStatus = 'Busy'">
+            🟡 Görevde ({{ busyCount }})
           </button>
-          <button class="status-pill-btn out" [class.active]="selectedStatus === '2'" (click)="selectedStatus = '2'">
-            🔴 Bakımda
+          <button class="status-pill-btn out" [class.active]="selectedStatus === 'OutOfService'" (click)="selectedStatus = 'OutOfService'">
+            🔴 Bakımda ({{ outOfServiceCount }})
           </button>
         </div>
       </div>
@@ -808,82 +808,109 @@ export class GseFleetComponent implements OnInit, OnDestroy {
     });
   }
 
+  normalizeType(t: any): string {
+    if (t === 0 || t === '0' || t === 'PassengerBus') return 'PassengerBus';
+    if (t === 1 || t === '1' || t === 'FuelTanker') return 'FuelTanker';
+    if (t === 2 || t === '2' || t === 'BaggageTug') return 'BaggageTug';
+    if (t === 3 || t === '3' || t === 'PassengerStairs') return 'PassengerStairs';
+    if (t === 4 || t === '4' || t === 'PushbackTruck') return 'PushbackTruck';
+    if (t === 5 || t === '5' || t === 'GPU') return 'GPU';
+    return String(t || '');
+  }
+
+  normalizeStatus(s: any): string {
+    if (s === 0 || s === '0' || s === 'Idle') return 'Idle';
+    if (s === 1 || s === '1' || s === 'Busy') return 'Busy';
+    if (s === 2 || s === '2' || s === 'OutOfService') return 'OutOfService';
+    return String(s || '');
+  }
+
   get idleCount(): number {
-    return this.gseList.filter(g => g.status === 0).length;
+    return this.gseList.filter(g => this.normalizeStatus(g.status) === 'Idle').length;
   }
 
   get busyCount(): number {
-    return this.gseList.filter(g => g.status === 1).length;
+    return this.gseList.filter(g => this.normalizeStatus(g.status) === 'Busy').length;
   }
 
   get outOfServiceCount(): number {
-    return this.gseList.filter(g => g.status === 2).length;
+    return this.gseList.filter(g => this.normalizeStatus(g.status) === 'OutOfService').length;
   }
 
   get filteredGSE(): any[] {
     return this.gseList.filter(g => {
-      const q = this.searchQuery.toLowerCase();
-      const matchesSearch = !this.searchQuery ||
-        g.code?.toLowerCase().includes(q) ||
-        g.name?.toLowerCase().includes(q) ||
-        g.operatorName?.toLowerCase().includes(q) ||
-        g.apronZone?.toLowerCase().includes(q) ||
-        g.currentTaskDescription?.toLowerCase().includes(q);
+      const q = (this.searchQuery || '').trim().toLowerCase();
+      const matchesSearch = !q ||
+        (g.code && g.code.toLowerCase().includes(q)) ||
+        (g.name && g.name.toLowerCase().includes(q)) ||
+        (g.operatorName && g.operatorName.toLowerCase().includes(q)) ||
+        (g.apronZone && g.apronZone.toLowerCase().includes(q)) ||
+        (g.currentTaskDescription && g.currentTaskDescription.toLowerCase().includes(q));
 
-      const matchesType = this.selectedType === 'ALL' || g.type.toString() === this.selectedType;
-      const matchesStatus = this.selectedStatus === 'ALL' || g.status.toString() === this.selectedStatus;
+      const gTypeNorm = this.normalizeType(g.type);
+      const selectedTypeNorm = this.selectedType === 'ALL' ? 'ALL' : this.normalizeType(this.selectedType);
+      const matchesType = selectedTypeNorm === 'ALL' || gTypeNorm === selectedTypeNorm;
+
+      const gStatusNorm = this.normalizeStatus(g.status);
+      const selectedStatusNorm = this.selectedStatus === 'ALL' ? 'ALL' : this.normalizeStatus(this.selectedStatus);
+      const matchesStatus = selectedStatusNorm === 'ALL' || gStatusNorm === selectedStatusNorm;
 
       return matchesSearch && matchesType && matchesStatus;
     });
   }
 
-  getVehicleTypeIcon(type: number): string {
-    switch (type) {
-      case 0: return '🚌'; // PassengerBus
-      case 1: return '⛽'; // FuelTanker
-      case 2: return '🚜'; // BaggageTug
-      case 3: return '🪜'; // PassengerStairs
-      case 4: return '🛫'; // PushbackTruck
-      case 5: return '⚡'; // GPU
+  getVehicleTypeIcon(type: any): string {
+    const t = this.normalizeType(type);
+    switch (t) {
+      case 'PassengerBus': return '🚌';
+      case 'FuelTanker': return '⛽';
+      case 'BaggageTug': return '🚜';
+      case 'PassengerStairs': return '🪜';
+      case 'PushbackTruck': return '🛫';
+      case 'GPU': return '⚡';
       default: return '🚜';
     }
   }
 
-  getVehicleTypeName(type: number): string {
-    switch (type) {
-      case 0: return 'Yolcu Otobüsü';
-      case 1: return 'Jet A-1 Yakıt Tankeri';
-      case 2: return 'Bagaj Traktörü / Çekici';
-      case 3: return 'Yolcu Merdiveni';
-      case 4: return 'Pushback Çekici';
-      case 5: return 'Yer Güç Ünitesi (GPU)';
+  getVehicleTypeName(type: any): string {
+    const t = this.normalizeType(type);
+    switch (t) {
+      case 'PassengerBus': return 'Yolcu Otobüsü';
+      case 'FuelTanker': return 'Jet A-1 Yakıt Tankeri';
+      case 'BaggageTug': return 'Bagaj Traktörü / Çekici';
+      case 'PassengerStairs': return 'Yolcu Merdiveni';
+      case 'PushbackTruck': return 'Pushback Çekici';
+      case 'GPU': return 'Yer Güç Ünitesi (GPU)';
       default: return 'Destek Ekipmanı';
     }
   }
 
-  getStatusText(status: number): string {
-    switch (status) {
-      case 0: return 'Boşta (Idle)';
-      case 1: return 'Görevde (Busy)';
-      case 2: return 'Bakımda / Arızalı';
+  getStatusText(status: any): string {
+    const s = this.normalizeStatus(status);
+    switch (s) {
+      case 'Idle': return 'Boşta (Hazır)';
+      case 'Busy': return 'Görevde (Aktif)';
+      case 'OutOfService': return 'Bakımda / Servis Dışı';
       default: return 'Bilinmiyor';
     }
   }
 
-  getStatusBadgeClass(status: number): string {
-    switch (status) {
-      case 0: return 'success';
-      case 1: return 'warning';
-      case 2: return 'danger';
+  getStatusBadgeClass(status: any): string {
+    const s = this.normalizeStatus(status);
+    switch (s) {
+      case 'Idle': return 'success';
+      case 'Busy': return 'warning';
+      case 'OutOfService': return 'danger';
       default: return 'secondary';
     }
   }
 
-  getCardStatusClass(status: number): string {
-    switch (status) {
-      case 0: return 'idle-card';
-      case 1: return 'busy-card';
-      case 2: return 'out-card';
+  getCardStatusClass(status: any): string {
+    const s = this.normalizeStatus(status);
+    switch (s) {
+      case 'Idle': return 'idle-card';
+      case 'Busy': return 'busy-card';
+      case 'OutOfService': return 'out-card';
       default: return '';
     }
   }

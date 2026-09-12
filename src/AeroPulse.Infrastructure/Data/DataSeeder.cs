@@ -363,6 +363,36 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
 
+        // ===== JET BRIDGES =====
+        if (!await context.JetBridges.AnyAsync())
+        {
+            var op = await context.Operations.FirstOrDefaultAsync();
+            var aircraft = await context.Aircraft.FirstOrDefaultAsync();
+            var jb1 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000001"), BridgeNo = "JB-01", TerminalNo = "T1", StatusCode = JetBridgeStatus.Connected };
+            var jb2 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000002"), BridgeNo = "JB-02", TerminalNo = "T1", StatusCode = JetBridgeStatus.Available };
+            var jb3 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000003"), BridgeNo = "JB-03", TerminalNo = "T1", StatusCode = JetBridgeStatus.UnderMaintenance };
+            var jb4 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000004"), BridgeNo = "JB-04", TerminalNo = "T2", StatusCode = JetBridgeStatus.Available };
+            var jb5 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000005"), BridgeNo = "JB-05", TerminalNo = "T2", StatusCode = JetBridgeStatus.Reserved };
+            var jb6 = new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000006"), BridgeNo = "JB-06", TerminalNo = "T1", StatusCode = JetBridgeStatus.Available };
+            context.JetBridges.AddRange(jb1, jb2, jb3, jb4, jb5, jb6);
+            if (op != null && aircraft != null)
+            {
+                context.JetBridgeAssignments.Add(new JetBridgeAssignment
+                {
+                    Id = Guid.Parse("80000000-0000-0000-0000-000000000001"),
+                    JetBridgeId = jb1.Id,
+                    AircraftId = aircraft.Id,
+                    OperationId = op.Id,
+                    EstimatedArrivalTime = DateTime.UtcNow.AddHours(-1),
+                    ActualArrivalTime = DateTime.UtcNow.AddHours(-1).AddMinutes(5),
+                    ConnectionTime = DateTime.UtcNow.AddHours(-1).AddMinutes(10),
+                    PassengerCount = 186,
+                    Status = JetBridgeAssignmentStatus.BridgeConnected
+                });
+            }
+            await context.SaveChangesAsync();
+        }
+
         // 3. ===== GSE (Yer Destek Ekipmanları) =====
         if (!await context.GroundSupportEquipments.AnyAsync())
         {
@@ -543,163 +573,470 @@ public static class DataSeeder
             Console.WriteLine($"[Tenant Schema Check] {ex.Message}");
         }
 
-        // 2. 5 Temel Kiracıyı Ekle (THY, PGS, TGS, CLB, IGA)
+        // 2. 5 Temel Havayolu ve Yer Hizmetleri Kiracılarını Ekle
         var thyId = Guid.Parse("a0000000-0000-0000-0000-000000000001");
         var pgsId = Guid.Parse("a0000000-0000-0000-0000-000000000002");
         var tgsId = Guid.Parse("a0000000-0000-0000-0000-000000000003");
         var clbId = Guid.Parse("a0000000-0000-0000-0000-000000000004");
         var igaId = Guid.Parse("a0000000-0000-0000-0000-000000000005");
+        var sxsId = Guid.Parse("a0000000-0000-0000-0000-000000000006");
+        var ajtId = Guid.Parse("a0000000-0000-0000-0000-000000000007");
+        var dlhId = Guid.Parse("a0000000-0000-0000-0000-000000000008");
 
-        if (!await context.Tenants.IgnoreQueryFilters().AnyAsync())
+        var tenantsToSeed = new[]
         {
-            context.Tenants.AddRange(
-                new Tenant
-                {
-                    Id = thyId,
-                    Code = "THY",
-                    Name = "Türk Hava Yolları",
-                    Type = TenantType.Airline,
-                    PrimaryColor = "#e30a17",
-                    Description = "Türkiye'nin bayrak taşıyıcı havayolu şirketi",
-                    ContactEmail = "occ@thy.com"
-                },
-                new Tenant
-                {
-                    Id = pgsId,
-                    Code = "PGS",
-                    Name = "Pegasus Airlines",
-                    Type = TenantType.Airline,
-                    PrimaryColor = "#f59e0b",
-                    Description = "Türkiye'nin lider düşük maliyetli havayolu şirketi",
-                    ContactEmail = "ops@flypgs.com"
-                },
-                new Tenant
-                {
-                    Id = tgsId,
-                    Code = "TGS",
-                    Name = "Turkish Ground Services",
-                    Type = TenantType.GroundHandler,
-                    PrimaryColor = "#2563eb",
-                    Description = "Apron ramp, otobüs ve bagaj yer hizmetleri taşeronu",
-                    ContactEmail = "ramp@tgs.aero"
-                },
-                new Tenant
-                {
-                    Id = clbId,
-                    Code = "CLB",
-                    Name = "Çelebi Havacılık",
-                    Type = TenantType.GroundHandler,
-                    PrimaryColor = "#10b981",
-                    Description = "Apron yakıt ikmali, de-icing ve yer destek hizmetleri",
-                    ContactEmail = "operations@celebiaviation.com"
-                },
-                new Tenant
-                {
-                    Id = igaId,
-                    Code = "IGA",
-                    Name = "İGA / Havalimanı Otoritesi",
-                    Type = TenantType.AirportAuthority,
-                    PrimaryColor = "#8b5cf6",
-                    Description = "Havalimanı Operasyon Kontrol Merkezi (OCC) & DHMİ Genel Bakış",
-                    ContactEmail = "occ@igairport.com"
-                }
-            );
+            new Tenant
+            {
+                Id = thyId,
+                Code = "THY",
+                Name = "Türk Hava Yolları",
+                Type = TenantType.Airline,
+                PrimaryColor = "#e30a17",
+                Description = "Türkiye'nin bayrak taşıyıcı havayolu şirketi (TK)",
+                ContactEmail = "occ@thy.com"
+            },
+            new Tenant
+            {
+                Id = pgsId,
+                Code = "PGS",
+                Name = "Pegasus Airlines",
+                Type = TenantType.Airline,
+                PrimaryColor = "#f59e0b",
+                Description = "Türkiye'nin lider düşük maliyetli havayolu şirketi (PC)",
+                ContactEmail = "ops@flypgs.com"
+            },
+            new Tenant
+            {
+                Id = sxsId,
+                Code = "SXS",
+                Name = "SunExpress",
+                Type = TenantType.Airline,
+                PrimaryColor = "#f97316",
+                Description = "Tatil ve turizm odaklı uluslararası havayolu (XQ)",
+                ContactEmail = "ops@sunexpress.com"
+            },
+            new Tenant
+            {
+                Id = ajtId,
+                Code = "AJT",
+                Name = "AJet (AnadoluJet)",
+                Type = TenantType.Airline,
+                PrimaryColor = "#0284c7",
+                Description = "Türkiye içi ve bölgesel ekonomik havayolu (VF)",
+                ContactEmail = "occ@ajet.com"
+            },
+            new Tenant
+            {
+                Id = dlhId,
+                Code = "DLH",
+                Name = "Lufthansa",
+                Type = TenantType.Airline,
+                PrimaryColor = "#0f172a",
+                Description = "Almanya bayrak taşıyıcısı ve Star Alliance üyesi (LH)",
+                ContactEmail = "operations@lufthansa.com"
+            },
+            new Tenant
+            {
+                Id = tgsId,
+                Code = "TGS",
+                Name = "Turkish Ground Services",
+                Type = TenantType.GroundHandler,
+                PrimaryColor = "#2563eb",
+                Description = "Apron ramp, otobüs ve bagaj yer hizmetleri taşeronu",
+                ContactEmail = "ramp@tgs.aero"
+            },
+            new Tenant
+            {
+                Id = clbId,
+                Code = "CLB",
+                Name = "Çelebi Havacılık",
+                Type = TenantType.GroundHandler,
+                PrimaryColor = "#10b981",
+                Description = "Apron yakıt ikmali, de-icing ve yer destek hizmetleri",
+                ContactEmail = "operations@celebiaviation.com"
+            },
+            new Tenant
+            {
+                Id = igaId,
+                Code = "IGA",
+                Name = "İGA / Havalimanı Otoritesi",
+                Type = TenantType.AirportAuthority,
+                PrimaryColor = "#8b5cf6",
+                Description = "Havalimanı Operasyon Kontrol Merkezi (OCC) & Genel Bakış",
+                ContactEmail = "occ@igairport.com"
+            }
+        };
 
-            await context.SaveChangesAsync();
+        foreach (var tenant in tenantsToSeed)
+        {
+            var existing = await context.Tenants.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Code == tenant.Code);
+            if (existing == null)
+            {
+                context.Tenants.Add(tenant);
+            }
         }
+        await context.SaveChangesAsync();
 
-        // 3. Mevcut Verileri Kiracılara Bağla (Eğer TenantId atanmamışsa)
+        // 3. Havayolları Veri Desteği (Uçaklar, Seferler, Ramp Görevleri, Arızalar ve MRO Bakım)
         try
         {
-            // Operasyonlar (Uçuşlar)
-            var ops = await context.Operations.IgnoreQueryFilters().Where(o => o.TenantId == null).ToListAsync();
-            foreach (var op in ops)
-            {
-                if (op.FlightNumber.StartsWith("PC", StringComparison.OrdinalIgnoreCase))
-                    op.TenantId = pgsId;
-                else
-                    op.TenantId = thyId;
-            }
+            var engineer = await context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.MROEngineer);
+            var technician = await context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.FieldTechnician);
+            var tanker = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "TANKER-01");
+            var tug = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "TUG-01");
+            var pushback = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "PUSHBACK-01");
 
-            // Uçaklar
-            var planes = await context.Aircraft.IgnoreQueryFilters().Where(a => a.TenantId == null).ToListAsync();
-            foreach (var plane in planes)
+            // --- A. TÜRK HAVA YOLLARI (THY) ---
+            var thyPlanes = new[]
             {
-                if (plane.TailNumber.Contains("PG") || (plane.Operator != null && plane.Operator.Contains("Pegasus")))
-                    plane.TenantId = pgsId;
-                else
-                    plane.TenantId = thyId;
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-LGA", Model = "Airbus A350-900", ManufactureYear = 2021, StatusCode = AircraftStatus.Active, TotalFlightHours = 9400, Operator = "Türk Hava Yolları", TenantId = thyId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JRO", Model = "Airbus A321neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 4800, Operator = "Türk Hava Yolları", TenantId = thyId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JFH", Model = "Boeing 737-800", ManufactureYear = 2018, StatusCode = AircraftStatus.InMaintenance, TotalFlightHours = 18200, Operator = "Türk Hava Yolları", TenantId = thyId }
+            };
+            foreach (var p in thyPlanes)
+            {
+                if (!await context.Aircraft.IgnoreQueryFilters().AnyAsync(a => a.TailNumber == p.TailNumber))
+                    context.Aircraft.Add(p);
             }
+            await context.SaveChangesAsync();
 
-            // GSE Yer Araçları
-            var gseList = await context.GroundSupportEquipments.IgnoreQueryFilters().Where(g => g.TenantId == null).ToListAsync();
-            foreach (var gse in gseList)
+            // --- B. PEGASUS AIRLINES (PGS) ---
+            var pgsPlanes = new[]
             {
-                if (gse.Code.StartsWith("BUS") || gse.Code.StartsWith("PUSHBACK"))
-                    gse.TenantId = tgsId;
-                else
-                    gse.TenantId = clbId;
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-PGX", Model = "Airbus A321neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 6400, Operator = "Pegasus Airlines", TenantId = pgsId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-RBA", Model = "Boeing 737-800", ManufactureYear = 2019, StatusCode = AircraftStatus.Active, TotalFlightHours = 14200, Operator = "Pegasus Airlines", TenantId = pgsId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-CPY", Model = "Airbus A320neo", ManufactureYear = 2020, StatusCode = AircraftStatus.InMaintenance, TotalFlightHours = 11200, Operator = "Pegasus Airlines", TenantId = pgsId }
+            };
+            foreach (var p in pgsPlanes)
+            {
+                if (!await context.Aircraft.IgnoreQueryFilters().AnyAsync(a => a.TailNumber == p.TailNumber))
+                    context.Aircraft.Add(p);
             }
+            await context.SaveChangesAsync();
 
-            // Turnaround Görevleri
-            var tasks = await context.TurnaroundTasks.IgnoreQueryFilters().Where(t => t.TenantId == null).ToListAsync();
-            foreach (var task in tasks)
+            // --- C. SUNEXPRESS (SXS) ---
+            var sxsPlanes = new[]
             {
-                task.TenantId = tgsId;
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-SOA", Model = "Boeing 737-800", ManufactureYear = 2020, StatusCode = AircraftStatus.Active, TotalFlightHours = 8900, Operator = "SunExpress", TenantId = sxsId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-SEZ", Model = "Boeing 737 MAX 8", ManufactureYear = 2023, StatusCode = AircraftStatus.Active, TotalFlightHours = 3100, Operator = "SunExpress", TenantId = sxsId }
+            };
+            foreach (var p in sxsPlanes)
+            {
+                if (!await context.Aircraft.IgnoreQueryFilters().AnyAsync(a => a.TailNumber == p.TailNumber))
+                    context.Aircraft.Add(p);
             }
+            await context.SaveChangesAsync();
 
-            // Arıza Raporları
-            var faults = await context.FaultReports.IgnoreQueryFilters().Where(f => f.TenantId == null).ToListAsync();
-            foreach (var f in faults)
+            // --- D. AJET (AJT) ---
+            var ajtPlanes = new[]
             {
-                f.TenantId = thyId;
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JVD", Model = "Boeing 737-800", ManufactureYear = 2019, StatusCode = AircraftStatus.Active, TotalFlightHours = 12500, Operator = "AJet", TenantId = ajtId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JVF", Model = "Airbus A320neo", ManufactureYear = 2021, StatusCode = AircraftStatus.Active, TotalFlightHours = 7400, Operator = "AJet", TenantId = ajtId }
+            };
+            foreach (var p in ajtPlanes)
+            {
+                if (!await context.Aircraft.IgnoreQueryFilters().AnyAsync(a => a.TailNumber == p.TailNumber))
+                    context.Aircraft.Add(p);
             }
+            await context.SaveChangesAsync();
 
-            // Pegasus (PGS) için özel demo seferler
-            if (!await context.Operations.IgnoreQueryFilters().AnyAsync(o => o.FlightNumber == "PC202"))
+            // --- E. LUFTHANSA (DLH) ---
+            var dlhPlanes = new[]
             {
-                var pgsPlane = new Aircraft
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "D-AIXP", Model = "Airbus A350-900", ManufactureYear = 2020, StatusCode = AircraftStatus.Active, TotalFlightHours = 10100, Operator = "Lufthansa", TenantId = dlhId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "D-AINZ", Model = "Airbus A320neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 5200, Operator = "Lufthansa", TenantId = dlhId }
+            };
+            foreach (var p in dlhPlanes)
+            {
+                if (!await context.Aircraft.IgnoreQueryFilters().AnyAsync(a => a.TailNumber == p.TailNumber))
+                    context.Aircraft.Add(p);
+            }
+            await context.SaveChangesAsync();
+
+            // --- OPERASYONLAR (UÇUŞLAR) ---
+            var tkPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-LGA");
+            var tkPlane2 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-JRO");
+            var pgPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-PGX");
+            var pgPlane2 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-RBA");
+            var sxPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-SOA");
+            var ajPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-JVD");
+            var lhPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "D-AIXP");
+
+            var flights = new[]
+            {
+                // THY Uçuşları
+                new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane1.Id, FlightNumber = "TK1984", GateNo = "A1", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddMinutes(-40), DepartureTime = DateTime.UtcNow.AddMinutes(50), Status = OperationStatus.InProgress, TenantId = thyId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane2.Id, FlightNumber = "TK2026", GateNo = "A2", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(45), DepartureTime = DateTime.UtcNow.AddMinutes(135), Status = OperationStatus.Scheduled, TenantId = thyId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane1.Id, FlightNumber = "TK1453", GateNo = "A3", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddMinutes(-90), DepartureTime = DateTime.UtcNow.AddMinutes(30), Status = OperationStatus.Delayed, DelayMinutes = 35, DelayReason = "Geç gelen uçak bağlantısı", TenantId = thyId },
+
+                // Pegasus Uçuşları
+                new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane1.Id, FlightNumber = "PC202", GateNo = "B1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-25), DepartureTime = DateTime.UtcNow.AddMinutes(45), Status = OperationStatus.InProgress, TenantId = pgsId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane2.Id, FlightNumber = "PC303", GateNo = "B2", AssignedRunwayCode = "17R", ArrivalTime = DateTime.UtcNow.AddMinutes(30), DepartureTime = DateTime.UtcNow.AddMinutes(90), Status = OperationStatus.Scheduled, TenantId = pgsId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane1.Id, FlightNumber = "PC404", GateNo = "B4", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddHours(-3), DepartureTime = DateTime.UtcNow.AddHours(-1), Status = OperationStatus.Completed, TenantId = pgsId },
+
+                // SunExpress Uçuşları
+                new Operation { Id = Guid.NewGuid(), AircraftId = sxPlane1.Id, FlightNumber = "XQ101", GateNo = "C1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-20), DepartureTime = DateTime.UtcNow.AddMinutes(55), Status = OperationStatus.InProgress, TenantId = sxsId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = sxPlane1.Id, FlightNumber = "XQ202", GateNo = "C2", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddMinutes(60), DepartureTime = DateTime.UtcNow.AddMinutes(130), Status = OperationStatus.Scheduled, TenantId = sxsId },
+
+                // AJet Uçuşları
+                new Operation { Id = Guid.NewGuid(), AircraftId = ajPlane1.Id, FlightNumber = "VF401", GateNo = "D1", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddMinutes(-30), DepartureTime = DateTime.UtcNow.AddMinutes(40), Status = OperationStatus.InProgress, TenantId = ajtId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = ajPlane1.Id, FlightNumber = "VF502", GateNo = "D2", AssignedRunwayCode = "17R", ArrivalTime = DateTime.UtcNow.AddHours(1), DepartureTime = DateTime.UtcNow.AddHours(2), Status = OperationStatus.Scheduled, TenantId = ajtId },
+
+                // Lufthansa Uçuşları
+                new Operation { Id = Guid.NewGuid(), AircraftId = lhPlane1.Id, FlightNumber = "LH1300", GateNo = "E1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-35), DepartureTime = DateTime.UtcNow.AddMinutes(50), Status = OperationStatus.InProgress, TenantId = dlhId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = lhPlane1.Id, FlightNumber = "LH1305", GateNo = "E2", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddHours(2), DepartureTime = DateTime.UtcNow.AddHours(3), Status = OperationStatus.Scheduled, TenantId = dlhId }
+            };
+
+            foreach (var fl in flights)
+            {
+                var existing = await context.Operations.IgnoreQueryFilters().FirstOrDefaultAsync(o => o.FlightNumber == fl.FlightNumber);
+                if (existing == null)
                 {
-                    Id = Guid.NewGuid(),
-                    TailNumber = "TC-PGX",
-                    Model = "Airbus A321neo",
-                    ManufactureYear = 2022,
-                    StatusCode = AircraftStatus.Active,
-                    TotalFlightHours = 6400,
-                    Operator = "Pegasus Airlines",
-                    TenantId = pgsId
-                };
-                context.Aircraft.Add(pgsPlane);
-                await context.SaveChangesAsync();
-
-                context.Operations.AddRange(
-                    new Operation
-                    {
-                        Id = Guid.NewGuid(),
-                        AircraftId = pgsPlane.Id,
-                        FlightNumber = "PC202",
-                        GateNo = "C1",
-                        AssignedRunwayCode = "35L",
-                        ArrivalTime = DateTime.UtcNow.AddMinutes(-15),
-                        DepartureTime = DateTime.UtcNow.AddMinutes(45),
-                        Status = OperationStatus.InProgress,
-                        TenantId = pgsId
-                    },
-                    new Operation
-                    {
-                        Id = Guid.NewGuid(),
-                        AircraftId = pgsPlane.Id,
-                        FlightNumber = "PC303",
-                        GateNo = "C2",
-                        AssignedRunwayCode = "18R",
-                        ArrivalTime = DateTime.UtcNow.AddMinutes(20),
-                        DepartureTime = DateTime.UtcNow.AddMinutes(80),
-                        Status = OperationStatus.Scheduled,
-                        TenantId = pgsId
-                    }
-                );
+                    context.Operations.Add(fl);
+                }
+                else
+                {
+                    existing.TenantId = fl.TenantId;
+                    existing.GateNo = fl.GateNo;
+                    existing.Status = fl.Status;
+                }
             }
+            await context.SaveChangesAsync();
 
+            // --- RAMP TURNAROUND GÖREVLERİ & YOLCU MANİFESTOSU ---
+            var inProgressFlights = await context.Operations.IgnoreQueryFilters()
+                .Where(o => o.Status == OperationStatus.InProgress)
+                .ToListAsync();
+
+            foreach (var op in inProgressFlights)
+            {
+                if (!await context.TurnaroundTasks.IgnoreQueryFilters().AnyAsync(t => t.OperationId == op.Id))
+                {
+                    context.TurnaroundTasks.AddRange(
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.BaggageUnload,
+                            Status = TurnaroundTaskStatus.Completed,
+                            TargetDurationMinutes = 20,
+                            ScheduledStartTime = op.ArrivalTime,
+                            ActualStartTime = op.ArrivalTime,
+                            ActualEndTime = op.ArrivalTime.AddMinutes(18),
+                            ProgressPercentage = 100,
+                            Notes = $"{op.FlightNumber} gelen bagajlar boşaltıldı."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.Refueling,
+                            Status = TurnaroundTaskStatus.InProgress,
+                            TargetDurationMinutes = 25,
+                            ScheduledStartTime = op.ArrivalTime.AddMinutes(10),
+                            ActualStartTime = op.ArrivalTime.AddMinutes(12),
+                            ProgressPercentage = 75,
+                            AssignedGSEId = tanker?.Id,
+                            Notes = $"{op.FlightNumber} için 6.800 kg Jet A-1 ikmali devam ediyor."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.Cleaning,
+                            Status = TurnaroundTaskStatus.Completed,
+                            TargetDurationMinutes = 20,
+                            ScheduledStartTime = op.ArrivalTime.AddMinutes(5),
+                            ActualStartTime = op.ArrivalTime.AddMinutes(5),
+                            ActualEndTime = op.ArrivalTime.AddMinutes(22),
+                            ProgressPercentage = 100,
+                            Notes = "Kabin temizliği ve dezenfeksiyon tamamlandı."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.Catering,
+                            Status = TurnaroundTaskStatus.InProgress,
+                            TargetDurationMinutes = 20,
+                            ScheduledStartTime = op.ArrivalTime.AddMinutes(15),
+                            ActualStartTime = op.ArrivalTime.AddMinutes(18),
+                            ProgressPercentage = 85,
+                            Notes = "İkram servis arabaları kabine yüklendi."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.BaggageLoad,
+                            Status = TurnaroundTaskStatus.InProgress,
+                            TargetDurationMinutes = 25,
+                            ScheduledStartTime = op.ArrivalTime.AddMinutes(20),
+                            ActualStartTime = op.ArrivalTime.AddMinutes(22),
+                            ProgressPercentage = 60,
+                            AssignedGSEId = tug?.Id,
+                            AssignedUserId = technician?.Id,
+                            Notes = "Giden bagajlar kargoya yükleniyor."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.Boarding,
+                            Status = TurnaroundTaskStatus.InProgress,
+                            TargetDurationMinutes = 30,
+                            ScheduledStartTime = op.DepartureTime.AddMinutes(-35),
+                            ActualStartTime = op.DepartureTime.AddMinutes(-35),
+                            ProgressPercentage = 65,
+                            Notes = "Yolcu alımı devam ediyor."
+                        },
+                        new TurnaroundTask
+                        {
+                            Id = Guid.NewGuid(),
+                            OperationId = op.Id,
+                            TenantId = op.TenantId,
+                            TaskType = TurnaroundTaskType.Pushback,
+                            Status = TurnaroundTaskStatus.Pending,
+                            TargetDurationMinutes = 10,
+                            ScheduledStartTime = op.DepartureTime,
+                            ProgressPercentage = 0,
+                            AssignedGSEId = pushback?.Id,
+                            Notes = "Körük ayrılışı sonrası hazır bekliyor."
+                        }
+                    );
+                }
+
+                if (!await context.PassengerManifests.IgnoreQueryFilters().AnyAsync(m => m.OperationId == op.Id))
+                {
+                    context.PassengerManifests.Add(new PassengerManifest
+                    {
+                        Id = Guid.NewGuid(),
+                        OperationId = op.Id,
+                        FlightNumber = op.FlightNumber,
+                        Destination = op.FlightNumber.StartsWith("TK") ? "Londra LHR" :
+                                      op.FlightNumber.StartsWith("PC") ? "Paris CDG" :
+                                      op.FlightNumber.StartsWith("XQ") ? "Frankfurt FRA" :
+                                      op.FlightNumber.StartsWith("VF") ? "Trabzon TZX" : "Münih MUC",
+                        GateNo = op.GateNo,
+                        TotalBooked = 186,
+                        BoardedCount = 142,
+                        CheckedBaggageCount = 160,
+                        LoadedBaggageCount = 120,
+                        BoardingStatus = BoardingStatus.Boarding,
+                        LuggageMatchComplete = false,
+                        LoadsheetApproved = false,
+                        ApprovedByRedcap = "Sarah Operations"
+                    });
+                }
+            }
+            await context.SaveChangesAsync();
+
+            // --- ARIZA RAPORLARI (TEKNİK SERVİS) ---
+            var faultSeed = new[]
+            {
+                new { Tail = "TC-JFH", Desc = "Sol motor hidrolik basınç regülatöründe aralıklarla basınç düşüşü gözlendi.", Priority = Priority.Critical, TenantId = thyId },
+                new { Tail = "TC-CPY", Desc = "Burun iniş takımı pozisyon gösterge mikro-anahtarı arızalı, kontrol gerekli.", Priority = Priority.High, TenantId = pgsId },
+                new { Tail = "TC-SOA", Desc = "Kabin iklimlendirme pack-1 akış regülatörü ayar kontrolü.", Priority = Priority.Medium, TenantId = sxsId },
+                new { Tail = "TC-JVD", Desc = "Yardımcı güç ünitesi (APU) yağ seviyesi düşük uyarısı.", Priority = Priority.High, TenantId = ajtId },
+                new { Tail = "D-AINZ", Desc = "Fren sıcaklık sensörü aralıklı sinyal kesintisi.", Priority = Priority.Medium, TenantId = dlhId }
+            };
+
+            foreach (var item in faultSeed)
+            {
+                var plane = await context.Aircraft.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.TailNumber == item.Tail);
+                if (plane != null && !await context.FaultReports.IgnoreQueryFilters().AnyAsync(f => f.AircraftId == plane.Id))
+                {
+                    context.FaultReports.Add(new FaultReport
+                    {
+                        Id = Guid.NewGuid(),
+                        AircraftId = plane.Id,
+                        Description = item.Desc,
+                        Priority = item.Priority,
+                        Status = FaultStatus.Open,
+                        OpenDate = DateTime.UtcNow.AddHours(-3),
+                        TenantId = item.TenantId,
+                        ReportedByTechnicianId = technician?.Id ?? Guid.Parse("10000000-0000-0000-0000-000000000005")
+                    });
+                }
+            }
+            await context.SaveChangesAsync();
+
+            // --- MRO PARÇA VE BAKIM KAYITLARI (MÜHENDİSLİK) ---
+            var allPlanes = await context.Aircraft.IgnoreQueryFilters().ToListAsync();
+            foreach (var p in allPlanes)
+            {
+                if (!await context.Parts.AnyAsync(part => part.AircraftId == p.Id))
+                {
+                    var part1 = new Part
+                    {
+                        Id = Guid.NewGuid(),
+                        AircraftId = p.Id,
+                        PartName = $"{p.Model} Ana İniş Takımı Amortisör Paketi",
+                        PartNumber = $"LG-{p.TailNumber.Replace("-", "")}-01",
+                        LifeSpanHours = 20000,
+                        UsedHours = (int)(p.TotalFlightHours * 0.9),
+                        CriticalThresholdHours = 18000,
+                        Manufacturer = "Safran Landing Systems",
+                        Location = "Ana Hangarı Raf B-12",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow.AddMonths(-12)
+                    };
+                    var part2 = new Part
+                    {
+                        Id = Guid.NewGuid(),
+                        AircraftId = p.Id,
+                        PartName = $"{p.Model} CFM LEAP-1 / GE Motor Türbini Bıçağı",
+                        PartNumber = $"ENG-{p.TailNumber.Replace("-", "")}-02",
+                        LifeSpanHours = 15000,
+                        UsedHours = (int)(p.TotalFlightHours * 0.85),
+                        CriticalThresholdHours = 13500,
+                        Manufacturer = "CFM International",
+                        Location = "Motor Deposu A-04",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow.AddMonths(-6)
+                    };
+                    context.Parts.AddRange(part1, part2);
+                    await context.SaveChangesAsync();
+
+                    if (engineer != null)
+                    {
+                        context.MaintenanceRecords.AddRange(
+                            new MaintenanceRecord
+                            {
+                                Id = Guid.NewGuid(),
+                                AircraftId = p.Id,
+                                PartId = part1.Id,
+                                EngineerId = engineer.Id,
+                                MaintenanceType = MaintenanceType.Scheduled,
+                                WorkPerformed = $"{p.TailNumber} A-Check 500 saatlik genel gövde ve hidrolik muayenesi tamamlandı.",
+                                CertificateNo = $"CERT-MRO-{DateTime.UtcNow.Year}-{(int)p.TotalFlightHours % 999:D3}",
+                                Date = DateTime.UtcNow.AddDays(-10),
+                                NextScheduledDate = DateTime.UtcNow.AddDays(20),
+                                Notes = "Uçuşa elverişlilik sertifikası onaylandı."
+                            },
+                            new MaintenanceRecord
+                            {
+                                Id = Guid.NewGuid(),
+                                AircraftId = p.Id,
+                                PartId = part2.Id,
+                                EngineerId = engineer.Id,
+                                MaintenanceType = MaintenanceType.Overhaul,
+                                WorkPerformed = $"{p.TailNumber} motor boroskop kontrolü ve yakıt nozul temizliği yapıldı.",
+                                CertificateNo = $"CERT-ENG-{DateTime.UtcNow.Year}-{(int)p.TotalFlightHours % 888:D3}",
+                                Date = DateTime.UtcNow.AddDays(-3),
+                                NextScheduledDate = DateTime.UtcNow.AddDays(5),
+                                Notes = "7 gün içerisinde periyodik titreşim analizi tekrarlanacak."
+                            }
+                        );
+                    }
+                }
+            }
             await context.SaveChangesAsync();
         }
         catch (Exception ex)

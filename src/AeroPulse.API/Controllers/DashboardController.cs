@@ -26,7 +26,7 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet("mro")]
-    [Authorize(Roles = "MROEngineer")]
+    [Authorize(Roles = "Admin,MROEngineer")]
     public async Task<IActionResult> GetMRODashboard()
     {
         var userId = GetUserId();

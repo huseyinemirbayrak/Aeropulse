@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'mro',
-    canActivate: [roleGuard('MROEngineer')],
+    canActivate: [roleGuard('MROEngineer', 'Admin')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/mro/dashboard/dashboard').then(m => m.MRODashboardComponent) },
