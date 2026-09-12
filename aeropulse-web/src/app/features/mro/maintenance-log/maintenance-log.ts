@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-maintenance-log',
@@ -65,7 +66,7 @@ export class MaintenanceLogComponent implements OnInit {
   loading = true;
   error = '';
 
-  private apiUrl = 'http://localhost:5253/api/maintenance';
+  private apiUrl = `${environment.apiUrl}/maintenance`;
 
   constructor(private http: HttpClient) { }
 

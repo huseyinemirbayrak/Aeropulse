@@ -1,0 +1,14 @@
+{
+  "name": "aeropulse",
+  "version": "1.0.0",
+  "description": "AeroPulse Fullstack Aviation Management System",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node start.js",
+    "backend": "dotnet run --project src/AeroPulse.API",
+    "frontend": "npm --prefix aeropulse-web start",
+    "build": "dotnet build AeroPulse.slnx && npm --prefix aeropulse-web run build"
+  },
+  "author": "",
+  "license": "ISC"
+}

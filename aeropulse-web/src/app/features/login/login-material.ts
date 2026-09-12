@@ -26,13 +26,6 @@ import { NotificationService } from '../../core/notification.service';
   ],
   template: `
     <div class="login-wrapper">
-      <!-- Aviation-themed background -->
-      <div class="aviation-bg">
-        <div class="plane-silhouette plane-1"></div>
-        <div class="plane-silhouette plane-2"></div>
-        <div class="grid-pattern"></div>
-      </div>
-
       <div class="login-container">
         <!-- Logo & Branding -->
         <div class="branding-section">
@@ -44,8 +37,8 @@ import { NotificationService } from '../../core/notification.service';
         <!-- Login Card -->
         <mat-card class="login-card">
           <mat-card-header>
-            <mat-card-title>Welcome Back</mat-card-title>
-            <mat-card-subtitle>Sign in to your account to continue</mat-card-subtitle>
+            <mat-card-title>Giriş Yap</mat-card-title>
+            <mat-card-subtitle>Hesabınıza erişmek için bilgilerinizi girin</mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
@@ -158,114 +151,68 @@ import { NotificationService } from '../../core/notification.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .aviation-bg {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.1;
-    }
-
-    .plane-silhouette {
-      position: absolute;
-      font-size: 200px;
-      opacity: 0.3;
-    }
-
-    .plane-1 {
-      top: 10%;
-      right: 10%;
-      animation: float 20s ease-in-out infinite;
-    }
-
-    .plane-2 {
-      bottom: 20%;
-      left: 5%;
-      animation: float 25s ease-in-out infinite reverse;
-    }
-
-    .grid-pattern {
-      position: absolute;
-      inset: 0;
-      background-image: 
-        linear-gradient(0deg, transparent 24%, rgba(25, 118, 210, 0.05) 25%, rgba(25, 118, 210, 0.05) 26%, transparent 27%, transparent 74%, rgba(25, 118, 210, 0.05) 75%, rgba(25, 118, 210, 0.05) 76%, transparent 77%, transparent),
-        linear-gradient(90deg, transparent 24%, rgba(25, 118, 210, 0.05) 25%, rgba(25, 118, 210, 0.05) 26%, transparent 27%, transparent 74%, rgba(25, 118, 210, 0.05) 75%, rgba(25, 118, 210, 0.05) 76%, transparent 77%, transparent);
-      background-size: 50px 50px;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateX(0) translateY(0); }
-      50% { transform: translateX(30px) translateY(-20px); }
+      background: #ffffff;
     }
 
     .login-container {
-      position: relative;
-      z-index: 10;
       width: 100%;
-      max-width: 420px;
-      padding: 20px;
+      max-width: 400px;
+      padding: 24px;
     }
 
     .branding-section {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
     }
 
     .logo {
-      font-size: 64px;
-      margin-bottom: 16px;
+      font-size: 36px;
+      margin-bottom: 8px;
       display: block;
-      animation: bounce 2s ease-in-out infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      color: #111827;
     }
 
     .title {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--primary-blue);
-      margin: 0 0 8px 0;
-      letter-spacing: 2px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 4px 0;
     }
 
     .subtitle {
-      color: var(--text-secondary);
+      color: #6b7280;
       margin: 0;
-      font-size: 14px;
-      letter-spacing: 0.5px;
+      font-size: 13px;
     }
 
     .login-card {
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(25, 118, 210, 0.12);
-      overflow: hidden;
+      background: #ffffff !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 6px !important;
+      box-shadow: none !important;
+      padding: 24px;
     }
 
     mat-card-header {
-      margin-bottom: 32px;
+      margin-bottom: 20px;
+      padding: 0;
     }
 
     mat-card-title {
-      font-size: 24px;
-      color: var(--text-dark);
-      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
     }
 
     mat-card-subtitle {
-      color: var(--text-secondary);
-      font-size: 14px;
+      color: #6b7280;
+      font-size: 13px;
     }
 
     .full-width {
       width: 100%;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     ::ng-deep .mat-mdc-form-field {
@@ -275,29 +222,32 @@ import { NotificationService } from '../../core/notification.service';
     .error-banner {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background-color: #FFEBEE;
-      border-left: 4px solid #F44336;
+      gap: 8px;
+      padding: 10px 12px;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
       border-radius: 4px;
-      margin-bottom: 20px;
-      color: #C62828;
+      margin-bottom: 16px;
+      color: #b91c1c;
+      font-size: 13px;
     }
 
     .error-banner mat-icon {
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
     }
 
     .login-button {
       width: 100%;
-      height: 48px;
-      font-size: 16px;
+      height: 40px;
+      font-size: 14px;
       font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 24px;
+      border-radius: 4px;
+      background: #2563eb !important;
+      color: #ffffff !important;
+      box-shadow: none !important;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -305,8 +255,9 @@ import { NotificationService } from '../../core/notification.service';
     }
 
     mat-card-footer {
-      border-top: 1px solid var(--border-light);
-      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 16px;
+      margin-top: 8px;
     }
 
     .demo-section {
@@ -315,61 +266,39 @@ import { NotificationService } from '../../core/notification.service';
 
     .demo-title {
       text-align: center;
-      color: var(--text-secondary);
-      font-size: 12px;
+      color: #6b7280;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 0 0 16px 0;
+      letter-spacing: 0.5px;
+      margin: 0 0 12px 0;
     }
 
     .demo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
 
     .demo-btn {
-      height: auto;
-      padding: 12px 8px;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding: 8px 4px;
+      font-size: 11px;
+      border: 1px solid #d1d5db !important;
+      border-radius: 4px;
+      color: #374151 !important;
+      background: #ffffff !important;
+      box-shadow: none !important;
     }
 
     .demo-btn mat-icon {
       display: block;
-      margin: 0 auto 4px;
-      width: 24px;
-      height: 24px;
-      font-size: 24px;
+      margin: 0 auto 2px;
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
     }
 
     .demo-btn span {
       display: block;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .login-container {
-        max-width: 100%;
-      }
-
-      .title {
-        font-size: 28px;
-      }
-
-      .logo {
-        font-size: 48px;
-      }
-
-      .demo-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .login-button {
-        height: 44px;
-        font-size: 14px;
-      }
     }
   `]
 })

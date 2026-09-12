@@ -353,12 +353,18 @@ import { SignalRService } from '../../../core/signalr.service';
     .justify-content-between { justify-content: space-between; }
     .gap-2 { gap: 0.5rem; }
     .mb-0 { margin-bottom: 0; }
-    .mb-3 { margin-bottom: 1rem; }
-    .mb-4 { margin-bottom: 1.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
     .mt-1 { margin-top: 0.25rem; }
     .mt-2 { margin-top: 0.5rem; }
+    .ml-1 { margin-left: 0.25rem; }
     .ml-2 { margin-left: 0.5rem; }
     .w-100 { width: 100%; }
+
+    .dashboard {
+      background: #ffffff;
+      color: #111827;
+    }
 
     .header-actions {
       display: flex;
@@ -375,66 +381,48 @@ import { SignalRService } from '../../../core/signalr.service';
     }
 
     .btn-refresh {
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid var(--border-active, rgba(0, 212, 255, 0.3));
-      color: var(--text-primary);
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
       cursor: pointer;
       font-weight: 500;
-      transition: all 0.2s;
+      font-size: 0.8125rem;
     }
     .btn-refresh:hover {
-      background: rgba(0, 212, 255, 0.2);
-    }
-    .rotating {
-      display: inline-block;
-      animation: spin 1s infinite linear;
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      background: #f9fafb;
     }
 
     .live-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid #10b981;
-      border-radius: 999px;
-      color: #34d399;
+      padding: 2px 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 4px;
+      color: #15803d;
       font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #10b981;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(0.9); opacity: 0.7; }
-      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #10b981; }
-      100% { transform: scale(0.9); opacity: 0.7; }
+      background: #16a34a;
     }
 
     /* STAT CARDS */
     .grid { display: grid; gap: 1rem; }
-    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 
     .stat-card {
-      padding: 1.25rem;
-      border-radius: 12px;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(15, 21, 56, 0.8);
-      backdrop-filter: blur(12px);
+      padding: 1rem;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
     }
 
     .stat-header {
@@ -445,36 +433,36 @@ import { SignalRService } from '../../../core/signalr.service';
 
     .stat-label {
       font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted, #94a3b8);
-      letter-spacing: 0.5px;
+      font-weight: 600;
+      color: #6b7280;
+      letter-spacing: 0.05em;
     }
 
     .stat-badge {
       font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 999px;
+      padding: 2px 6px;
+      border-radius: 4px;
       font-weight: 600;
     }
-    .stat-badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .stat-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-    .stat-badge.info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .stat-badge.secondary { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    .stat-badge.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .stat-badge.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .stat-badge.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .stat-badge.secondary { background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
 
     .stat-main {
-      margin: 0.75rem 0;
+      margin: 0.5rem 0;
     }
     .stat-value {
-      font-size: 2.25rem;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.1;
     }
     .stat-sub {
       display: block;
-      font-size: 0.8rem;
-      color: #94a3b8;
-      margin-top: 0.35rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
     }
 
     .stat-footer-bar {
@@ -483,81 +471,77 @@ import { SignalRService } from '../../../core/signalr.service';
       margin-top: 0.5rem;
     }
     .bar-pill {
-      font-size: 0.7rem;
-      padding: 2px 8px;
+      font-size: 0.6875rem;
+      padding: 2px 6px;
       border-radius: 4px;
       font-weight: 600;
     }
-    .bar-pill.available { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .bar-pill.busy { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .bar-pill.occupied { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .bar-pill.danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .bar-pill.available { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .bar-pill.busy { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .bar-pill.occupied { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .bar-pill.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
     /* RUNWAYS */
     .card-section-title {
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 1.125rem;
+      font-weight: 600;
       margin-bottom: 0.25rem;
-      color: #ffffff;
+      color: #111827;
     }
 
     .runways-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
     }
 
     .runway-card {
-      padding: 1rem;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.2s;
+      padding: 0.875rem;
+      border-radius: 4px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
     }
-    .runway-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    .runway-card.available { border-color: rgba(16, 185, 129, 0.4); }
-    .runway-card.landing { border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.05); }
-    .runway-card.takeoff { border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.05); }
-    .runway-card.closed { border-color: rgba(239, 68, 68, 0.4); opacity: 0.75; }
+    .runway-card.available { border-color: #bbf7d0; }
+    .runway-card.landing { border-color: #fde68a; background: #fffbeb; }
+    .runway-card.takeoff { border-color: #bfdbfe; background: #eff6ff; }
+    .runway-card.closed { border-color: #fecaca; opacity: 0.85; }
 
     .runway-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
     }
     .runway-code {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #00d4ff;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #2563eb;
     }
 
     .runway-visual {
-      background: #080c20;
-      border-radius: 6px;
-      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 4px;
+      padding: 0.5rem;
       margin: 0.5rem 0;
       text-align: center;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border: 1px solid #e5e7eb;
+      color: #111827;
     }
     .runway-icon {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     .runway-info {
-      font-size: 0.8rem;
-      margin: 0.5rem 0;
+      font-size: 0.75rem;
+      margin: 0.35rem 0;
     }
     .current-flight {
-      color: #fbbf24;
+      color: #d97706;
       font-weight: 600;
     }
     .runway-specs {
-      color: #94a3b8;
-      font-size: 0.75rem;
+      color: #6b7280;
+      font-size: 0.6875rem;
     }
 
     /* GATES GRID */
@@ -566,82 +550,82 @@ import { SignalRService } from '../../../core/signalr.service';
       gap: 6px;
     }
     .filter-btn {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #94a3b8;
-      padding: 4px 10px;
-      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+      padding: 3px 8px;
+      border-radius: 4px;
       font-size: 0.75rem;
       cursor: pointer;
     }
     .filter-btn.active {
-      background: #00d4ff;
-      color: #080c20;
-      border-color: #00d4ff;
-      font-weight: 700;
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+      font-weight: 600;
     }
 
     .gates-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
       gap: 0.75rem;
     }
 
     .gate-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
       padding: 0.75rem;
       text-align: center;
-      transition: all 0.2s;
     }
-    .gate-card.available { border-color: rgba(16, 185, 129, 0.3); }
-    .gate-card.occupied { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); }
-    .gate-card.reserved { border-color: rgba(245, 158, 11, 0.4); }
+    .gate-card.available { border-color: #bbf7d0; }
+    .gate-card.occupied { border-color: #fecaca; background: #fef2f2; }
+    .gate-card.reserved { border-color: #fde68a; }
 
     .gate-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
     }
     .gate-num {
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #111827;
     }
     .bridge-tag, .stand-tag {
-      font-size: 0.65rem;
-      padding: 2px 5px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #94a3b8;
+      font-size: 0.625rem;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: #f3f4f6;
+      color: #4b5563;
     }
 
     .gate-status-pill {
       display: inline-block;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 700;
+      font-size: 0.6875rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-weight: 600;
     }
-    .gate-status-pill.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .gate-status-pill.danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .gate-status-pill.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .gate-status-pill.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .gate-status-pill.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .gate-status-pill.warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
 
     .gate-flight-box {
-      background: rgba(0, 212, 255, 0.08);
-      border: 1px solid rgba(0, 212, 255, 0.2);
-      border-radius: 4px;
-      padding: 4px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 3px;
+      padding: 3px;
     }
     .gate-flight-no {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: #00d4ff;
+      color: #1d4ed8;
     }
     .gate-empty-box {
       font-size: 0.75rem;
+      color: #6b7280;
     }
 
     /* TABLE */
@@ -651,41 +635,49 @@ import { SignalRService } from '../../../core/signalr.service';
     .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
     }
     .data-table th {
       text-align: left;
-      padding: 0.75rem;
-      color: #94a3b8;
+      padding: 0.625rem 0.75rem;
+      color: #4b5563;
       font-size: 0.75rem;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      letter-spacing: 0.5px;
+      font-weight: 600;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
     }
     .data-table td {
-      padding: 0.75rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #111827;
       vertical-align: middle;
+      background: #ffffff;
     }
     .flight-pill {
-      font-weight: 700;
-      color: #00d4ff;
-      background: rgba(0, 212, 255, 0.1);
-      padding: 3px 8px;
-      border-radius: 4px;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 2px 6px;
+      border-radius: 3px;
       display: inline-block;
     }
     .gate-badge-table {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 3px 8px;
-      border-radius: 4px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+      padding: 2px 6px;
+      border-radius: 3px;
       font-weight: 600;
     }
     .runway-badge-table {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-      padding: 3px 8px;
-      border-radius: 4px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      padding: 2px 6px;
+      border-radius: 3px;
       font-weight: 600;
     }
 
@@ -693,8 +685,7 @@ import { SignalRService } from '../../../core/signalr.service';
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -703,12 +694,13 @@ import { SignalRService } from '../../../core/signalr.service';
     }
     .modal-content {
       width: 100%;
-      max-width: 500px;
+      max-width: 480px;
       padding: 1.5rem;
-      background: #0f1538;
-      border: 1px solid var(--border-active, rgba(0, 212, 255, 0.3));
-      border-radius: 12px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      color: #111827;
     }
     .modal-header {
       display: flex;
@@ -716,54 +708,53 @@ import { SignalRService } from '../../../core/signalr.service';
       align-items: center;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid #e5e7eb;
     }
-    .modal-header h3 { margin: 0; font-size: 1.15rem; color: #ffffff; }
+    .modal-header h3 { margin: 0; font-size: 1.125rem; color: #111827; font-weight: 600; }
     .close-btn {
       background: transparent;
       border: none;
-      color: #94a3b8;
+      color: #6b7280;
       font-size: 1.25rem;
       cursor: pointer;
     }
-    .close-btn:hover { color: #ffffff; }
+    .close-btn:hover { color: #111827; }
     .modal-body label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.8125rem;
+      font-weight: 500;
       margin-bottom: 0.35rem;
-      color: #e2e8f0;
+      color: #374151;
     }
     .alert-info-box {
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.8125rem;
     }
     .modal-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
     }
 
     /* FORM CONTROLS */
     .form-control {
       width: 100%;
-      padding: 0.65rem 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
-      color: #ffffff;
-      font-size: 0.9rem;
+      padding: 0.5rem 0.75rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      color: #111827;
+      font-size: 0.875rem;
     }
     .form-control:focus {
       outline: none;
-      border-color: #00d4ff;
+      border-color: #2563eb;
     }
-    .ml-1 { margin-left: 0.25rem; }
-    .ml-2 { margin-left: 0.5rem; }
   `]
 })
 export class OpsDashboardComponent implements OnInit, OnDestroy {

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AeroPulse.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+272ab5860db27aca44649166cd4e2c4a86d0b3d9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01a2b91d5c0b3084761d148e73146710472a1bca")]
 [assembly: System.Reflection.AssemblyProductAttribute("AeroPulse.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AeroPulse.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

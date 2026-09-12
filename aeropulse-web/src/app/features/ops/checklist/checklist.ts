@@ -562,26 +562,26 @@ interface MissingPassenger {
     }
 
     .btn-refresh {
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      color: #ffffff;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      padding: 0.5rem 0.875rem;
+      border-radius: 4px;
       cursor: pointer;
     }
 
     /* BANNER */
     .banner-card {
-      background: linear-gradient(135deg, rgba(15, 21, 56, 0.9) 0%, rgba(20, 30, 80, 0.9) 100%);
-      border: 1px solid rgba(0, 212, 255, 0.2);
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
       padding: 1.25rem;
-      border-radius: 12px;
+      border-radius: 4px;
     }
 
     .banner-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
     }
 
     .banner-col {
@@ -592,21 +592,21 @@ interface MissingPassenger {
 
     .banner-label {
       font-size: 0.75rem;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 0.5px;
+      font-weight: 600;
+      color: #6b7280;
+      letter-spacing: 0.05em;
     }
 
     .countdown-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #00d4ff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
       font-family: monospace;
     }
 
     .banner-sub {
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: #6b7280;
       margin-top: 0.25rem;
     }
 
@@ -614,116 +614,107 @@ interface MissingPassenger {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.875rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.8125rem;
       cursor: pointer;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid #f59e0b;
-      color: #fbbf24;
-      transition: all 0.2s ease;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
     }
 
     .clearance-toggle-btn.authorized {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: #10b981;
-      color: #34d399;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
     }
 
     .indicator-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 6px currentColor;
     }
 
     /* TAB NAV */
     .tab-nav {
       display: flex;
       gap: 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid #e5e7eb;
       padding-bottom: 0.5rem;
       overflow-x: auto;
     }
 
     .tab-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.875rem;
       cursor: pointer;
-      transition: all 0.2s ease;
       white-space: nowrap;
     }
 
     .tab-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: #f9fafb;
+      color: #111827;
     }
 
     .tab-btn.active {
-      background: rgba(0, 212, 255, 0.15);
-      border-color: #00d4ff;
-      color: #00d4ff;
-      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
     }
 
     /* TASKS LIST */
     .tasks-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .task-card {
       display: grid;
-      grid-template-columns: 1fr 220px 140px;
-      gap: 1.5rem;
+      grid-template-columns: 1fr 200px 140px;
+      gap: 1rem;
       align-items: center;
-      padding: 1rem 1.25rem;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      transition: all 0.2s ease;
-    }
-
-    .task-card:hover {
-      background: rgba(15, 23, 42, 0.9);
-      border-color: rgba(0, 212, 255, 0.3);
+      padding: 0.875rem 1rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
     }
 
     .task-card.in-progress {
-      border-left: 4px solid #f59e0b;
-      background: rgba(245, 158, 11, 0.04);
+      border-left: 4px solid #d97706;
+      background: #fffbeb;
     }
 
     .task-card.completed {
-      border-left: 4px solid #10b981;
-      background: rgba(16, 185, 129, 0.04);
+      border-left: 4px solid #16a34a;
+      background: #f0fdf4;
     }
 
     .task-left {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .task-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.2);
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.125rem;
       flex-shrink: 0;
+      color: #111827;
     }
 
     .task-details {
@@ -733,53 +724,52 @@ interface MissingPassenger {
     .task-title-row {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
     .task-name {
       margin: 0;
-      font-size: 1rem;
-      font-weight: 700;
-      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #111827;
     }
 
     .task-dynamic-metric {
-      font-size: 0.85rem;
-      color: #38bdf8;
+      font-size: 0.8125rem;
+      color: #2563eb;
       font-weight: 600;
     }
 
     .task-meta {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.375rem;
       flex-wrap: wrap;
     }
 
     .meta-pill {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
+      font-size: 0.6875rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
     }
-    .meta-pill.gse { border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
-    .meta-pill.user { border-color: rgba(168, 85, 247, 0.3); color: #c084fc; }
+    .meta-pill.gse { border-color: #fde68a; color: #92400e; }
+    .meta-pill.user { border-color: #e9d5ff; color: #7e22ce; }
 
     .progress-track {
       width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
       overflow: hidden;
     }
 
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #00d4ff, #10b981);
-      border-radius: 999px;
-      transition: width 0.3s ease;
+      background: #16a34a;
+      border-radius: 3px;
     }
 
     .progress-slider {

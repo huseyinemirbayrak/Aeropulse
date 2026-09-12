@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-inventory',
@@ -94,7 +95,7 @@ export class InventoryComponent implements OnInit {
   pageSize = 20;
   totalCount = 0;
   
-  private apiUrl = 'http://localhost:5253/api/parts'; 
+  private apiUrl = `${environment.apiUrl}/parts`; 
 
   constructor(private http: HttpClient) {}
 

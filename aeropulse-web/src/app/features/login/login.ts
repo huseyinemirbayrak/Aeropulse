@@ -10,17 +10,11 @@ import { AuthService } from '../../core/auth.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="login-page">
-      <div class="login-bg-effects">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-      </div>
-
-      <div class="login-container animate-fade-in">
+      <div class="login-container">
         <div class="login-brand">
           <div class="brand-icon">✈</div>
           <h1>AeroPulse</h1>
-          <p>Smart Aviation & MRO Operations Hub</p>
+          <p>Aviation & MRO Operations Hub</p>
         </div>
 
         <div class="login-card glass-card">
@@ -91,101 +85,51 @@ import { AuthService } from '../../core/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-primary);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .login-bg-effects {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.15;
-      animation: float 15s ease-in-out infinite;
-    }
-
-    .orb-1 {
-      width: 500px;
-      height: 500px;
-      background: var(--accent-primary);
-      top: -10%;
-      right: -10%;
-      animation-delay: 0s;
-    }
-
-    .orb-2 {
-      width: 400px;
-      height: 400px;
-      background: var(--accent-secondary);
-      bottom: -10%;
-      left: -5%;
-      animation-delay: -5s;
-    }
-
-    .orb-3 {
-      width: 300px;
-      height: 300px;
-      background: #00ff88;
-      top: 50%;
-      left: 50%;
-      animation-delay: -10s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -30px) scale(1.05); }
-      66% { transform: translate(-20px, 20px) scale(0.95); }
+      background: #ffffff;
     }
 
     .login-container {
-      position: relative;
-      z-index: 1;
       width: 100%;
-      max-width: 440px;
-      padding: 1rem;
+      max-width: 400px;
+      padding: 24px;
     }
 
     .login-brand {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 24px;
     }
 
     .brand-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--accent-gradient);
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 1rem;
-      box-shadow: 0 8px 32px rgba(0, 212, 255, 0.3);
+      font-size: 1.5rem;
+      margin: 0 auto 0.75rem;
+      color: #111827;
     }
 
     .login-brand h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #111827;
     }
 
     .login-brand p {
-      color: var(--text-muted);
+      color: #6b7280;
       font-size: 0.875rem;
       margin-top: 0.25rem;
     }
 
     .login-card {
-      padding: 2rem;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 24px;
     }
 
     .login-card h2 {

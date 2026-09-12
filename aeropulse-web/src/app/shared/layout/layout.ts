@@ -136,15 +136,15 @@ interface MenuItem {
     .layout {
       display: flex;
       min-height: 100vh;
+      background: #ffffff;
     }
 
     .sidebar {
       width: var(--sidebar-width);
-      background: var(--bg-sidebar);
-      border-right: 1px solid var(--border-color);
+      background: #ffffff;
+      border-right: 1px solid #e5e7eb;
       display: flex;
       flex-direction: column;
-      transition: width var(--transition-normal);
       position: fixed;
       top: 0;
       left: 0;
@@ -161,161 +161,165 @@ interface MenuItem {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.25rem 1rem;
-      border-bottom: 1px solid var(--border-color);
-      min-height: 64px;
+      padding: 0 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      height: var(--header-height);
+      background: #ffffff;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .logo-icon {
-      font-size: 1.5rem;
-      width: 36px;
-      height: 36px;
+      font-size: 1.25rem;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--accent-gradient);
-      border-radius: 10px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      color: #111827;
       flex-shrink: 0;
     }
 
     .logo-text {
-      font-size: 1.25rem;
-      font-weight: 800;
-      background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #111827;
       white-space: nowrap;
     }
 
     .toggle-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
       cursor: pointer;
-      font-size: 1rem;
-      padding: 0.25rem;
-      transition: color var(--transition-fast);
+      font-size: 0.875rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
     }
 
     .toggle-btn:hover {
-      color: var(--accent-primary);
+      background: #f9fafb;
+      color: #111827;
     }
 
     .sidebar-nav {
       flex: 1;
-      padding: 1rem 0.75rem;
+      padding: 0.75rem 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.125rem;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: var(--border-radius-sm);
-      color: var(--text-secondary);
+      padding: 0.625rem 0.75rem;
+      border-radius: 4px;
+      color: #374151;
       font-weight: 500;
       font-size: 0.875rem;
-      transition: all var(--transition-fast);
       text-decoration: none;
       white-space: nowrap;
+      border-left: 3px solid transparent;
     }
 
     .nav-item:hover {
-      background: rgba(0, 212, 255, 0.08);
-      color: var(--text-primary);
+      background: #f3f4f6;
+      color: #111827;
     }
 
     .nav-item.active {
-      background: rgba(0, 212, 255, 0.12);
-      color: var(--accent-primary);
-      box-shadow: inset 3px 0 0 var(--accent-primary);
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-left: 3px solid #2563eb;
+      font-weight: 600;
     }
 
     .nav-icon {
       width: 20px;
       text-align: center;
-      font-size: 1.1rem;
+      font-size: 1rem;
       flex-shrink: 0;
     }
 
     .sidebar-footer {
-      padding: 1rem;
-      border-top: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e5e7eb;
+      background: #fafafa;
     }
 
     .user-info {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
+      gap: 0.625rem;
+      margin-bottom: 0.625rem;
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: var(--accent-gradient);
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 0.75rem;
-      color: #fff;
+      color: #1e293b;
       flex-shrink: 0;
     }
 
     .user-name {
       font-weight: 600;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
+      color: #111827;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 150px;
+      max-width: 140px;
     }
 
     .user-role {
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: #6b7280;
     }
 
     .logout-btn {
       width: 100%;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
-      padding: 0.625rem 1rem;
-      border-radius: var(--border-radius-sm);
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      color: var(--color-danger);
+      padding: 0.4rem 0.75rem;
+      border-radius: 4px;
+      background: #ffffff;
+      border: 1px solid #fca5a5;
+      color: #dc2626;
       cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 500;
-      transition: all var(--transition-fast);
     }
 
     .logout-btn:hover {
-      background: rgba(239, 68, 68, 0.2);
+      background: #fef2f2;
     }
 
     .main-content {
       margin-left: var(--sidebar-width);
       flex: 1;
-      transition: margin-left var(--transition-normal);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: #ffffff;
     }
 
     .main-content.expanded {
@@ -327,25 +331,24 @@ interface MenuItem {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-color);
+      padding: 0 1.5rem;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
       position: sticky;
       top: 0;
       z-index: 50;
-      backdrop-filter: blur(20px);
     }
 
     .page-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: var(--text-primary);
+      color: #111827;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .tenant-switcher-wrapper {
@@ -356,46 +359,43 @@ interface MenuItem {
     }
 
     .tenant-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
       text-transform: uppercase;
     }
 
     .tenant-select-box {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      padding: 0.35rem 0.85rem;
+      gap: 0.5rem;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 0.35rem 0.75rem;
       cursor: pointer;
-      color: var(--text-primary);
-      font-family: inherit;
-      transition: all 0.2s ease;
+      color: #111827;
+      font-size: 0.8125rem;
+      font-weight: 500;
       outline: none;
     }
 
     .tenant-select-box:hover {
-      background: rgba(30, 41, 59, 0.95);
-      border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+      background: #f9fafb;
+      border-color: #9ca3af;
     }
 
     .tenant-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
-      box-shadow: 0 0 8px currentColor;
     }
 
     .tenant-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      max-width: 220px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      max-width: 200px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -403,8 +403,7 @@ interface MenuItem {
 
     .tenant-arrow {
       font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-left: 0.2rem;
+      color: #6b7280;
     }
 
     .tenant-dropdown-backdrop {
@@ -418,58 +417,41 @@ interface MenuItem {
 
     .tenant-dropdown {
       position: absolute;
-      top: calc(100% + 8px);
+      top: calc(100% + 4px);
       right: 0;
-      width: 330px;
-      background: rgba(15, 23, 42, 0.98);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 12px;
-      padding: 0.5rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(20px);
+      width: 300px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 0.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       z-index: 160;
-      animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes slideDownFade {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .tenant-dropdown-header {
-      font-size: 0.7rem;
+      font-size: 0.6875rem;
       font-weight: 700;
-      color: #94a3b8;
-      padding: 0.4rem 0.75rem;
-      letter-spacing: 0.05em;
+      color: #6b7280;
+      padding: 0.375rem 0.625rem;
       text-transform: uppercase;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 0.35rem;
+      border-bottom: 1px solid #f1f5f9;
     }
 
     .tenant-option {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 0.75rem;
-      border-radius: 8px;
+      gap: 0.625rem;
+      padding: 0.5rem 0.625rem;
+      border-radius: 4px;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
     .tenant-option:hover {
-      background: rgba(56, 189, 248, 0.12);
+      background: #f3f4f6;
     }
 
     .tenant-option.active {
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: #eff6ff;
     }
 
     .tenant-opt-info {
@@ -481,149 +463,110 @@ interface MenuItem {
 
     .tenant-opt-title {
       font-size: 0.8125rem;
-      font-weight: 600;
-      color: #f1f5f9;
+      font-weight: 500;
+      color: #111827;
     }
 
     .tenant-opt-sub {
-      font-size: 0.7rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
+      color: #6b7280;
     }
 
     .check-mark {
-      color: #38bdf8;
-      font-weight: 800;
-      font-size: 0.9rem;
+      color: #2563eb;
+      font-weight: 700;
+      font-size: 0.875rem;
     }
 
     .ws-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 4px;
       font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      transition: all 0.3s ease;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: 500;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      color: #374151;
     }
 
     .ws-badge.connected {
-      border-color: rgba(34, 197, 94, 0.4);
-      background: rgba(34, 197, 94, 0.12);
-      color: #4ade80;
-      box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
     }
 
     .ws-badge.disconnected {
-      border-color: rgba(239, 68, 68, 0.4);
-      background: rgba(239, 68, 68, 0.12);
-      color: #f87171;
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
     }
 
     .ws-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 8px currentColor;
     }
 
     .toast-container {
       position: fixed;
-      top: 75px;
-      right: 25px;
+      top: 64px;
+      right: 20px;
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
-      max-width: 420px;
+      gap: 0.5rem;
+      max-width: 380px;
       pointer-events: none;
     }
 
     .toast-card {
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(16px);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      border-left: 4px solid #38bdf8;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
-      animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      transition: transform 0.2s ease, opacity 0.2s ease;
+      background: #ffffff;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #2563eb;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
-    .toast-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .toast-card.toast-info {
-      border-left-color: #38bdf8;
-      border-right: 1px solid rgba(56, 189, 248, 0.2);
-    }
-
-    .toast-card.toast-success {
-      border-left-color: #22c55e;
-      border-right: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .toast-card.toast-warning {
-      border-left-color: #f59e0b;
-      border-right: 1px solid rgba(245, 158, 11, 0.2);
-    }
-
-    .toast-card.toast-danger {
-      border-left-color: #ef4444;
-      border-right: 1px solid rgba(239, 68, 68, 0.2);
-    }
+    .toast-card.toast-info { border-left-color: #0284c7; }
+    .toast-card.toast-success { border-left-color: #16a34a; }
+    .toast-card.toast-warning { border-left-color: #d97706; }
+    .toast-card.toast-danger { border-left-color: #dc2626; }
 
     .toast-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .toast-icon {
-      font-size: 1.1rem;
+      gap: 0.375rem;
+      margin-bottom: 0.25rem;
     }
 
     .toast-title {
-      font-weight: 700;
-      font-size: 0.875rem;
-      color: #f8fafc;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: #111827;
       flex: 1;
     }
 
     .toast-time {
-      font-size: 0.7rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
+      color: #6b7280;
     }
 
     .toast-body {
-      font-size: 0.8125rem;
-      color: #cbd5e1;
+      font-size: 0.75rem;
+      color: #4b5563;
       line-height: 1.4;
-    }
-
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
     }
 
     .content-area {
       flex: 1;
-      padding: 2rem;
-      animation: fadeIn 0.3s ease;
+      padding: 1.5rem;
+      background: #ffffff;
     }
   `]
 })

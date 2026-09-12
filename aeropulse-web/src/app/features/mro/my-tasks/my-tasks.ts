@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-my-tasks',
@@ -58,9 +59,7 @@ export class MyTasksComponent implements OnInit {
   loading = true;
   error = '';
   
-  // Note: Backend might be on a different port during dev, e.g., http://localhost:5253/api/fault-reports/my-faults
-  // Using relative path assuming a proxy or exact same host is used.
-  private apiUrl = 'http://localhost:5253/api/fault-reports/my-faults'; 
+  private apiUrl = `${environment.apiUrl}/fault-reports/my-faults`; 
 
   constructor(private http: HttpClient) {}
 
