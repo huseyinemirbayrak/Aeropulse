@@ -71,8 +71,7 @@ export class AuthService {
       case UserRole.Admin: return '/admin/dashboard';
       case UserRole.OperationsManager: return '/ops/dashboard';
       case UserRole.MROEngineer: return '/mro/dashboard';
-      case UserRole.FieldTechnician: return '/tech/dashboard';
-      case UserRole.Viewer: return '/viewer/dashboard';
+      case UserRole.FieldTechnician: return '/tech/ramp-tasks';
       default: return '/login';
     }
   }

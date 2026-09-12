@@ -88,7 +88,6 @@ import { User, UserRole, RegisterRequest } from '../../../core/models';
               <option value="OperationsManager">Operations Manager</option>
               <option value="MROEngineer">MRO Engineer</option>
               <option value="FieldTechnician">Field Technician</option>
-              <option value="Viewer">Viewer</option>
             </select>
           </div>
           <div class="error-message" *ngIf="errorMessage" style="margin-top: 0.5rem;">
@@ -170,7 +169,6 @@ export class UsersComponent implements OnInit {
       case 'MROEngineer': return 'badge-info';
       case 'OperationsManager': return 'badge-warning';
       case 'FieldTechnician': return 'badge-success';
-      case 'Viewer': return 'badge-default';
       default: return 'badge-default';
     }
   }

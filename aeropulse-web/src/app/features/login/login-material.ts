@@ -213,14 +213,6 @@ import { NotificationService } from '../../core/notification.service';
               >
                 <span>🛠️ Teknisyen</span>
               </button>
-              <button 
-                type="button"
-                mat-stroked-button
-                (click)="fillDemo('viewer@aeropulse.com', 'View123!')"
-                class="demo-btn"
-              >
-                <span>👁️ Viewer</span>
-              </button>
             </div>
           </mat-card-footer>
         </mat-card>
@@ -525,7 +517,7 @@ export class LoginComponent {
         } else if (role === 'FieldTechnician') {
           this.router.navigate(['/tech/ramp-tasks']);
         } else {
-          this.router.navigate(['/viewer/dashboard']);
+          this.router.navigate(['/ops/dashboard']);
         }
       },
       error: (error) => {

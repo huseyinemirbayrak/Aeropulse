@@ -32,7 +32,7 @@ public class OperationsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -44,7 +44,7 @@ public class OperationsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);

@@ -28,7 +28,7 @@ public class OccController : ControllerBase
 
     // OCC sayfasi icin genel durum ozeti
     [HttpGet("overview")]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetOverview()
     {
         var runways = await _context.Runways.ToListAsync();
@@ -93,7 +93,7 @@ public class OccController : ControllerBase
 
     // aktif pistleri listeler
     [HttpGet("runways")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician,MROEngineer")]
+    [Authorize(Roles = "Admin,OperationsManager,FieldTechnician,MROEngineer")]
     public async Task<IActionResult> GetRunways()
     {
         var runways = await _context.Runways
@@ -132,7 +132,7 @@ public class OccController : ControllerBase
 
     // tum kapi ve koruklerin listesi
     [HttpGet("gates")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician,MROEngineer")]
+    [Authorize(Roles = "Admin,OperationsManager,FieldTechnician,MROEngineer")]
     public async Task<IActionResult> GetGates()
     {
         var gates = await _context.Gates
@@ -204,7 +204,7 @@ public class OccController : ControllerBase
     /// Apron Yer Destek Ekipmanları (GSE) listesi
     /// </summary>
     [HttpGet("gse")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician,MROEngineer")]
+    [Authorize(Roles = "Admin,OperationsManager,FieldTechnician,MROEngineer")]
     public async Task<IActionResult> GetGSE()
     {
         var gseList = await _context.GroundSupportEquipments
@@ -296,7 +296,7 @@ public class OccController : ControllerBase
     /// Bir uçuşa ait Turnaround Görevleri ve Manifest Detayları (Redcap / Turnaround Ekranı)
     /// </summary>
     [HttpGet("turnaround/{operationId}")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician,MROEngineer")]
+    [Authorize(Roles = "Admin,OperationsManager,FieldTechnician,MROEngineer")]
     public async Task<IActionResult> GetTurnaroundDetail(Guid operationId)
     {
         var op = await _context.Operations

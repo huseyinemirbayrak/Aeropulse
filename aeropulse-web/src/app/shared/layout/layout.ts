@@ -656,7 +656,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
       case UserRole.MROEngineer: return 'Teknik Bakım Mühendisi';
       case UserRole.OperationsManager: return 'Operasyon Müdürü';
       case UserRole.FieldTechnician: return 'Saha / Ramp Teknisyeni';
-      case UserRole.Viewer: return 'İzleyici';
       default: return role || '';
     }
   }
@@ -678,8 +677,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
           { label: 'Ramp Görevleri', icon: '📋', route: '/ops/ramp' },
           { label: 'Körük ve Kapı', icon: '🔗', route: '/ops/jet-bridges' },
           { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
-          { label: 'Mühendislik (MRO)', icon: '⚙️', route: '/mro/dashboard' },
-          { label: 'İzleyici Paneli', icon: '👁️', route: '/viewer/dashboard' }
+          { label: 'Mühendislik (MRO)', icon: '⚙️', route: '/mro/dashboard' }
         ];
         break;
       case UserRole.MROEngineer:
@@ -710,14 +708,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
           { label: 'Arıza Kayıtlarım', icon: '🛠️', route: '/tech/my-faults' },
           { label: 'Arıza Bildir', icon: '⚠️', route: '/tech/fault-form' },
           { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' }
-        ];
-        break;
-      case UserRole.Viewer:
-        this.menuItems = [
-          { label: 'İzleyici Paneli', icon: '📊', route: '/viewer/dashboard' },
-          { label: 'Uçuş Seferleri', icon: '✈️', route: '/ops/operations' },
-          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' },
-          { label: 'Apron Filosu', icon: '🚜', route: '/ops/gse-fleet' }
         ];
         break;
     }

@@ -34,15 +34,6 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'viewer',
-    canActivate: [roleGuard('Viewer', 'Admin')],
-    loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
-    children: [
-      { path: 'dashboard', loadComponent: () => import('./features/viewer/dashboard/dashboard').then(m => m.ViewerDashboardComponent) },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-    ]
-  },
-  {
     path: 'ops',
     canActivate: [roleGuard('OperationsManager', 'Admin')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),

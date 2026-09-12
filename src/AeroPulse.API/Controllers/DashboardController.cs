@@ -36,15 +36,6 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("viewer")]
-    [Authorize(Roles = "Admin,Viewer")]
-    public async Task<IActionResult> GetViewerDashboard()
-    {
-        // Viewer sees the same data as admin dashboard but read-only
-        var result = await _dashboardService.GetAdminDashboardAsync();
-        return Ok(result);
-    }
-
     private Guid? GetUserId()
     {
         var claim = User.FindFirst(ClaimTypes.NameIdentifier);

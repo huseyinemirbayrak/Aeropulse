@@ -31,7 +31,7 @@ public class FaultReportsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,

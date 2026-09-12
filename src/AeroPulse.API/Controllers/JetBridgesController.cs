@@ -35,7 +35,7 @@ public class JetBridgesController : ControllerBase
     // ============== JET BRIDGE ENDPOINTS ==============
 
     [HttpGet]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAll([FromQuery] string? terminalNo = null)
     {
         var result = await _service.GetAllAsync(terminalNo);
@@ -43,7 +43,7 @@ public class JetBridgesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);
@@ -83,7 +83,7 @@ public class JetBridgesController : ControllerBase
     /// Her istekte DB'ye gitmez — 2 dakika boyunca cache'den gelir.
     /// </summary>
     [HttpGet("available")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAvailable([FromQuery] string terminalNo = "T1")
     {
         var result = await _service.GetAvailableBridgesAsync(terminalNo);
@@ -93,7 +93,7 @@ public class JetBridgesController : ControllerBase
     // ============== ASSIGNMENT ENDPOINTS ==============
 
     [HttpGet("assignments")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAllAssignments([FromQuery] Guid? jetBridgeId = null)
     {
         var result = await _service.GetAllAssignmentsAsync(jetBridgeId);
@@ -101,7 +101,7 @@ public class JetBridgesController : ControllerBase
     }
 
     [HttpGet("assignments/{id}")]
-    [Authorize(Roles = "Admin,OperationsManager,Viewer,FieldTechnician")]
+    [Authorize(Roles = "Admin,OperationsManager,MROEngineer,FieldTechnician")]
     public async Task<IActionResult> GetAssignmentById(Guid id)
     {
         var result = await _service.GetAssignmentByIdAsync(id);

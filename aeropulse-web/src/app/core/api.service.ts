@@ -88,10 +88,6 @@ export class ApiService {
     return this.http.get<ApiResponse<MRODashboard>>(`${this.API}/dashboard/mro`);
   }
 
-  getViewerDashboard(): Observable<ApiResponse<AdminDashboard>> {
-    return this.http.get<ApiResponse<AdminDashboard>>(`${this.API}/dashboard/viewer`);
-  }
-
   // ============================================
   // ===== MODULE 3: Operations =====
   // ============================================

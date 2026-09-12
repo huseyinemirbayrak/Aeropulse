@@ -62,17 +62,7 @@ public static class DataSeeder
             IsActive = true
         };
 
-        var viewer = new User
-        {
-            Id = Guid.Parse("10000000-0000-0000-0000-000000000006"),
-            FullName = "Board Viewer",
-            Email = "viewer@aeropulse.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("View123!"),
-            Role = UserRole.Viewer,
-            IsActive = true
-        };
-
-        context.Users.AddRange(adminUser, opsManager, mroEngineer1, mroEngineer2, fieldTech, viewer);
+        context.Users.AddRange(adminUser, opsManager, mroEngineer1, mroEngineer2, fieldTech);
 
         // ===== AIRCRAFT =====
         var aircraft1 = new Aircraft
@@ -237,17 +227,14 @@ public static class DataSeeder
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
                 Role = UserRole.OperationsManager,
                 IsActive = true
-            },
-            new User
-            {
-                Id = Guid.Parse("10000000-0000-0000-0000-000000000009"),
-                FullName = "Demo Viewer",
-                Email = "demo.viewer@aeropulse.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Demo123!"),
-                Role = UserRole.Viewer,
-                IsActive = true
             }
         };
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync("DELETE FROM Users WHERE Email IN ('viewer@aeropulse.com', 'demo.viewer@aeropulse.com') OR Role = 4;");
+        }
+        catch { }
 
         foreach (var user in demoUsers)
         {

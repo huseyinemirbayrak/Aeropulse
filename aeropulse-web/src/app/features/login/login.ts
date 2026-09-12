@@ -70,9 +70,6 @@ import { AuthService } from '../../core/auth.service';
               <button class="demo-btn" (click)="fillDemo('engineer&#64;aeropulse.com', 'Eng123!')">
                 <span class="demo-role">🔧 MRO Engineer</span>
               </button>
-              <button class="demo-btn" (click)="fillDemo('viewer&#64;aeropulse.com', 'View123!')">
-                <span class="demo-role">📊 Viewer</span>
-              </button>
             </div>
           </div>
         </div>
