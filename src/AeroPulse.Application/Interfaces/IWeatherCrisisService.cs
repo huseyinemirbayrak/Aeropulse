@@ -11,7 +11,7 @@ public interface IWeatherCrisisService
     /// Rüzgâr krizini tetikler:
     /// - Tüm körükleri güvenlik amacıyla "UnderMaintenance" statüsüne alır.
     /// - Operasyon Yöneticisi ve Admin rollerine kritik seviyeli acil durum bildirimi gönderir.
-    /// - Mesaj kuyruğuna (RabbitMQ) kriz olayını yayınlar.
+    /// - Mesaj kuyruğuna (Event Bus) kriz olayını yayınlar.
     /// - Spam koruması: Kriz zaten aktifse tekrar bildirim atmaz.
     /// </summary>
     Task<ApiResponse<CrisisOperationResultDto>> TriggerWindCrisisAsync(

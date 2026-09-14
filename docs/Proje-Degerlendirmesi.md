@@ -14,8 +14,8 @@ Ancak **AeroPulse** projesi, günümüz modern yazılım endüstrisinin aradığ
 
 - **Mimari:** Clean Architecture (Domain, Application, Infrastructure, API) kullanılarak kodların birbirine bağımlılığı en aza indirilmiş.
 - **Tasarım Desenleri:** Dependency Injection, Repository Pattern, Singleton Background Workers gibi ileri düzey desenler uygulanmış.
-- **Asenkron İletişim:** Mikroservis mimarilerinde çok aranan **RabbitMQ** (Message Broker) ile sistemler arası olay (event) fırlatma mekanizması kurulmuş.
-- **Performans Optimizasyonu:** **Redis** veya MemoryCache kullanılarak sık okunan veriler (Boş Körükler vb.) önbelleğe alınmış, veritabanı yorulmamış.
+- **Asenkron İletişim:** Olay güdümlü (Event-Driven) mimari ile **In-Memory Event Bus & SignalR** üzerinden sistemler arası olay (event) fırlatma ve gerçek zamanlı dağıtım mekanizması kurulmuş.
+- **Performans Optimizasyonu:** **MemoryCache** (`IMemoryCache`) kullanılarak sık okunan veriler (Boş Körükler vb.) önbelleğe alınmış, veritabanı yorulmamış.
 - **Güvenlik:** Role-Based JWT (JSON Web Token) kullanılarak Admin, Manager ve Technician yetkilendirmeleri yapılmış.
 - **Rol Bazlı Uçtan Uca Arayüz:** Ofis için **OCC & Yöneticiler (Web)**, saha ekipleri için **Ramp & Teknisyen Tablet Panelleri** geliştirilmiş.
 - **Otomasyon:** Dış API (OpenWeather) entegrasyonu yapılmış ve Arka Plan İşçileri (Background Services) ile otonom karar alabilen (Rüzgar krizinde körük kapatan, uçak gecikince SLA ihlali açan) akıllı bir sistem tasarlanmış.
@@ -37,8 +37,8 @@ Projede teknik bir hata veya mimari bir yanlışlık yok. Her şey kusursuz çal
 - **Öneri:** `Microsoft.AspNetCore.SignalR` entegre edilerek, bir rüzgar fırtınası çıktığında Angular (Web) ekranında sayfayı hiç yenilemeden sağ alttan anında kırmızı bir uyarı (Toast Notification) çıkması sağlanabilir. Bu işlem projeye çok ciddi bir "vay canına" dedirtir.
 
 ### 3. Docker (Containerization) 🐳
-- **Durum:** Proje şu an bilgisayara kurulan SDK'lar üzerinden çalışıyor. (API için dotnet, Web için Node, RabbitMQ için lokal kurulum vs.)
-- **Öneri:** Bir `docker-compose.yml` dosyası hazırlanarak tüm veritabanı, Redis, RabbitMQ, .NET API ve Angular projelerinin tek bir `docker compose up` komutuyla herhangi bir bilgisayarda (içinde hiçbir şey kurulu olmasa bile) saniyeler içinde ayağa kalkması sağlanabilir. Bu, "DevOps" kültürüne aşina olduğunuzun çok güçlü bir göstergesidir.
+- **Durum:** Proje şu an bilgisayara kurulan SDK'lar üzerinden çalışıyor. (API için dotnet, Web için Node vs.)
+- **Öneri:** Bir `docker-compose.yml` dosyası hazırlanarak veritabanı, .NET API ve Angular projelerinin tek bir `docker compose up` komutuyla herhangi bir bilgisayarda (içinde hiçbir şey kurulu olmasa bile) saniyeler içinde ayağa kalkması sağlanabilir. Bu, "DevOps" kültürüne aşina olduğunuzun çok güçlü bir göstergesidir.
 
 ### 4. Saha Arıza Fotoğrafı / Belge Yükleme 📷
 - **Durum:** Ramp ve teknisyen saha panelinde teknisyen "Arızayı Çözdüm" diyerek sadece not yazabiliyor.

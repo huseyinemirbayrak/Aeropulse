@@ -53,7 +53,7 @@ public class CrisisController : ControllerBase
 
     /// <summary>
     /// Rüzgâr / Windshear krizini manuel olarak tetikler veya simüle eder.
-    /// Körükler 'UnderMaintenance' moduna çekilir, acil bildirimler gönderilir ve RabbitMQ'ya mesaj iletilir.
+    /// Körükler 'UnderMaintenance' moduna çekilir, acil bildirimler gönderilir ve olay kuyruğuna (Event Bus) mesaj iletilir.
     /// Sadece Admin ve OperationsManager rolleri tetikleyebilir.
     /// </summary>
     [HttpPost("wind/trigger")]

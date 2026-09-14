@@ -14,7 +14,7 @@ namespace AeroPulse.API.Controllers;
 ///   POST   /api/jet-bridges                              — Yeni körük ekle
 ///   PUT    /api/jet-bridges/{id}                         — Körük güncelle
 ///   DELETE /api/jet-bridges/{id}                         — Körük sil
-///   GET    /api/jet-bridges/available                    — Boş körükler (Redis cache)
+///   GET    /api/jet-bridges/available                    — Boş körükler (Önbellek / Cache)
 ///   GET    /api/jet-bridges/assignments                  — Tüm atamalar
 ///   POST   /api/jet-bridges/assignments                  — Yeni atama (ÇAKIŞMA KONTROLÜ)
 ///   PUT    /api/jet-bridges/assignments/{id}/status      — Durum güncelle (akış)
@@ -79,7 +79,7 @@ public class JetBridgesController : ControllerBase
     }
 
     /// <summary>
-    /// Belirli bir terminaldeki boş körükler (Redis cache'ten).
+    /// Belirli bir terminaldeki boş körükler (Önbellekten / Cache).
     /// Her istekte DB'ye gitmez — 2 dakika boyunca cache'den gelir.
     /// </summary>
     [HttpGet("available")]
@@ -146,7 +146,7 @@ public class JetBridgesController : ControllerBase
     /// <summary>
     /// Durum akışı endpoint'i.
     /// Planned → AircraftLanded → BridgeConnected → DisembarkingComplete → Released
-    /// Her geçişte RabbitMQ + Redis güncellenir.
+    /// Her geçişte olay kuyruğu (Event Bus) + önbellek (Cache) güncellenir.
     /// </summary>
     [HttpPut("assignments/{id}/status")]
     [Authorize(Roles = "Admin,OperationsManager,FieldTechnician")]

@@ -23,8 +23,8 @@ Proje, günümüz yazılım endüstrisinin standartları olan **"Kurumsal (Enter
 - **.NET 8/10 (C#):** API'nin çekirdek dil ve framework'ü.
 - **Entity Framework Core:** Veritabanı işlemleri (ORM - Object Relational Mapping) için.
 - **JWT (JSON Web Token):** Kimlik doğrulama (Authentication) ve rol bazlı yetkilendirme (Admin, OperationsManager, Technician) için.
-- **Redis (Cache):** Sık okunan verilerin (boş körükler, kriz durumu vb.) veritabanını yormadan milisaniyeler içinde getirilmesi için.
-- **RabbitMQ (Message Broker):** Mikroservis mimarilerine hazırlık olarak, kriz anlarında sistemler arası asenkron mesaj ve olay (Event) fırlatmak için.
+- **In-Memory Cache (IMemoryCache):** Sık okunan verilerin (boş körükler, kriz durumu vb.) veritabanını yormadan milisaniyeler içinde getirilmesi için.
+- **Event Bus & SignalR (Message Bus / WebSocket):** Kriz anlarında ve operasyonel durumlarda sistemler arası asenkron olay (Event) ve istemcilere gerçek zamanlı bildirim fırlatmak için.
 - **Background Services (.NET Hosted Services):** Arka planda 7/24 uyumadan çalışan ve dış API'leri dinleyen otonom işçiler.
 
 ### 2.3. Frontend (Ön Yüz) Teknolojileri
@@ -45,7 +45,7 @@ Proje, havalimanı yönetiminin farklı ihtiyaçlarını karşılayan 5 temel mo
 ### Modül 2: Yolcu Köprüsü (Körük / Jet Bridge) Yönetimi
 - Havalimanındaki tüm yolcu köprülerinin anlık durumlarının (Müsait, Dolu, Bakımda, Kapalı) izlenmesi.
 - İnen bir uçağın hangi körüğe yanaşacağının planlanması ve kayıt altına alınması. 
-- Körüklerin statülerinin Redis ile saniyeler içinde güncellenip önbellekte tutulması.
+- Körüklerin statülerinin önbellek (MemoryCache) ile saniyeler içinde güncellenip hafızada tutulması.
 
 ### Modül 3: Bakım ve Arıza Yönetimi (Maintenance & Fault Reports)
 - Uçakların periyodik bakımlarının planlanması (Scheduled Maintenance).
@@ -56,7 +56,7 @@ Proje, havalimanı yönetiminin farklı ihtiyaçlarını karşılayan 5 temel mo
 *Bu modül projenin en "Akıllı" ve yenilikçi (inovatif) kısmıdır.*
 - **OpenWeather API Entegrasyonu:** Sistem, bulunduğu havalimanının hava durumunu dış bir kaynaktan sürekli çeker.
 - **Otonom Kapanma:** Rüzgar hızı saniyede 80 km'yi (Eşik değer) aşarsa, `WeatherMonitorWorker` isimli arka plan servisi insan müdahalesi beklemeden "Kriz (Windshear)" ilan eder.
-- **Otomatik Aksiyonlar:** Kriz anında devrilme riskine karşı tüm boş körükler sistem üzerinden "Kullanım Dışı (UnderMaintenance)" durumuna çekilir, önbellekler temizlenir, RabbitMQ üzerinden acil durum mesajı fırlatılır ve tüm Operasyon Yöneticilerine anlık bildirim gider.
+- **Otomatik Aksiyonlar:** Kriz anında devrilme riskine karşı tüm boş körükler sistem üzerinden "Kullanım Dışı (UnderMaintenance)" durumuna çekilir, önbellekler temizlenir, Olay Kuyruğu (Event Bus) üzerinden acil durum mesajı fırlatılır ve tüm Operasyon Yöneticilerine anlık bildirim gider.
 - Fırtına dindiğinde sistem kendi kendine normale döner ve körükleri tekrar kullanıma açar.
 
 ### Modül 5: Uçuş Gecikme Analizi ve SLA İhlal Uyarıları (Senaryo 2)
@@ -76,7 +76,7 @@ Proje, havalimanı yönetiminin farklı ihtiyaçlarını karşılayan 5 temel mo
 1. **Sıfır İletişim Hatası:** Telsiz anonsları veya telefon trafiği yerine tüm emirlerin merkezi sistemden otomatik ve anlık iletilmesi.
 2. **Otonom Emniyet:** Şiddetli hava koşullarında insanın panikleyip unutabileceği güvenlik adımlarının (körüklerin toplanması vb.) yazılım tarafından saniyeler içinde otonom yürütülmesi.
 3. **Kağıtsız Operasyon (Paperless):** Teknisyenlerin ve ramp görevlilerinin kağıt formlarla dolaşması yerine tablet/el terminali arayüzüyle işleri dijitalde çözmesi süreçleri saatlerden saniyelere indirir.
-4. **Ölçeklenebilirlik:** Clean Architecture, Redis ve RabbitMQ altyapıları sayesinde bu sistem sadece bir havalimanı için değil, aynı anda onlarca farklı havalimanının verisini kasmadan (darboğaza girmeden) yönetecek güce sahiptir.
+4. **Ölçeklenebilirlik:** Clean Architecture, In-Memory Önbellekleme ve Event-Driven Olay Dağıtım altyapıları sayesinde bu sistem sadece bir havalimanı için değil, aynı anda onlarca farklı havalimanının verisini kasmadan (darboğaza girmeden) yönetecek güce sahiptir.
 
 ---
 

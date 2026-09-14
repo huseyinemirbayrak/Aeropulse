@@ -8,7 +8,7 @@ namespace AeroPulse.Application.Services;
 
 /// <summary>
 /// Kullanıcı bildirim servisi.
-/// Bildirimler hem DB'ye kaydedilir (kalıcı) hem de Redis'te okunmamış sayısı cache'lenir.
+/// Bildirimler hem DB'ye kaydedilir (kalıcı) hem de önbellekte (Cache) okunmamış sayısı saklanır.
 /// </summary>
 public class NotificationService : INotificationService
 {

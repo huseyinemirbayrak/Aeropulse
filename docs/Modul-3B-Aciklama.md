@@ -8,7 +8,7 @@ Havalimanlarındaki yolcu köprülerinin (körük) uçaklara atanmasını sağla
 1. **`JetBridgeService.cs`**
    - *Benzetme:* Havalimanı kule kontrolörü (Yer trafiği için).
    - *Görev:* Körük atamalarını yapar. En önemli görevi `CheckAvailabilityAsync` metodudur. Bir köprüye yeni bir uçak atanmak istendiğinde, o saat aralığında o köprüde başka bir uçak olup olmadığını kontrol eder. Eğer varsa atamayı reddeder (Conflict) ve boş olan alternatif köprüleri önerir.
-   - *Redis Cache Kullanımı:* Boş köprüleri listelemek yoğun bir işlem olabileceğinden, boş köprü listesi Redis (veya IMemoryCache) üzerinde tutulur. Böylece veritabanı yorulmaz.
+   - *Önbellek (MemoryCache) Kullanımı:* Boş köprüleri listelemek yoğun bir işlem olabileceğinden, boş köprü listesi In-Memory Cache (`IMemoryCache`) üzerinde tutulur. Böylece veritabanı yorulmaz.
 
 2. **`JetBridgesController.cs`**
    - *Benzetme:* Uçuş bilgi ekranlarına veri sağlayan ana bilgisayar.

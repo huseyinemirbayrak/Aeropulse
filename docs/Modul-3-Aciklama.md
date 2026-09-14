@@ -12,7 +12,7 @@ Bir uçağın havalimanına inişinden kalkışına kadar geçen süredeki (Turn
 
 2. **`FaultReportService.cs` (ve `IFaultReportService.cs`)**
    - *Benzetme:* Acil durum hattı operatörü.
-   - *Görev:* Saha teknisyenlerinin girdiği arıza kayıtlarını alır, veritabanına kaydeder ve `IMessageBusService` (RabbitMQ) üzerinden "Yeni Arıza Var" diye bağırır (Publish).
+   - *Görev:* Saha teknisyenlerinin girdiği arıza kayıtlarını alır, veritabanına kaydeder ve `IMessageBusService` (In-Memory Event Bus) üzerinden "Yeni Arıza Var" diye bağırır (Publish).
 
 3. **`OperationsController.cs` & `FaultReportsController.cs`**
    - *Benzetme:* Şirketin danışma masası.

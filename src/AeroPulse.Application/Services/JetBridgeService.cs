@@ -17,7 +17,7 @@ namespace AeroPulse.Application.Services;
 /// 
 /// Durum akışı:
 ///   Planned → AircraftLanded → BridgeConnected → DisembarkingComplete → Released
-///   Her geçişte RabbitMQ'ya mesaj yayınlanır + Redis cache güncellenir.
+///   Her geçişte olay kuyruğuna (Event Bus) mesaj yayınlanır + önbellek (Cache) güncellenir.
 /// </summary>
 public class JetBridgeService : IJetBridgeService
 {
@@ -26,7 +26,7 @@ public class JetBridgeService : IJetBridgeService
     private readonly ICacheService _cache;
     private readonly INotificationService _notificationService;
 
-    // Redis cache key'leri
+    // Önbellek (Cache) key'leri
     private const string AVAILABLE_BRIDGES_CACHE_KEY = "jetbridges:available:{0}"; // {0} = terminalNo
     private static readonly TimeSpan CACHE_TTL = TimeSpan.FromMinutes(2); // 2 dakika cache
 
@@ -220,9 +220,9 @@ public class JetBridgeService : IJetBridgeService
     /// <summary>
     /// Durum akışını yönetir: Planlandi → UcakIndi → KopruBagli → YolcuInisiTamamlandi → Serbest
     /// Her geçişte:
-    ///   - RabbitMQ'ya bildirim yayınlanır
+    ///   - Olay kuyruğuna (Event Bus) bildirim yayınlanır
     ///   - İlgili kullanıcılara in-app bildirim gönderilir
-    ///   - Redis cache güncellenir
+    ///   - Önbellek (Cache) güncellenir
     /// </summary>
     public async Task<ApiResponse<JetBridgeAssignmentDto>> UpdateAssignmentStatusAsync(Guid assignmentId, UpdateAssignmentStatusDto request)
     {
@@ -266,7 +266,7 @@ public class JetBridgeService : IJetBridgeService
         // Cache temizle (körük durumu değişti)
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, assignment.JetBridge.TerminalNo));
 
-        // ===== RabbitMQ MESAJI + BİLDİRİM =====
+        // ===== OLAY MESAJI (EVENT BUS) + BİLDİRİM =====
         await PublishStatusChangeAsync(assignment, previousStatus, request.NewStatus);
 
         return ApiResponse<JetBridgeAssignmentDto>.Ok(MapAssignmentToDto(assignment),
@@ -324,7 +324,7 @@ public class JetBridgeService : IJetBridgeService
     }
 
     /// <summary>
-    /// Redis cache'ten boş köprüleri getirir.
+    /// Önbellekten (Cache) boş köprüleri getirir.
     /// Cache yoksa DB'den okur ve cache'ler (2 dakika TTL).
     /// </summary>
     public async Task<ApiResponse<List<JetBridgeDto>>> GetAvailableBridgesAsync(string terminalNo)
@@ -400,7 +400,7 @@ public class JetBridgeService : IJetBridgeService
             _ => $"Körük durumu: {newStatus}"
         };
 
-        // RabbitMQ'ya yayınla
+        // Olay kuyruğuna yayınla (Event Bus)
         await _messageBus.PublishAsync($"jetbridge.{eventType.ToLower()}", new BridgeStatusMessage
         {
             EventType = eventType,

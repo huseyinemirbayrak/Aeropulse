@@ -36,8 +36,8 @@ Bir akıllı binadaki **"Yangın Algılama ve Otomatik Yağmurlama Sistemi"** gi
 - **Benzetme:** Kriz Masası Başkanı.
 - **Görevi:** Kriz tetiklendiğinde veya çözüldüğünde yapılması gereken tüm iş mantığını (Business Logic) yürütür:
   - Körükleri emniyet amacıyla "UnderMaintenance" (Kullanım Dışı) statüsüne çeker.
-  - Önbelleği (Redis/MemoryCache) temizler.
-  - RabbitMQ mesaj kuyruğuna olay fırlatır.
+  - Önbelleği (MemoryCache) temizler.
+  - Olay kuyruğuna (Event Bus) kriz olayı fırlatır.
   - Yetkili kullanıcılara (Operasyon Yöneticileri ve Adminler) acil durum bildirimi gönderir.
   - Spam koruması uygulayarak sistemin kilitlenmesini engeller.
 
@@ -72,7 +72,7 @@ Bir akıllı binadaki **"Yangın Algılama ve Otomatik Yağmurlama Sistemi"** gi
   1. **Spam Kontrolü:** Önbellekte aktif kriz var mı? Varsa ikinci kez işlem yapmaz, sistemi yormaz.
   2. **Körüklerin Kapatılması:** Veritabanındaki tüm `JetBridge` kayıtlarını çeker ve durumlarını `JetBridgeStatus.UnderMaintenance` yapar.
   3. **Cache Invalidation:** Yolcuların ve yer ekiplerinin boştaki körükleri görmemesi için `jetbridges:available:*` önbelleklerini temizler.
-  4. **Mesaj Kuyruğu:** `crisis.weather.windshear` kanalı üzerinden RabbitMQ'ya olay yayınlar.
+  4. **Mesaj Kuyruğu:** `crisis.weather.windshear` kanalı üzerinden In-Memory Event Bus'a olay yayınlar ve SignalR ile canlı dağıtır.
   5. **Yetkili Bildirimi:** Sistemdeki tüm `OperationsManager` ve `Admin` kullanıcılarına kritik seviyeli bildirim (`INotificationService`) üretir.
 
 ### `WeatherCrisisService.ResolveWindCrisisAsync(...)`
@@ -80,7 +80,7 @@ Bir akıllı binadaki **"Yangın Algılama ve Otomatik Yağmurlama Sistemi"** gi
 - **Nasıl Çalışır?**
   1. Körükleri tekrar `JetBridgeStatus.Available` yapar.
   2. Önbelleği günceller.
-  3. RabbitMQ'ya `crisis.weather.normal` mesajı yayınlar.
+  3. Olay kuyruğuna `crisis.weather.normal` mesajı yayınlar.
   4. Yetkililere "Hava koşulları normale döndü" bilgilendirmesi gönderir.
 
 ---
@@ -112,14 +112,14 @@ graph TD
     Worker -->|Rüzgâr > 80 km/s| CrisisService[WeatherCrisisService]
     CrisisService -->|Körükleri Kapat| Modul3B[Modül 3B: JetBridge & DB]
     CrisisService -->|Kritik Uyarı| Modul4[Modül 4: NotificationService]
-    CrisisService -->|Olay Yayınla| RabbitMQ[Modül 1: MessageBus / RabbitMQ]
-    CrisisService -->|Önbellek Temizle| Redis[Modül 1: CacheService / Redis]
+    CrisisService -->|Olay Yayınla| EventBus[Modül 1: In-Memory Event Bus]
+    CrisisService -->|Önbellek Temizle| Cache[Modül 1: In-Memory Cache]
     Controller[CrisisController] -->|Manuel Tetikleme / İzleme| CrisisService
 ```
 
 - **Modül 3B (JetBridge):** Rüzgâr krizi anında körüklerin durumu doğrudan değiştirilir.
 - **Modül 4 (Notifications):** Operatörlerin ekranına düşen pop-up ve uyarılar bu modül aracılığıyla basılır.
-- **Modül 1 (Altyapı):** JWT yetkilendirmesi, Redis önbellek yönetimi ve RabbitMQ mesajlaşması kullanılır.
+- **Modül 1 (Altyapı):** JWT yetkilendirmesi, In-Memory Cache önbellek yönetimi ve In-Memory Event Bus mesajlaşması kullanılır.
 
 ---
 

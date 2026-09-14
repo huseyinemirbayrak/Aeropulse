@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace AeroPulse.Infrastructure.Services;
 
 /// <summary>
-/// RabbitMQ'nun in-memory simülasyonu & SignalR Real-Time köprüsü.
+/// In-memory mesaj kuyruğu & SignalR Real-Time köprüsü.
 /// Mesaj kuyruğuna atılan tüm operasyonel event'leri JSON loglar ve
 /// anında IRealTimeNotifier aracılığıyla SignalR WebSocket istemcilerine dağıtır.
 /// </summary>

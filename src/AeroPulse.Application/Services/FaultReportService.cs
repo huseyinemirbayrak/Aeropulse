@@ -9,7 +9,7 @@ namespace AeroPulse.Application.Services;
 /// <summary>
 /// Arıza talep yönetim servisi.
 /// Arızalar saha teknisyeni tarafından açılır, mühendise atanır ve kapatılır.
-/// Her arıza açıldığında RabbitMQ kuyruğuna mesaj düşer.
+/// Her arıza açıldığında mesaj kuyruğuna olay düşer.
 /// </summary>
 public class FaultReportService : IFaultReportService
 {
@@ -79,7 +79,7 @@ public class FaultReportService : IFaultReportService
     /// <summary>
     /// Yeni arıza açar ve:
     ///   1. DB'ye kaydeder
-    ///   2. RabbitMQ kuyruğuna "fault.assigned" mesajı yayınlar
+    ///   2. Mesaj kuyruğuna "fault.assigned" mesajı yayınlar
     ///   3. Atanan mühendise in-app bildirim oluşturur
     /// </summary>
     public async Task<ApiResponse<FaultReportDto>> CreateAsync(CreateFaultReportDto request, Guid reportedByUserId)
@@ -106,8 +106,7 @@ public class FaultReportService : IFaultReportService
         _context.FaultReports.Add(fault);
         await _context.SaveChangesAsync();
 
-        // ===== RabbitMQ'ya mesaj yayınla =====
-        // In-memory modda sadece log'a yazar; production'da gerçek RabbitMQ'ya gider
+        // ===== Mesaj kuyruğuna (Event Bus) yayınla =====
         if (request.AssignedEngineerId.HasValue)
         {
             await _messageBus.PublishAsync("fault.assigned", new FaultAssignedMessage

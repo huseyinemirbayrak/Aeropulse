@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using StackExchange.Redis;
 
 namespace AeroPulse.Infrastructure;
 
@@ -68,52 +67,12 @@ public static class DependencyInjection
         // ===== MODÜL 4: NOTIFICATIONS =====
         services.AddScoped<INotificationService, NotificationService>();
 
-        // ===== MESAJ KUYRUĞU =====
-        var rabbitMqConnection = configuration.GetConnectionString("RabbitMQ");
-        if (!string.IsNullOrEmpty(rabbitMqConnection))
-        {
-            services.AddScoped<IMessageBusService, RabbitMqMessageBusService>();
-        }
-        else
-        {
-            services.AddScoped<IMessageBusService, InMemoryMessageBusService>();
-        }
+        // ===== MESAJ KUYRUĞU & REAL-TIME EVENT BUS (In-Memory) =====
+        services.AddScoped<IMessageBusService, InMemoryMessageBusService>();
 
-        // ===== CACHE =====
-        services.AddMemoryCache(); // IMemoryCache için gerekli
-
-        var redisConnection = configuration.GetConnectionString("Redis");
-        var useRedisCache = false;
-
-        if (!string.IsNullOrWhiteSpace(redisConnection))
-        {
-            try
-            {
-                var redisOptions = ConfigurationOptions.Parse(redisConnection);
-                redisOptions.AbortOnConnectFail = false;
-                redisOptions.ConnectTimeout = 1500;
-                redisOptions.SyncTimeout = 1500;
-
-                using var redis = ConnectionMultiplexer.Connect(redisOptions);
-                useRedisCache = redis.IsConnected;
-            }
-            catch (Exception)
-            {
-                useRedisCache = false;
-            }
-        }
-
-        if (useRedisCache)
-        {
-            services.AddSingleton<IConnectionMultiplexer>(_ =>
-                ConnectionMultiplexer.Connect(redisConnection!));
-            services.AddScoped<ICacheService, RedisCacheService>();
-        }
-        else
-        {
-            Console.WriteLine("Redis sunucusu erişilemediği için cache olarak InMemoryCacheService kullanılacak.");
-            services.AddScoped<ICacheService, InMemoryCacheService>();
-        }
+        // ===== CACHE (In-Memory) =====
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, InMemoryCacheService>();
 
         // ===== HAVA DURUMU SERVİSİ (OpenWeatherMap) =====
         // API anahtarı olmadan mock modda çalışır.

@@ -31,7 +31,7 @@ AeroPulse'da dünyanın en saygın yazılım mimarisi olan **Clean Architecture 
   └───────────────────────────┬─────────────────────────────┘
                               │ Bağımlıdır
   ┌───────────────────────────▼─────────────────────────────┐
-  │              AeroPulse.Infrastructure                   │  <-- Dış Araçlar (Veritabanı, Cache, RabbitMQ, Weather)
+  │              AeroPulse.Infrastructure                   │  <-- Dış Araçlar (Veritabanı, Cache, Event Bus, Weather)
   └───────────────────────────┬─────────────────────────────┘
                               │ Bağımlıdır
   ┌───────────────────────────▼─────────────────────────────┐
@@ -46,7 +46,7 @@ AeroPulse'da dünyanın en saygın yazılım mimarisi olan **Clean Architecture 
 ### Altın Kural: Bağımlılık Yönü (Dependency Inversion)
 - **Domain Katmanı:** En içtedir. Başka hiçbir projeye referans vermez. Saf C# kodudur. Yarın Entity Framework'ü silseniz bile Domain sapasağlam kalır.
 - **Application Katmanı:** Sadece Domain'i tanır. Veritabanının SQLite mı, SQL Server mı olduğunu bilmez; sadece bir "Interface" üzerinden konuşur.
-- **Infrastructure Katmanı:** Dış dünyayla konuşur. Veritabanına gerçekten giden, hava durumunu OpenWeather'dan çeken, Redis'e bağlanan kodlar buradadır.
+- **Infrastructure Katmanı:** Dış dünyayla konuşur. Veritabanına giden, hava durumunu OpenWeather'dan çeken, önbellek ve olay kuyruğu gibi altyapıları yöneten kodlar buradadır.
 - **API Katmanı:** Ön yüzün (Angular, Mobil, Postman) kapısını çaldığı yerdir. İstekleri karşılar, ilgili servise devreder ve sonucu döner.
 
 ---
@@ -192,7 +192,7 @@ catch
 Rüzgâr eşiği (> 80 km/s) aşıldığında:
 1. `_context.JetBridges` çekilir ve hepsi `JetBridgeStatus.UnderMaintenance` yapılır.
 2. `_cache.RemoveAsync("jetbridges:available:...")` ile yolcuların yanlışlıkla körük rezerve etmesi önlenir.
-3. `_messageBus.PublishAsync("crisis.weather.windshear", ...)` ile RabbitMQ'ya kriz mesajı atılır.
+3. `_messageBus.PublishAsync("crisis.weather.windshear", ...)` ile Event Bus'a kriz mesajı atılır.
 4. Yetkili `OperationsManager` ve `Admin` kullanıcılarına `Notification` oluşturulur.
 5. **Spam Koruması:** `_cache.GetAsync<CrisisStatusDto>()` kontrol edilir. Kriz zaten aktifse 5 dakika sonra aynı işlemler tekrarlanıp sistem kilitlenmez!
 
@@ -257,8 +257,8 @@ OpenWeatherMap API'sine HTTP isteği atar.
 ---
 
 ### 4. Cache & Message Bus Simülatörleri
-- **`InMemoryCacheService`:** Redis'in çalışma mantığını birebir taklit eder. TTL (Time-To-Live) süresi dolan veriyi otomatik düşürür.
-- **`InMemoryMessageBusService`:** RabbitMQ gibi mesajlaşma kuyruklarının mantığını simüle eder. Servisler birbirini doğrudan çağırmadan olay yayınlar (Decoupled Event-Driven Architecture).
+- **`InMemoryCacheService`:** .NET'in yerleşik `IMemoryCache` altyapısını kullanarak hızlı RAM tabanlı önbellek sağlar. TTL (Time-To-Live) süresi dolan veriyi otomatik düşürür.
+- **`InMemoryMessageBusService`:** Asenkron mesajlaşma ve olay kuyruklarının mantığını yürütür. Servisler birbirini doğrudan çağırmadan olay yayınlar (Decoupled Event-Driven Architecture) ve SignalR ile canlı dağıtır.
 
 ---
 
@@ -307,7 +307,7 @@ Angular projemiz (`aeropulse-web`):
 Bu projeyi portfolyona koyup bir iş görüşmesine girdiğinde mülakatçının sana soracağı 5 soru ve vermen gereken profesyonel cevaplar:
 
 #### ❓ Soru 1: "Neden N-Tier değil de Clean Architecture tercih ettiniz?"
-> **Cevabın:** "Çünkü N-Tier mimaride iş kuralları veritabanına bağımlı hale gelir. Clean Architecture'da ise Dependency Inversion prensibini uyguladık. Domain ve Application katmanlarımız saf C#'tır; veritabanı veya harici API teknolojilerinden tamamen izoledir. Yarın SQLite yerine PostgreSQL'e geçsek veya RabbitMQ eklesek tek satır iş mantığı kodunu değiştirmemiz gerekmez."
+> **Cevabın:** "Çünkü N-Tier mimaride iş kuralları veritabanına bağımlı hale gelir. Clean Architecture'da ise Dependency Inversion prensibini uyguladık. Domain ve Application katmanlarımız saf C#'tır; veritabanı veya harici API teknolojilerinden tamamen izoledir. Yarın SQLite yerine PostgreSQL'e geçsek veya harici bir broker eklesek tek satır iş mantığı kodunu değiştirmemiz gerekmez."
 
 #### ❓ Soru 2: "BackgroundService içinde scoped olan DbContext'i nasıl kullandınız?"
 > **Cevabın:** "BackgroundService doğası gereği Singleton'dır. Doğrudan scoped bir servisi inject edersek 'Captive Dependency' hatası alırız. Bunu engellemek için `IServiceScopeFactory` kullandım. Her kontrol döngüsünde `CreateScope()` ile izole bir scope açtım, işi bitirip `Dispose` ettirerek bellek sızıntılarının önüne geçtim."

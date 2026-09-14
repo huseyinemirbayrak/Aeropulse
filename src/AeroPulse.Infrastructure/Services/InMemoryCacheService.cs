@@ -4,18 +4,8 @@ using Microsoft.Extensions.Caching.Memory;
 namespace AeroPulse.Infrastructure.Services;
 
 /// <summary>
-/// Redis'in in-memory simülasyonu.
-/// .NET'in yerleşik IMemoryCache'ini kullanır.
-/// 
-/// GERÇEĞİNE GEÇİŞ: appsettings.json'da Redis bağlantısı doldurunca
-/// DependencyInjection.cs'de:
-///   services.AddScoped<ICacheService, InMemoryCacheService>();
-///   →
-///   services.AddScoped<ICacheService, RedisCacheService>();
-/// 
-/// NOT: IMemoryCache uygulama içi (tek process) çalışır.
-///      Redis ise birden fazla sunucu arasında paylaşılan bir cache sağlar.
-///      Yük dengeleme (load balancing) senaryolarında Redis şarttır.
+/// .NET'in yerleşik IMemoryCache altyapısını kullanan In-Memory Önbellekleme (Cache) servisi.
+/// Sık sorgulanan verilerin (müsait körükler, kriz durumu vb.) RAM üzerinde hızlıca önbelleğe alınmasını sağlar.
 /// </summary>
 public class InMemoryCacheService : ICacheService
 {

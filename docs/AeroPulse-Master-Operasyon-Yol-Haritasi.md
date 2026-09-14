@@ -1,6 +1,6 @@
-# ✈️ AeroPulse Master Operasyon & Mimarî Yol Haritası (Turnaround, OCC, Multi-Tenant, RabbitMQ)
+# ✈️ AeroPulse Master Operasyon & Mimarî Yol Haritası (Turnaround, OCC, Multi-Tenant, Event Bus)
 
-Bu döküman; **AeroPulse** havacılık ve operasyon yönetim sisteminin eksiklerinin giderilmesi, gerçek dünya havalimanı operasyonlarına (OCC, Turnaround/Redcap, Ramp, GSE Filo, Line Maintenance, Gate Agent) uyarlanması, asenkron mesajlaşma (RabbitMQ / SignalR) ve çok kiracılı (Multi-Tenant) mimariye kavuşturulması için hazırlanan **aşamalı (adım adım) ana rehberdir.**
+Bu döküman; **AeroPulse** havacılık ve operasyon yönetim sisteminin eksiklerinin giderilmesi, gerçek dünya havalimanı operasyonlarına (OCC, Turnaround/Redcap, Ramp, GSE Filo, Line Maintenance, Gate Agent) uyarlanması, asenkron mesajlaşma (In-Memory Event Bus / SignalR) ve çok kiracılı (Multi-Tenant) mimariye kavuşturulması için hazırlanan **aşamalı (adım adım) ana rehberdir.**
 
 ---
 
@@ -99,11 +99,11 @@ Bu döküman; **AeroPulse** havacılık ve operasyon yönetim sisteminin eksikle
 
 ---
 
-## 🗺️ Faz 5: Asenkron Mesaj Kuyrukları (RabbitMQ) & Canlı Ekrana Yansıtma (SignalR)
+## 🗺️ Faz 5: Asenkron Olay Kuyrukları (In-Memory Event Bus) & Canlı Ekrana Yansıtma (SignalR)
 
 > **Hedef:** Uçuş durum değişikliklerinin, görev adımlarının ve araç hareketlerinin sayfa yenilenmeden tüm ekranlara saniyesinde yansıması.
 
-### 5.1. RabbitMQ Mesajlaşma Mimarisi
+### 5.1. Event Bus Mesajlaşma Mimarisi
 * **Mesaj Tipleri:**
   - `turnaround.task.updated`: Görev tamamlandığında yayınlanır.
   - `flight.gate.override`: OCC kapı değiştirdiğinde yayınlanır.

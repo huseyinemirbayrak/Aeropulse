@@ -29,7 +29,7 @@ public interface IJetBridgeService
 
     /// <summary>
     /// Durum akışı: Planlandi → UcakIndi → KopruBagli → YolcuInisiTamamlandi → Serbest
-    /// Her geçişte RabbitMQ'ya mesaj yayınlanır, Redis cache güncellenir.
+    /// Her geçişte olay kuyruğuna (Event Bus) mesaj yayınlanır, önbellek (Cache) güncellenir.
     /// </summary>
     Task<ApiResponse<JetBridgeAssignmentDto>> UpdateAssignmentStatusAsync(Guid assignmentId, UpdateAssignmentStatusDto request);
 
@@ -40,7 +40,7 @@ public interface IJetBridgeService
     Task<JetBridgeConflictResultDto> CheckAvailabilityAsync(Guid jetBridgeId, DateTime start, DateTime end, Guid? excludeAssignmentId = null);
 
     /// <summary>
-    /// Redis'ten boştaki köprüleri döner. Cache yoksa DB'den okur ve cache'ler.
+    /// Önbellekten (Cache) boştaki köprüleri döner. Cache yoksa DB'den okur ve cache'ler.
     /// </summary>
     Task<ApiResponse<List<JetBridgeDto>>> GetAvailableBridgesAsync(string terminalNo);
 }

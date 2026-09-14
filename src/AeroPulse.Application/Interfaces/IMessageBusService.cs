@@ -1,8 +1,8 @@
 namespace AeroPulse.Application.Interfaces;
 
 /// <summary>
-/// Mesaj kuyruğu (RabbitMQ veya In-Memory) için soyutlama arayüzü.
-/// Bu sayede gerçek RabbitMQ yerine test/geliştirme ortamında in-memory çalışabilir.
+/// Mesaj ve olay kuyruğu (In-Memory Event Bus) için soyutlama arayüzü.
+/// Olayların asenkron dağıtımını ve gerçek zamanlı SignalR köprüsünü sağlar.
 /// </summary>
 public interface IMessageBusService
 {

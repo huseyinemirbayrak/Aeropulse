@@ -14,7 +14,7 @@ Geleneksel "N-Tier" (3 Katmanlı) mimarilerde genellikle İş Mantığı (Busine
 ### 1.2. Neden Monolith Yerine "Mikroservise Hazır" Bir Yapı Kuruldu?
 Proje şu an tek bir Solution altında (`AeroPulse.API`) çalışıyor olsa da (Monolithic), ileride kolayca Mikroservis mimarisine bölünebilecek şekilde tasarlandı.
 - **Karar:** Servisler arası doğrudan bağ kurmak (Tight Coupling) yerine olay güdümlü (Event-Driven) haberleşmeye altyapı hazırladık.
-- **Nasıl Uygulandı?** Modül 7'deki `WeatherCrisisService` fırtına çıktığında diğer servisleri direkt çağırmak yerine, **RabbitMQ (Message Broker)** üzerinden `crisis.weather.windshear` isimli bir olay (Event) fırlattı. Bildirim servisi (NotificationService) bu mesajı dinleyip kendi kendine aksiyon aldı.
+- **Nasıl Uygulandı?** Modül 7'deki `WeatherCrisisService` fırtına çıktığında diğer servisleri direkt çağırmak yerine, **In-Memory Event Bus (Mesaj ve Olay Kuyruğu)** üzerinden `crisis.weather.windshear` isimli bir olay (Event) fırlattı. Bildirim servisi (NotificationService) ve SignalR WebSocket istemcileri bu mesajı dinleyip anında aksiyon aldı.
 
 ---
 
@@ -34,7 +34,7 @@ Proje şu an tek bir Solution altında (`AeroPulse.API`) çalışıyor olsa da (
 
 ### 3.1. Önbellekleme (Caching) Yaklaşımı
 - **Neden?** Havalimanında körüklerin durumu (Boş/Dolu) uçaklar ve kule tarafından saniyede onlarca kez sorgulanabilir. Her sorguda SQL veritabanına gitmek darboğaz (Bottleneck) yaratır.
-- **Nasıl Uygulandı?** `Redis` (veya IDistributedCache) kullanılarak `jetbridges:available` gibi anahtarlarla veriler hafızada (RAM) tutuldu. Sadece bir uçak yanaştığında veya kriz durumunda bu cache "Invalidate" (temizlendi) edildi.
+- **Nasıl Uygulandı?** .NET'in yerleşik `IMemoryCache` altyapısı (`InMemoryCacheService`) kullanılarak `jetbridges:available` gibi anahtarlarla veriler hafızada (RAM) tutuldu. Sadece bir uçak yanaştığında veya kriz durumunda bu cache "Invalidate" (temizlendi) edildi.
 
 ### 3.2. Asenkron Arka Plan İşçileri (Background Services)
 - **Neden?** Hava durumunu 5 dakikada bir kontrol etmek için kullanıcıdan (veya frontend'den) bir istek gelmesini bekleyemeyiz. Sistem kendi kendine çalışmalıdır.

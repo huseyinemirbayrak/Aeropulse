@@ -8,7 +8,7 @@ Kullanıcılara uygulama içinde, onları ilgilendiren önemli olayları (yeni a
 1. **`NotificationService.cs`**
    - *Benzetme:* Postacı veya e-posta sunucusu.
    - *Görev:* Sistemin diğer parçalarından (örneğin FaultReportService) gelen "Şu kullanıcıya şu mesajı ilet" komutunu alır. Mesajı veritabanına kaydeder.
-   - *Redis Cache Kullanımı:* Kullanıcının okunmamış bildirim sayısını sık sık menüde (Angular'da) göstermek gerektiği için, bu sayıyı her seferinde veritabanından saymak yerine Redis'te (veya MemoryCache'de) saklar. Yeni bildirim gelince cache'i temizler.
+   - *Önbellek (MemoryCache) Kullanımı:* Kullanıcının okunmamış bildirim sayısını sık sık menüde (Angular'da) göstermek gerektiği için, bu sayıyı her seferinde veritabanından saymak yerine MemoryCache'de saklar. Yeni bildirim gelince cache'i temizler.
 
 2. **`NotificationsController.cs`**
    - *Benzetme:* Posta kutusu.

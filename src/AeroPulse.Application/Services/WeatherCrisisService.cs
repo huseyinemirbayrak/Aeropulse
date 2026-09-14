@@ -97,7 +97,7 @@ public class WeatherCrisisService : IWeatherCrisisService
             }
         }
 
-        // 2. Mesaj Kuyruğuna (RabbitMQ) Acil Durum Olayı Yayınla
+        // 2. Mesaj Kuyruğuna (Event Bus) Acil Durum Olayı Yayınla
         await _messageBus.PublishAsync("crisis.weather.windshear", new
         {
             EventType = "WindshearCrisisTriggered",

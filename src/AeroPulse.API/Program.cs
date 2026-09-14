@@ -74,7 +74,6 @@ using (var scope = app.Services.CreateScope())
     await DataSeeder.SeedAsync(context);
     await DataSeeder.EnsureExtraDemoDataAsync(context);
     await DataSeeder.EnsureOperationalDataAsync(context);
-    try { await StoredProceduresAndViews.CreateStoredProceduresAndViewsAsync(context); } catch { /* LocalDB might not support all features */ }
 }
 
 // Configure pipeline

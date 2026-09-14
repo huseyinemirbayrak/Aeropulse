@@ -1,8 +1,8 @@
 namespace AeroPulse.Application.Interfaces;
 
 /// <summary>
-/// Cache servisi (Redis veya In-Memory IMemoryCache) için soyutlama arayüzü.
-/// Redis hazır değilse in-memory ile aynı kodla çalışır.
+/// Önbellekleme servisi (In-Memory IMemoryCache) için soyutlama arayüzü.
+/// Sık kullanılan operasyonel verilerin bellek üzerinde saklanmasını ve hızlı erişimini sağlar.
 /// </summary>
 public interface ICacheService
 {
