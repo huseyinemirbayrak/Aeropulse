@@ -1,149 +1,149 @@
-# ✈️ AeroPulse Master Operasyon & Mimarî Yol Haritası (Turnaround, OCC, Multi-Tenant, Event Bus)
+# ✈️ AeroPulse Master Operations & Architecture Roadmap (Turnaround, OCC, Multi-Tenant, Event Bus)
 
-Bu döküman; **AeroPulse** havacılık ve operasyon yönetim sisteminin eksiklerinin giderilmesi, gerçek dünya havalimanı operasyonlarına (OCC, Turnaround/Redcap, Ramp, GSE Filo, Line Maintenance, Gate Agent) uyarlanması, asenkron mesajlaşma (In-Memory Event Bus / SignalR) ve çok kiracılı (Multi-Tenant) mimariye kavuşturulması için hazırlanan **aşamalı (adım adım) ana rehberdir.**
+This document is the **phased (step-by-step) master guide** prepared to address the shortcomings of the **AeroPulse** aviation and operations management system, adapt it to real-world airport operations (OCC, Turnaround/Redcap, Ramp, GSE Fleet, Line Maintenance, Gate Agent), and equip it with asynchronous messaging (In-Memory Event Bus / SignalR) and a Multi-Tenant architecture.
 
 ---
 
-## 📌 Genel Bakış ve Rol Matrisi
+## 📌 Overview and Role Matrix
 
-| Rol / Persona | Operasyonel Kapsam | Temel Sorumluluk ve Yetkiler | İlgili Ekran / Platform |
+| Role / Persona | Operational Scope | Core Responsibilities and Authorities | Relevant Screen / Platform |
 | :--- | :--- | :--- | :--- |
-| **OCC Nöbetçisi (Operasyon Kontrol)** | Havalimanı geneli kuşbakışı yönetim | Gelen/giden uçuş takibi, yaklaşan uçuşlar, pist/kapı meşguliyeti, gecikmelerde kaynak planlamasını manuel "override" etme. | Web (OCC Live Radar & Apron) |
-| **Harekat Memuru (Redcap / Turnaround)** | Uçak bazlı dönüş (turnaround) yönetimi | Sorumlu olduğu uçağın yer hizmetlerini (yakıt, bagaj, ikram, temizlik) yönetme, yük/denge (loadsheet) onayı, kalkış izni (Release). | Web & Tablet (Turnaround Hub) |
-| **Ramp Görevlisi / Araç Operatörü** | Saha fiziksel operasyonu | Kendine atanan iş emirlerini görme (bagaj, pushback, merdiven), durumu *"Kabul Edildi" ➔ "Başladı" ➔ "Tamamlandı"* olarak işleme. | Responsive Web (Saha / Tablet / Masaüstü) |
-| **Ekipman ve Filo Yöneticisi (GSE)** | Apron yer destek araçları verimliliği | Otobüs, yakıt tankeri, traktörlerin anlık durumu (Boşta / Görevde / Bakımda) ve apron konumlarını izleme, arızalı aracı servise çekme. | Web (GSE Fleet Manager) |
-| **Teknik Bakım (Line Maintenance)** | Uçak sefere elverişlilik | TechLog inceleme, arıza kayıtları, hızlı hat bakımı, teknik uçuş onayı (Technical Release). | Web (MRO Tech Panel) |
-| **Yolcu Hizmetleri (Gate Agent)** | Terminal biniş (Boarding) | Uçak yolcu manifestosu, biniş sayımı, eksik yolcu bildirimi, bagaj sayım eşleştirmesi (BRS). | Web & Tablet (Gate Agent Boarding) |
+| **OCC Officer (Operations Control)** | Airport-wide bird's-eye management | Tracking inbound/outbound flights, upcoming flights, runway/gate occupancy, manual "override" of resource planning during delays. | Web (OCC Live Radar & Apron) |
+| **Dispatcher (Redcap / Turnaround)** | Flight-based turnaround management | Managing ground services (fuel, baggage, catering, cleaning) for assigned flights, load/balance (loadsheet) approval, departure clearance (Release). | Web & Tablet (Turnaround Hub) |
+| **Ramp Agent / Vehicle Operator** | Field physical operations | Viewing assigned work orders (baggage, pushback, stairs), updating status as *"Accepted" ➔ "Started" ➔ "Completed"*. | Responsive Web (Field / Tablet / Desktop) |
+| **Equipment and Fleet Manager (GSE)** | Apron ground support vehicle efficiency | Monitoring real-time status (Idle / Busy / In Maintenance) and apron locations of buses, fuel tankers, tractors; pulling broken vehicles for service. | Web (GSE Fleet Manager) |
+| **Technical Maintenance (Line Maintenance)** | Aircraft airworthiness | TechLog review, fault records, quick line maintenance, technical flight approval (Technical Release). | Web (MRO Tech Panel) |
+| **Passenger Services (Gate Agent)** | Terminal Boarding | Aircraft passenger manifest, boarding count, missing passenger notification, baggage count reconciliation (BRS). | Web & Tablet (Gate Agent Boarding) |
 
 ---
 
-## 🗺️ Faz 1: Anlık Düzeltmeler, Hata Giderimi & Temel Veritabanı Modelleri
+## 🗺️ Phase 1: Hotfixes, Bug Resolution & Core Database Models
 
-> **Hedef:** Mevcut sistemdeki kırık akışları (yetkilendirme, hata yakalama, butonlar) onarmak ve operasyonel varlıklar için veritabanı şemasını genişletmek.
+> **Target:** Repairing broken flows (authorization, error catching, buttons) in the current system and expanding the database schema for operational assets.
 
-### 1.1. Acil Hata Düzeltmeleri
-1. **Admin / Tech Panel "Submit Report" 403 Hatası:**
-   - `AircraftController.cs` üzerindeki `[Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer")]` niteliğine `FieldTechnician` rolünü eklemek.
-   - `fault-form.ts` içinde `subscribe` bloğuna `error: (err) => ...` geri bildirimi eklemek; form validasyonunu dinamik hale getirmek.
-2. **Dashboard Butonları ve Yönlendirmeler:**
-   - Admin ve Ops Dashboard'daki pasif butonların (`refresh`, `manage operations`, `view jet bridges`, aksiyon modalları) `routerLink` ve `(click)` event bağlantılarını sağlamak.
+### 1.1. Urgent Bug Fixes
+1. **Admin / Tech Panel "Submit Report" 403 Error:**
+   - Add the `FieldTechnician` role to the `[Authorize(Roles = "Admin,OperationsManager,MROEngineer,Viewer")]` attribute on `AircraftController.cs`.
+   - Add `error: (err) => ...` feedback to the `subscribe` block in `fault-form.ts`; make form validation dynamic.
+2. **Dashboard Buttons and Routing:**
+   - Wire up the `routerLink` and `(click)` event bindings for the inactive buttons (`refresh`, `manage operations`, `view jet bridges`, action modals) in the Admin and Ops Dashboards.
 
-### 1.2. Yeni Veritabanı Modelleri (Domain Katmanı)
-* **`Runway` (Pist):** `Id`, `RunwayCode` (örn: 35L, 17R), `Status` (Available, LandingInProgress, TakeoffInProgress, ClosedForMaintenance), `LengthMeters`.
-* **`Gate` / `Stand` (Kapı & Park Yeri):** `Id`, `GateNumber`, `TerminalCode`, `HasJetBridge`, `Status` (Available, Occupied, Reserved, Maintenance).
-* **`TurnaroundTask` (Yer Hizmeti Görevi):** `Id`, `OperationId`, `TaskType` (BaggageUnload, BaggageLoad, Refueling, Cleaning, Catering, PassengerBoarding, Pushback), `Status` (Pending, Accepted, InProgress, Completed, Delayed), `AssignedUserId`, `AssignedGSEId`, `StartTime`, `EndTime`, `TargetDurationMinutes`.
-* **`GroundSupportEquipment` (GSE - Apron Araçları):** `Id`, `Code` (örn: TANKER-01, BUS-03, TUG-05), `Type` (PassengerBus, FuelTanker, BaggageTug, PassengerStairs, PushbackTruck, GPU), `Status` (Idle, Busy, OutOfService), `FuelLevelPercentage`, `ApronZone`, `CurrentLatitude`, `CurrentLongitude`.
+### 1.2. New Database Models (Domain Layer)
+* **`Runway`:** `Id`, `RunwayCode` (e.g.: 35L, 17R), `Status` (Available, LandingInProgress, TakeoffInProgress, ClosedForMaintenance), `LengthMeters`.
+* **`Gate` / `Stand`:** `Id`, `GateNumber`, `TerminalCode`, `HasJetBridge`, `Status` (Available, Occupied, Reserved, Maintenance).
+* **`TurnaroundTask`:** `Id`, `OperationId`, `TaskType` (BaggageUnload, BaggageLoad, Refueling, Cleaning, Catering, PassengerBoarding, Pushback), `Status` (Pending, Accepted, InProgress, Completed, Delayed), `AssignedUserId`, `AssignedGSEId`, `StartTime`, `EndTime`, `TargetDurationMinutes`.
+* **`GroundSupportEquipment` (GSE - Apron Vehicles):** `Id`, `Code` (e.g.: TANKER-01, BUS-03, TUG-05), `Type` (PassengerBus, FuelTanker, BaggageTug, PassengerStairs, PushbackTruck, GPU), `Status` (Idle, Busy, OutOfService), `FuelLevelPercentage`, `ApronZone`, `CurrentLatitude`, `CurrentLongitude`.
 * **`PassengerManifest`:** `Id`, `OperationId`, `TotalBooked`, `BoardedCount`, `GateNo`, `BoardingStatus` (NotStarted, Boarding, FinalCall, Closed), `LuggageMatchComplete`.
 
 ---
 
-## 🗺️ Faz 2: Operasyon Kontrol Merkezi (OCC) & Canlı Apron Dashboard
+## 🗺️ Phase 2: Operations Control Center (OCC) & Live Apron Dashboard
 
-> **Hedef:** Boş olan Ops Dashboard'u, OCC nöbetçisinin havalimanını kuşbakışı yönetebileceği modern bir operasyon merkezine dönüştürmek.
+> **Target:** Transform the empty Ops Dashboard into a modern operations center where the OCC officer can manage the airport from a bird's-eye view.
 
-### 2.1. Backend Geliştirmeleri
+### 2.1. Backend Enhancements
 * **`IOccService` & `OccController`:**
-  - `GET /api/occ/overview`: Yaklaşan uçuşlar (Inbound), kalkacak uçuşlar (Outbound), aktif operasyonlar, gecikme istatistikleri.
-  - `GET /api/occ/runways`: Tüm pistlerin anlık boş/dolu durumu.
-  - `GET /api/occ/gates`: Tüm kapı ve park yerlerinin meşguliyet durumu.
-  - `POST /api/occ/override`: Uçuşun kapısını, park yerini veya saatini manuel ezme (override) ve loglama.
+  - `GET /api/occ/overview`: Inbound flights, outbound flights, active operations, delay statistics.
+  - `GET /api/occ/runways`: Real-time availability status of all runways.
+  - `GET /api/occ/gates`: Occupancy status of all gates and parking spots.
+  - `POST /api/occ/override`: Manual override and logging of flight's gate, parking spot, or time.
 
-### 2.2. Frontend Arayüzü (`/ops/dashboard`)
-* **Havalimanı Kuşbakışı Metrikleri:**
-  - Canlı Pist Durum Kartları (Pist 35L: BOŞ 🟢 | Pist 35R: İNİŞTE TK1984 🟡).
-  - Terminal Kapı Matrisi (Kapı A1-A12 doluluk ısı haritası).
-  - Yaklaşan Uçaklar Zaman Çizelgesi (Inbound Flight Radar List).
-* **Manuel Override Paneli:**
-  - Geciken bir uçuşun kapısını tek tıkla boş bir körüğe/açık parka yönlendirme modalı.
-
----
-
-## 🗺️ Faz 3: Turnaround Süreç Yönetimi (Redcap & Yolcu Hizmetleri)
-
-> **Hedef:** Her uçuşun 45-60 dakikalık dönüşünü adım adım takip edilebilir ve uçuş bazında onaylanabilir hale getirmek.
-
-### 3.1. Harekat Memuru (Redcap) Ekranı (`/ops/turnaround/:operationId`)
-* **Uçuş Dönüş Kronometresi (Turnaround Countdown):**
-  - Hedeflenen kalkış saatine kalan geri sayım.
-  - 6 Temel Görevin Canlı Statüsü:
-    1. 🧳 **Bagaj Boşaltma/Yükleme:** % tamamlanma çubuğu (örn. 142/150 bagaj yüklendi).
-    2. ⛽ **Yakıt İkmali:** Hedef yakıt vs. Alınan yakıt (örn. 8.500 kg / 8.500 kg).
-    3. 🧹 **Kabin Temizliği & İkram:** Tamamlandı onayı.
-    4. 🚶‍♂️ **Yolcu Binişi (Boarding):** 172/180 yolcu uçakta.
-    5. ⚖️ **Loadsheet (Yük/Denge Formu):** Kaptan ve Redcap tarafından onaylandı rozeti.
-    6. 🚀 **Kalkış Onayı (Flight Clearance):** Kırmızı/Yeşil "Yetki Verildi" anahtarı.
-
-### 3.2. Yolcu Hizmetleri (Gate Agent) Ekranı (`/ops/gate-agent/:operationId`)
-* **Yolcu Manifestosu ve Biniş Takip Paneli:**
-  - Barkod/bilet tarama simülasyonu ile yolcu sayacının artması.
-  - Gelmeyen/Kayıp yolcuların listesi ve anons/arama butonu.
-  - BRS (Baggage Reconciliation System): Uçağa binen yolcu ile ambarındaki bagajın eşleşme durumu (Yolcusu gelmeyen bagaj uçuştan indirilmeli kuralı).
+### 2.2. Frontend Interface (`/ops/dashboard`)
+* **Airport Bird's-eye Metrics:**
+  - Live Runway Status Cards (Runway 35L: IDLE 🟢 | Runway 35R: LANDING TK1984 🟡).
+  - Terminal Gate Matrix (Gate A1-A12 occupancy heat map).
+  - Approaching Aircraft Timeline (Inbound Flight Radar List).
+* **Manual Override Panel:**
+  - Modal to redirect a delayed flight's gate to an empty jet bridge/open parking spot with one click.
 
 ---
 
-## 🗺️ Faz 4: Apron Araç Filosu (GSE) & Ramp Görevlisi Entegrasyonu
+## 🗺️ Phase 3: Turnaround Process Management (Redcap & Passenger Services)
 
-> **Hedef:** Sahadaki yer araçlarının (otobüs, yakıt tankeri vb.) durumunu izlemek ve saha personeline mobil iş emri iletmek.
+> **Target:** Make the 45-60 minute turnaround of each flight trackable step-by-step and approvable per flight.
 
-### 4.1. Ekipman ve Filo Yöneticisi Paneli (`/ops/gse-fleet`)
-* **Araç Durum Tablosu ve Apron Konumları:**
-  - **Yolcu Otobüsleri:** Otobüs-01 (Boşta / Gate B4), Otobüs-02 (Dolu - TK1821 yolcularını taşıyor), Otobüs-03 (Arızalı - Serviste).
-  - **Yakıt Tankerleri:** Tanker-01 (İkmal Yapıyor / Uçak: TC-JHK), Tanker-02 (Boşta / Depo Bölgesi).
-  - **Statü Değiştirme:** Arızalanan aracı "Bakımda" (Out of Service) statüsüne çekme (böylece sisteme yeni görev atanması engellenir).
+### 3.1. Dispatcher (Redcap) Screen (`/ops/turnaround/:operationId`)
+* **Flight Turnaround Countdown:**
+  - Countdown to the targeted departure time.
+  - Live Status of 6 Core Tasks:
+    1. 🧳 **Baggage Unload/Load:** % completion bar (e.g. 142/150 baggages loaded).
+    2. ⛽ **Refueling:** Target fuel vs. Received fuel (e.g. 8,500 kg / 8,500 kg).
+    3. 🧹 **Cabin Cleaning & Catering:** Completed confirmation.
+    4. 🚶‍♂️ **Passenger Boarding:** 172/180 passengers on board.
+    5. ⚖️ **Loadsheet:** Approved badge by Captain and Redcap.
+    6. 🚀 **Flight Clearance:** Red/Green "Authorized" toggle.
 
-### 4.2. Ramp Görevlisi Ekranı (Web & Saha Paneli)
-* **İş Emri Akışı:**
-  - Görev Geldi ➔ **"Kabul Et"** ➔ Başlama Saati Başlar.
-  - Görev Başladı ➔ **"İşleme Al"** ➔ Konum/Sayaç işlenir.
-  - Görev Bitti ➔ **"Tamamlandı"** ➔ Turnaround ekranındaki ilgili görev otomatik yeşile döner.
+### 3.2. Passenger Services (Gate Agent) Screen (`/ops/gate-agent/:operationId`)
+* **Passenger Manifest and Boarding Tracking Panel:**
+  - Passenger counter incrementing via barcode/ticket scanning simulation.
+  - List of No-show/Missing passengers and announce/call button.
+  - BRS (Baggage Reconciliation System): Matching status of boarding passenger with baggage in hold (Rule: Baggage of a no-show passenger must be offloaded).
 
 ---
 
-## 🗺️ Faz 5: Asenkron Olay Kuyrukları (In-Memory Event Bus) & Canlı Ekrana Yansıtma (SignalR)
+## 🗺️ Phase 4: Apron Vehicle Fleet (GSE) & Ramp Agent Integration
 
-> **Hedef:** Uçuş durum değişikliklerinin, görev adımlarının ve araç hareketlerinin sayfa yenilenmeden tüm ekranlara saniyesinde yansıması.
+> **Target:** Monitor the status of ground vehicles in the field (buses, fuel tankers, etc.) and dispatch mobile work orders to field personnel.
 
-### 5.1. Event Bus Mesajlaşma Mimarisi
-* **Mesaj Tipleri:**
-  - `turnaround.task.updated`: Görev tamamlandığında yayınlanır.
-  - `flight.gate.override`: OCC kapı değiştirdiğinde yayınlanır.
-  - `gse.status.changed`: Araç arızalandığında veya göreve çıktığında yayınlanır.
-  - `boarding.progress`: Yolcu biniş sayısı her arttığında yayınlanır.
+### 4.1. Equipment and Fleet Manager Panel (`/ops/gse-fleet`)
+* **Vehicle Status Table and Apron Locations:**
+  - **Passenger Buses:** Bus-01 (Idle / Gate B4), Bus-02 (Busy - Transporting TK1821 passengers), Bus-03 (Faulty - In Service).
+  - **Fuel Tankers:** Tanker-01 (Refueling / Aircraft: TC-JHK), Tanker-02 (Idle / Depot Area).
+  - **Status Change:** Moving a broken vehicle to "Out of Service" status (preventing new tasks from being assigned to it).
+
+### 4.2. Ramp Agent Screen (Web & Field Panel)
+* **Work Order Flow:**
+  - Task Received ➔ **"Accept"** ➔ Start Time begins.
+  - Task Started ➔ **"Process"** ➔ Location/Counter is logged.
+  - Task Ended ➔ **"Completed"** ➔ Corresponding task on Turnaround screen turns green automatically.
+
+---
+
+## 🗺️ Phase 5: Asynchronous Event Queues (In-Memory Event Bus) & Live Screen Reflection (SignalR)
+
+> **Target:** Flight status changes, task steps, and vehicle movements reflect on all screens in seconds without page refresh.
+
+### 5.1. Event Bus Messaging Architecture
+* **Message Types:**
+  - `turnaround.task.updated`: Published when a task is completed.
+  - `flight.gate.override`: Published when OCC changes a gate.
+  - `gse.status.changed`: Published when a vehicle breaks down or goes on duty.
+  - `boarding.progress`: Published whenever the passenger boarding count increases.
 * **Worker Services (Consumer):**
-  - Kuyruktan gelen mesajları işleyip veritabanına yazar ve SignalR Hub üzerinden ilgili istemcilere iletir.
+  - Processes incoming messages from the queue, writes to the database, and forwards to relevant clients via SignalR Hub.
 
-### 5.2. SignalR Canlı Hub (`AeroPulseHub`)
-* Tüm web istemcileri WebSocket ile bağlanır:
+### 5.2. SignalR Live Hub (`AeroPulseHub`)
+* All web clients connect via WebSocket:
   - `ReceiveTurnaroundUpdate(taskDto)`
   - `ReceiveGseUpdate(gseDto)`
   - `ReceiveFlightAlert(alertMessage)`
 
 ---
 
-## 🗺️ Faz 6: Multi-Tenant (Çok Kiracılı) Mimari Tasarımı
+## 🗺️ Phase 6: Multi-Tenant Architecture Design
 
-> **Hedef:** Farklı havayolu şirketlerinin (THY, Pegasus) ve taşeron yer hizmetlerinin (TGS, Çelebi, Havaş) verilerini izole etmek.
+> **Target:** Isolate data of different airline companies (THY, Pegasus) and subcontractor ground services (TGS, Çelebi, Havaş).
 
-### 6.1. Mimari Tasarım & İzolasyon Stratejisi
-* **Discriminator Column Yaklaşımı (`TenantId`):**
-  - Tüm temel entity'lere `public Guid TenantId { get; set; }` ve `ITenantEntity` arayüzü eklenir.
+### 6.1. Architectural Design & Isolation Strategy
+* **Discriminator Column Approach (`TenantId`):**
+  - `public Guid TenantId { get; set; }` and `ITenantEntity` interface added to all core entities.
 * **EF Core Global Query Filter:**
   - `modelBuilder.Entity<T>().HasQueryFilter(e => e.TenantId == _currentTenantId || _isSuperAdmin);`
-  - Bir havayolu şirketi kullanıcısı giriş yaptığında, diğer havayollarının uçuşlarını veya verilerini asla sorgulayamaz.
+  - When an airline company user logs in, they can never query the flights or data of other airlines.
 * **Tenant Middleware:**
-  - Gelen HTTP isteğindeki JWT Token içerisinden `tenant_id` claim'i okunur ve scoped `TenantService` içine enjekte edilir.
-* **Super-Admin / OCC (Havalimanı Otoritesi) Görünümü:**
-  - Havalimanı operasyon kontrol nöbetçisi tüm kiracıların uçuşlarını apron güvenliği için tek bir ekranda (Cross-Tenant) izleme yetkisine sahiptir.
+  - The `tenant_id` claim is read from the incoming HTTP request's JWT Token and injected into the scoped `TenantService`.
+* **Super-Admin / OCC (Airport Authority) View:**
+  - The airport operations control officer has the authority to view flights of all tenants on a single screen (Cross-Tenant) for apron security.
 
 ---
 
-## 📋 Uygulama ve İlerleme Kontrol Listesi
+## 📋 Implementation and Progress Checklist
 
-- [x] **Faz 1:** `AircraftController` yetkileri ve `fault-form` hata düzeltmesi.
-- [x] **Faz 1:** `Runway`, `Gate`, `TurnaroundTask`, `GSE`, `PassengerManifest` modelleri ve Seed datası.
-- [x] **Faz 2:** OCC Canlı Dashboard ekranı (Pistler, Kapılar, Yaklaşan Uçaklar, Manuel Override).
-- [x] **Faz 3:** Redcap Turnaround Gantt/Zaman Çizelgesi ve Loadsheet onay akışı.
-- [x] **Faz 3:** Gate Agent Yolcu Manifestosu ve Boarding BRS takibi.
-- [x] **Faz 4:** GSE Apron Araç Filosu Yönetimi (Otobüs & Tanker durumları, arıza statüsü).
-- [x] **Faz 4:** Ramp Görevlisi iş emri (Kabul -> Başlat -> Tamamla) akışı.
-- [x] **Faz 6:** Multi-Tenant mimari (TenantId, EF Core Global Filter, JWT Claim / X-Tenant-ID Header & Frontend Switcher).
+- [x] **Phase 1:** `AircraftController` permissions and `fault-form` bug fix.
+- [x] **Phase 1:** `Runway`, `Gate`, `TurnaroundTask`, `GSE`, `PassengerManifest` models and Seed data.
+- [x] **Phase 2:** OCC Live Dashboard screen (Runways, Gates, Inbound Flights, Manual Override).
+- [x] **Phase 3:** Redcap Turnaround Gantt/Timeline and Loadsheet approval flow.
+- [x] **Phase 3:** Gate Agent Passenger Manifest and Boarding BRS tracking.
+- [x] **Phase 4:** GSE Apron Vehicle Fleet Management (Bus & Tanker statuses, fault status).
+- [x] **Phase 4:** Ramp Agent work order (Accept -> Start -> Complete) flow.
+- [x] **Phase 6:** Multi-Tenant architecture (TenantId, EF Core Global Filter, JWT Claim / X-Tenant-ID Header & Frontend Switcher).

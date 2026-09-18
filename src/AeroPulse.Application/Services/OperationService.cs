@@ -7,21 +7,21 @@ using Microsoft.EntityFrameworkCore;
 namespace AeroPulse.Application.Services;
 
 /// <summary>
-/// Yer hizmetleri operasyon yönetim servisi.
+/// Ground services operation management service.
 /// 
-/// En kritik özellik: CloseWithSLAAsync metodu.
-/// Bu metot bir "transaction" kullanır — yani iki işlemi birlikte yapar:
-///   1. Operasyonu "Tamamlandı" olarak kapatır
-///   2. SLA (Hizmet Seviyesi Anlaşması) kaydı oluşturur
-/// Eğer bu iki işlemden biri başarısız olursa, ikisi de GERİ ALINIR.
-/// Bu, banka transferlerindeki "ya ikisi de olsun ya da hiçbirisi" mantığıyla aynıdır.
+/// Most critical feature: CloseWithSLAAsync method.
+/// This method uses a "transaction" — meaning it performs two operations together:
+///   1. Closes the operation as "Completed"
+///   2. Creates an SLA (Service Level Agreement) record
+/// If either of these operations fails, BOTH are ROLLED BACK.
+/// This is the same as the "all or nothing" logic in bank transfers.
 /// </summary>
 public class OperationService : IOperationService
 {
     private readonly IAeroPulseDbContext _context;
 
-    // "Standart turnaround süresi" — gerçek havacılıkta uçak tipine göre değişir
-    // SLA ihlal kontrolü için referans değer (dakika)
+    // "Standard turnaround time" — varies by aircraft type in real aviation
+    // Reference value for SLA breach control (minutes)
     private const int STANDARD_TURNAROUND_SLA_MINUTES = 90;
 
     public OperationService(IAeroPulseDbContext context)
@@ -67,25 +67,25 @@ public class OperationService : IOperationService
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (operation == null)
-            return ApiResponse<OperationDto>.Fail("Operasyon bulunamadı.");
+            return ApiResponse<OperationDto>.Fail("Operation not found.");
 
         return ApiResponse<OperationDto>.Ok(MapToDto(operation));
     }
 
     public async Task<ApiResponse<OperationDto>> CreateAsync(CreateOperationDto request)
     {
-        // Aynı sefere ait başka bir aktif operasyon var mı kontrol et
+        // Check if there is already an active operation for the same flight
         if (await _context.Operations.AnyAsync(o =>
             o.FlightNumber == request.FlightNumber &&
             o.Status != OperationStatus.Completed &&
             o.Status != OperationStatus.Cancelled))
         {
-            return ApiResponse<OperationDto>.Fail($"'{request.FlightNumber}' seferi için zaten aktif bir operasyon var.");
+            return ApiResponse<OperationDto>.Fail($"There is already an active operation for flight '{request.FlightNumber}'.");
         }
 
         var aircraft = await _context.Aircraft.FindAsync(request.AircraftId);
         if (aircraft == null)
-            return ApiResponse<OperationDto>.Fail("Uçak bulunamadı.");
+            return ApiResponse<OperationDto>.Fail("Aircraft not found.");
 
         var operation = new Operation
         {
@@ -101,13 +101,13 @@ public class OperationService : IOperationService
         _context.Operations.Add(operation);
         await _context.SaveChangesAsync();
 
-        // Yeniden yükle
+        // Reload
         var created = await _context.Operations
             .Include(o => o.Aircraft)
             .Include(o => o.OperationsManager)
             .FirstAsync(o => o.Id == operation.Id);
 
-        return ApiResponse<OperationDto>.Ok(MapToDto(created), "Operasyon başarıyla oluşturuldu.");
+        return ApiResponse<OperationDto>.Ok(MapToDto(created), "Operation successfully created.");
     }
 
     public async Task<ApiResponse<OperationDto>> UpdateAsync(Guid id, UpdateOperationDto request)
@@ -118,7 +118,7 @@ public class OperationService : IOperationService
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (operation == null)
-            return ApiResponse<OperationDto>.Fail("Operasyon bulunamadı.");
+            return ApiResponse<OperationDto>.Fail("Operation not found.");
 
         if (request.GateNo != null) operation.GateNo = request.GateNo;
         if (request.FlightNumber != null) operation.FlightNumber = request.FlightNumber;
@@ -131,44 +131,44 @@ public class OperationService : IOperationService
         operation.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
-        return ApiResponse<OperationDto>.Ok(MapToDto(operation), "Operasyon güncellendi.");
+        return ApiResponse<OperationDto>.Ok(MapToDto(operation), "Operation updated.");
     }
 
     public async Task<ApiResponse<bool>> DeleteAsync(Guid id)
     {
         var operation = await _context.Operations.FindAsync(id);
         if (operation == null)
-            return ApiResponse<bool>.Fail("Operasyon bulunamadı.");
+            return ApiResponse<bool>.Fail("Operation not found.");
 
         if (operation.Status == OperationStatus.InProgress)
-            return ApiResponse<bool>.Fail("Devam eden operasyon silinemez. Önce iptal edin.");
+            return ApiResponse<bool>.Fail("An ongoing operation cannot be deleted. Cancel it first.");
 
         _context.Operations.Remove(operation);
         await _context.SaveChangesAsync();
-        return ApiResponse<bool>.Ok(true, "Operasyon silindi.");
+        return ApiResponse<bool>.Ok(true, "Operation deleted.");
     }
 
     /// <summary>
-    /// *** TRANSACTION METODU ***
+    /// *** TRANSACTION METHOD ***
     /// 
-    /// Bu metot iki işlemi atomik olarak gerçekleştirir:
-    ///   1. Operation.Status → Completed güncellenir
-    ///   2. SLA kaydı (Notification + meta) oluşturulur
+    /// This method performs two operations atomically:
+    ///   1. Updates Operation.Status → Completed
+    ///   2. Creates SLA record (Notification + meta)
     /// 
-    /// Benzetme: Bir sözleşmeyi imzalamak gibi — hem imzalı kopyayı verirsin,
-    /// hem de kayıt defterine yazarsın. İkisi de olmazsa hiçbiri geçerli sayılmaz.
+    /// Analogy: Like signing a contract — you both hand over the signed copy
+    /// and write it in the ledger. If both don't happen, neither is valid.
     /// </summary>
     public async Task<ApiResponse<SLARecordDto>> CloseWithSLAAsync(Guid id, CloseOperationDto request)
     {
-        // EF Core DbContext zaten bir Unit of Work sağlar,
-        // transaction için Database.BeginTransactionAsync() kullanıyoruz
+        // EF Core DbContext already provides a Unit of Work,
+        // we use Database.BeginTransactionAsync() for transaction
         var dbContext = (_context as Microsoft.EntityFrameworkCore.DbContext)!;
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
         try
         {
-            // ===== ADIM 1: Operasyonu kapat =====
+            // ===== STEP 1: Close the operation =====
             var operation = await _context.Operations
                 .Include(o => o.Aircraft)
                 .Include(o => o.OperationsManager)
@@ -177,51 +177,51 @@ public class OperationService : IOperationService
             if (operation == null)
             {
                 await transaction.RollbackAsync();
-                return ApiResponse<SLARecordDto>.Fail("Operasyon bulunamadı.");
+                return ApiResponse<SLARecordDto>.Fail("Operation not found.");
             }
 
             if (operation.Status == OperationStatus.Completed)
             {
                 await transaction.RollbackAsync();
-                return ApiResponse<SLARecordDto>.Fail("Bu operasyon zaten kapatılmış.");
+                return ApiResponse<SLARecordDto>.Fail("This operation has already been closed.");
             }
 
-            // Gecikme bilgilerini güncelle
+            // Update delay information
             operation.Status = OperationStatus.Completed;
             operation.DelayMinutes = request.DelayMinutes;
             if (request.DelayReason != null) operation.DelayReason = request.DelayReason;
             operation.UpdatedAt = DateTime.UtcNow;
 
-            // ===== ADIM 2: SLA kaydı oluştur =====
+            // ===== STEP 2: Create SLA record =====
             var turnaroundMinutes = (int)(DateTime.UtcNow - operation.ArrivalTime).TotalMinutes;
             var metSLA = turnaroundMinutes <= STANDARD_TURNAROUND_SLA_MINUTES;
 
-            // SLA sonucunu Notification olarak kaydet
+            // Save SLA result as Notification
             var slaNotification = new Notification
             {
                 RecipientUserId = operation.OperationsManagerId ?? Guid.Empty,
                 Message = metSLA
-                    ? $"✅ SLA BAŞARILI: {operation.FlightNumber} seferi {turnaroundMinutes} dakikada tamamlandı. (SLA limiti: {STANDARD_TURNAROUND_SLA_MINUTES} dk)"
-                    : $"⚠️ SLA İHLALİ: {operation.FlightNumber} seferi {turnaroundMinutes} dakika sürdü! (SLA limiti: {STANDARD_TURNAROUND_SLA_MINUTES} dk, {turnaroundMinutes - STANDARD_TURNAROUND_SLA_MINUTES} dk aşıldı)",
+                    ? $"✅ SLA SUCCESS: Flight {operation.FlightNumber} completed in {turnaroundMinutes} minutes. (SLA limit: {STANDARD_TURNAROUND_SLA_MINUTES} min)"
+                    : $"⚠️ SLA BREACH: Flight {operation.FlightNumber} took {turnaroundMinutes} minutes! (SLA limit: {STANDARD_TURNAROUND_SLA_MINUTES} min, exceeded by {turnaroundMinutes - STANDARD_TURNAROUND_SLA_MINUTES} min)",
                 NotificationType = metSLA ? NotificationType.OperationCompleted : NotificationType.SLABreached,
                 Date = DateTime.UtcNow,
                 IsRead = false
             };
 
-            // operationsManagerId null ise admin'e yolla
+            // if operationsManagerId is null, send to admin
             if (operation.OperationsManagerId == null)
             {
-                // Admin kullanıcıya gönder
+                // Send to Admin user
                 var admin = await _context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.Admin);
                 if (admin != null) slaNotification.RecipientUserId = admin.Id;
             }
 
             _context.Notifications.Add(slaNotification);
 
-            // ===== HER İKİ ADIMI DA KAYDET (ya ikisi de olsun ya da hiçbirisi) =====
+            // ===== SAVE BOTH STEPS (all or nothing) =====
             await _context.SaveChangesAsync();
 
-            // ===== BAŞARILI: COMMIT =====
+            // ===== SUCCESS: COMMIT =====
             await transaction.CommitAsync();
 
             var slaRecord = new SLARecordDto
@@ -236,14 +236,14 @@ public class OperationService : IOperationService
             };
 
             return ApiResponse<SLARecordDto>.Ok(slaRecord,
-                metSLA ? "Operasyon başarıyla kapatıldı. SLA hedefi tutturuldu! ✅"
-                       : "Operasyon kapatıldı ancak SLA ihlali tespit edildi. ⚠️");
+                metSLA ? "Operation closed successfully. SLA target met! ✅"
+                       : "Operation closed but SLA breach detected. ⚠️");
         }
         catch (Exception ex)
         {
-            // ===== HATA: ROLLBACK — her iki işlem de geri alınır =====
+            // ===== ERROR: ROLLBACK — both operations are rolled back =====
             await transaction.RollbackAsync();
-            return ApiResponse<SLARecordDto>.Fail($"İşlem başarısız, tüm değişiklikler geri alındı: {ex.Message}");
+            return ApiResponse<SLARecordDto>.Fail($"Transaction failed, all changes rolled back: {ex.Message}");
         }
     }
 
@@ -255,22 +255,22 @@ public class OperationService : IOperationService
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (operation == null)
-            return ApiResponse<OperationChecklistDto>.Fail("Operasyon bulunamadı.");
+            return ApiResponse<OperationChecklistDto>.Fail("Operation not found.");
 
-        // Standart turnaround checklist adımları
-        // Gerçek bir havalimanında bu adımlar dijital sistemde takip edilir
+        // Standard turnaround checklist steps
+        // In a real airport, these steps are tracked in a digital system
         var checklistItems = new List<OperationChecklistItemDto>
         {
-            new() { Step = "🛬 Uçak kapıya (gate) yanaştı", IsCompleted = operation.Status >= OperationStatus.InProgress },
-            new() { Step = "🔗 Körük (jet bridge) bağlandı", IsCompleted = operation.JetBridgeAssignments.Any(j => j.Status >= JetBridgeAssignmentStatus.BridgeConnected) },
-            new() { Step = "🚌 Merdiven/araç pozisyonlandı", IsCompleted = operation.Status >= OperationStatus.InProgress },
-            new() { Step = "👥 Yolcu inişi başladı", IsCompleted = operation.JetBridgeAssignments.Any(j => j.Status >= JetBridgeAssignmentStatus.BridgeConnected) },
-            new() { Step = "🧳 Bagaj boşaltma başladı", IsCompleted = operation.Status >= OperationStatus.InProgress },
-            new() { Step = "⛽ Yakıt ikmali", IsCompleted = operation.Status >= OperationStatus.InProgress },
-            new() { Step = "🍽️ Catering (ikram) teslimi", IsCompleted = operation.Status >= OperationStatus.InProgress },
-            new() { Step = "🧹 Kabin temizliği tamamlandı", IsCompleted = operation.Status >= OperationStatus.Completed },
-            new() { Step = "✈️ Yeni yolcu binişi tamamlandı", IsCompleted = operation.Status == OperationStatus.Completed },
-            new() { Step = "📋 Kalkış belgesi imzalandı", IsCompleted = operation.Status == OperationStatus.Completed },
+            new() { Step = "🛬 Aircraft arrived at gate", IsCompleted = operation.Status >= OperationStatus.InProgress },
+            new() { Step = "🔗 Jet bridge connected", IsCompleted = operation.JetBridgeAssignments.Any(j => j.Status >= JetBridgeAssignmentStatus.BridgeConnected) },
+            new() { Step = "🚌 Stairs/vehicle positioned", IsCompleted = operation.Status >= OperationStatus.InProgress },
+            new() { Step = "👥 Passenger disembarking started", IsCompleted = operation.JetBridgeAssignments.Any(j => j.Status >= JetBridgeAssignmentStatus.BridgeConnected) },
+            new() { Step = "🧳 Baggage unloading started", IsCompleted = operation.Status >= OperationStatus.InProgress },
+            new() { Step = "⛽ Refueling", IsCompleted = operation.Status >= OperationStatus.InProgress },
+            new() { Step = "🍽️ Catering delivery", IsCompleted = operation.Status >= OperationStatus.InProgress },
+            new() { Step = "🧹 Cabin cleaning completed", IsCompleted = operation.Status >= OperationStatus.Completed },
+            new() { Step = "✈️ New passenger boarding completed", IsCompleted = operation.Status == OperationStatus.Completed },
+            new() { Step = "📋 Departure document signed", IsCompleted = operation.Status == OperationStatus.Completed },
         };
 
         var checklist = new OperationChecklistDto
