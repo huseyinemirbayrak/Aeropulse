@@ -3312,11 +3312,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
+      "projectUniqueName": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
       "projectName": "AeroPulse.API",
-      "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
+      "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.API\\AeroPulse.API.csproj",
       "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.API\\obj\\",
+      "outputPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3332,11 +3332,11 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
-              "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj"
+            "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj": {
+              "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Application\\AeroPulse.Application.csproj"
             },
-            "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\LENOVO\\OneDrive\\Desktop\\Staj 2 projesi\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj"
+            "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\LENOVO\\Aeropulse\\src\\AeroPulse.Infrastructure\\AeroPulse.Infrastructure.csproj"
             }
           }
         }
