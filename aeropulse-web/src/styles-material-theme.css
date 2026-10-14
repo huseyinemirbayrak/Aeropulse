@@ -1,4 +1,3 @@
-/* ===== AEROPULSE AVIATION THEME - Clean Enterprise Minimal ===== */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 :root {
@@ -38,7 +37,6 @@ html, body {
   height: 100%;
 }
 
-/* Material Button - Flat Minimal */
 .mat-mdc-button, .mat-mdc-raised-button {
   font-weight: 500;
   border-radius: 4px !important;
@@ -49,7 +47,6 @@ html, body {
   box-shadow: none !important;
 }
 
-/* Material Card - Plain White 1px border */
 .mat-mdc-card {
   box-shadow: none !important;
   border: 1px solid #e5e7eb !important;
@@ -64,7 +61,6 @@ html, body {
   transform: none !important;
 }
 
-/* Material Form Field */
 .mat-mdc-form-field {
   display: block;
   width: 100%;

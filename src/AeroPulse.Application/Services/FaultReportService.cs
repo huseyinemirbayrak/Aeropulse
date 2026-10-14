@@ -6,11 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AeroPulse.Application.Services;
 
-/// <summary>
-/// Arıza talep yönetim servisi.
-/// Arızalar saha teknisyeni tarafından açılır, mühendise atanır ve kapatılır.
-/// Her arıza açıldığında mesaj kuyruğuna olay düşer.
-/// </summary>
 public class FaultReportService : IFaultReportService
 {
     private readonly IAeroPulseDbContext _context;
@@ -70,27 +65,21 @@ public class FaultReportService : IFaultReportService
             .FirstOrDefaultAsync(f => f.Id == id);
 
         if (fault == null)
-            return ApiResponse<FaultReportDto>.Fail("Arıza raporu bulunamadı.");
+            return ApiResponse<FaultReportDto>.Fail("Fault report not found.");
 
         var slaRules = await _context.SLARules.ToListAsync();
         return ApiResponse<FaultReportDto>.Ok(MapToDto(fault, slaRules));
     }
 
-    /// <summary>
-    /// Yeni arıza açar ve:
-    ///   1. DB'ye kaydeder
-    ///   2. Mesaj kuyruğuna "fault.assigned" mesajı yayınlar
-    ///   3. Atanan mühendise in-app bildirim oluşturur
-    /// </summary>
     public async Task<ApiResponse<FaultReportDto>> CreateAsync(CreateFaultReportDto request, Guid reportedByUserId)
     {
         var aircraft = await _context.Aircraft.FindAsync(request.AircraftId);
         if (aircraft == null)
-            return ApiResponse<FaultReportDto>.Fail("Uçak bulunamadı.");
+            return ApiResponse<FaultReportDto>.Fail("Aircraft not found.");
 
         var technician = await _context.Users.FindAsync(reportedByUserId);
         if (technician == null)
-            return ApiResponse<FaultReportDto>.Fail("Teknisyen bulunamadı.");
+            return ApiResponse<FaultReportDto>.Fail("Reporting technician not found.");
 
         var fault = new FaultReport
         {
@@ -106,7 +95,6 @@ public class FaultReportService : IFaultReportService
         _context.FaultReports.Add(fault);
         await _context.SaveChangesAsync();
 
-        // ===== Mesaj kuyruğuna (Event Bus) yayınla =====
         if (request.AssignedEngineerId.HasValue)
         {
             await _messageBus.PublishAsync("fault.assigned", new FaultAssignedMessage
@@ -118,16 +106,14 @@ public class FaultReportService : IFaultReportService
                 AssignedEngineerId = request.AssignedEngineerId.Value
             });
 
-            // In-app bildirim de oluştur
             await _notificationService.CreateAsync(
                 request.AssignedEngineerId.Value,
-                $"🔧 Yeni {fault.Priority} öncelikli arıza atandı: {aircraft.TailNumber} — {fault.Description[..Math.Min(50, fault.Description.Length)]}...",
+                $"New {fault.Priority} priority fault assigned: {aircraft.TailNumber} - {fault.Description[..Math.Min(50, fault.Description.Length)]}...",
                 NotificationType.FaultAssigned,
                 fault.Id
             );
         }
 
-        // Yeniden yükle
         var created = await _context.FaultReports
             .Include(f => f.Aircraft)
             .Include(f => f.ReportedByTechnician)
@@ -135,7 +121,7 @@ public class FaultReportService : IFaultReportService
             .FirstAsync(f => f.Id == fault.Id);
 
         var slaRules = await _context.SLARules.ToListAsync();
-        return ApiResponse<FaultReportDto>.Ok(MapToDto(created, slaRules), "Arıza raporu açıldı ve ilgili mühendise bildirim gönderildi.");
+        return ApiResponse<FaultReportDto>.Ok(MapToDto(created, slaRules), "Fault report created and assigned engineer notified.");
     }
 
     public async Task<ApiResponse<FaultReportDto>> UpdateAsync(Guid id, UpdateFaultReportDto request)
@@ -147,12 +133,11 @@ public class FaultReportService : IFaultReportService
             .FirstOrDefaultAsync(f => f.Id == id);
 
         if (fault == null)
-            return ApiResponse<FaultReportDto>.Fail("Arıza raporu bulunamadı.");
+            return ApiResponse<FaultReportDto>.Fail("Fault report not found.");
 
         if (request.Status.HasValue)
         {
             fault.Status = request.Status.Value;
-            // Kapatılıyorsa kapanış tarihini yaz
             if (request.Status.Value == FaultStatus.Resolved || request.Status.Value == FaultStatus.Closed)
                 fault.CloseDate = DateTime.UtcNow;
         }
@@ -165,18 +150,18 @@ public class FaultReportService : IFaultReportService
         await _context.SaveChangesAsync();
 
         var slaRules = await _context.SLARules.ToListAsync();
-        return ApiResponse<FaultReportDto>.Ok(MapToDto(fault, slaRules), "Arıza raporu güncellendi.");
+        return ApiResponse<FaultReportDto>.Ok(MapToDto(fault, slaRules), "Fault report updated.");
     }
 
     public async Task<ApiResponse<bool>> DeleteAsync(Guid id)
     {
         var fault = await _context.FaultReports.FindAsync(id);
         if (fault == null)
-            return ApiResponse<bool>.Fail("Arıza raporu bulunamadı.");
+            return ApiResponse<bool>.Fail("Fault report not found.");
 
         _context.FaultReports.Remove(fault);
         await _context.SaveChangesAsync();
-        return ApiResponse<bool>.Ok(true, "Arıza raporu silindi.");
+        return ApiResponse<bool>.Ok(true, "Fault report deleted.");
     }
 
     public async Task<ApiResponse<List<FaultReportDto>>> GetMyFaultsAsync(Guid technicianId)
@@ -203,7 +188,6 @@ public class FaultReportService : IFaultReportService
             .Where(f => f.Status == FaultStatus.Open || f.Status == FaultStatus.UnderReview)
             .ToListAsync();
 
-        // SLA ihlali olanları filtrele
         var overdue = activeFaults
             .Select(f => MapToDto(f, slaRules))
             .Where(f => f.IsSLABreached)

@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'mro',
-    canActivate: [roleGuard('MROEngineer', 'Admin')],
+    canActivate: [roleGuard('MROEngineer', 'Admin', 'OperationsManager')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/mro/dashboard/dashboard').then(m => m.MRODashboardComponent) },
@@ -35,7 +35,7 @@ export const routes: Routes = [
   },
   {
     path: 'ops',
-    canActivate: [roleGuard('OperationsManager', 'Admin')],
+    canActivate: [roleGuard('OperationsManager', 'Admin', 'MROEngineer', 'FieldTechnician')],
     loadComponent: () => import('./shared/layout/layout').then(m => m.LayoutComponent),
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/ops/dashboard/dashboard').then(m => m.OpsDashboardComponent) },

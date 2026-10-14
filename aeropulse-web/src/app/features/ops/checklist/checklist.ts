@@ -23,62 +23,57 @@ interface MissingPassenger {
   template: `
     <div class="dashboard animate-fade-in" *ngIf="loading && !operation">
       <div class="glass-card text-center py-5">
-        <p class="text-muted">Turnaround & Uçuş detayları yükleniyor...</p>
+        <p class="text-muted">Loading turnaround and flight telemetry...</p>
       </div>
     </div>
 
     <div class="dashboard animate-fade-in" *ngIf="operation">
-      <!-- HEADER & FLIGHT STRIP -->
       <div class="header-actions mb-3">
         <div>
           <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="flight-badge">✈️ {{ operation.flightNumber }}</span>
+            <span class="flight-badge">{{ operation.flightNumber }}</span>
             <h1 class="section-title mb-0">{{ operation.tailNumber }} • {{ operation.aircraftModel || 'Airbus A320neo' }}</h1>
             <span class="status-badge" [ngClass]="operation.status === 'Completed' ? 'success' : 'warning'">
               {{ operation.status }}
             </span>
           </div>
           <p class="text-muted mt-1 mb-0">
-            📍 Kapı: <strong>{{ operation.gateNo || 'A1' }}</strong> • 
-            Pist: <strong>{{ operation.assignedRunwayCode || '35R' }}</strong> • 
-            Hedef Kalkış: <strong>{{ operation.departureTime | date:'shortTime' }}</strong> •
-            Güzergah: <strong>IST ➔ Frankfurt (FRA)</strong>
+            Gate: <strong>{{ operation.gateNo || 'A1' }}</strong> • 
+            Runway: <strong>{{ operation.assignedRunwayCode || '35R' }}</strong> • 
+            Target Departure: <strong>{{ operation.departureTime | date:'shortTime' }}</strong> •
+            Routing: <strong>IST ➔ Frankfurt (FRA)</strong>
           </p>
         </div>
         <div class="header-buttons">
-          <button class="btn btn-secondary" routerLink="/ops/operations">◀ Seferler</button>
-          <button class="btn btn-secondary" routerLink="/ops/gse-fleet">Apron Filosu</button>
-          <button class="btn btn-secondary" routerLink="/ops/ramp">Ramp Görevleri</button>
-          <button class="btn btn-secondary" routerLink="/ops/dashboard">Uçuş Radarı</button>
-          <button class="btn btn-refresh" (click)="loadTurnaroundData()">🔄 Yenile</button>
+          <button class="btn btn-secondary" routerLink="/ops/operations">◀ Flight Schedule</button>
+          <button class="btn btn-secondary" routerLink="/ops/gse-fleet">GSE Fleet</button>
+          <button class="btn btn-secondary" routerLink="/ops/ramp">Ramp Dispatch</button>
+          <button class="btn btn-secondary" routerLink="/ops/dashboard">Radar View</button>
+          <button class="btn btn-refresh" (click)="loadTurnaroundData()">Refresh</button>
         </div>
       </div>
 
-      <!-- REDCAP COUNTDOWN & SUMMARY BANNER -->
       <div class="glass-card banner-card mb-4">
         <div class="banner-grid">
-          <!-- SÜRE GERİ SAYIMI -->
           <div class="banner-col">
-            <span class="banner-label">DÖNÜŞ (TURNAROUND) KRONOMETRESİ</span>
+            <span class="banner-label">TURNAROUND COUNTDOWN</span>
             <div class="countdown-value">{{ countdownText }}</div>
-            <span class="banner-sub">Hedeflenen kalkış saatine kalan süre</span>
+            <span class="banner-sub">Time remaining until scheduled pushback</span>
           </div>
 
-          <!-- GÖREV İLERLEMESİ -->
           <div class="banner-col">
-            <span class="banner-label">GENEL GÖREV İLERLEMESİ</span>
+            <span class="banner-label">OVERALL MILESTONE PROGRESS</span>
             <div class="d-flex align-items-center gap-2 mt-1">
               <div class="progress-track flex-grow-1">
                 <div class="progress-bar-fill" [style.width.%]="overallProgress"></div>
               </div>
               <strong class="progress-text">{{ overallProgress }}%</strong>
             </div>
-            <span class="banner-sub">{{ completedTasksCount }} / {{ tasks.length }} Görev Tamamlandı</span>
+            <span class="banner-sub">{{ completedTasksCount }} / {{ tasks.length }} Milestones Completed</span>
           </div>
 
-          <!-- REDCAP KALKIŞ ONAYI (CLEARANCE) SWITCH -->
           <div class="banner-col">
-            <span class="banner-label">REDCAP KALKIŞ YETKİSİ (CLEARANCE)</span>
+            <span class="banner-label">DEPARTURE CLEARANCE AUTHORIZATION</span>
             <div class="d-flex align-items-center gap-2 mt-1">
               <button 
                 class="clearance-toggle-btn"
@@ -87,48 +82,43 @@ interface MissingPassenger {
                 [disabled]="approvalSubmitting"
               >
                 <span class="indicator-dot"></span>
-                {{ manifest?.loadsheetApproved ? '🚀 KALKIŞ İZNİ VERİLDİ' : '🛑 ONAY BEKLİYOR' }}
+                {{ manifest?.loadsheetApproved ? 'CLEARANCE GRANTED' : 'PENDING APPROVAL' }}
               </button>
             </div>
             <span class="banner-sub" *ngIf="manifest?.approvedByRedcap">
-              Onaylayan: {{ manifest.approvedByRedcap }}
+              Authorized by: {{ manifest.approvedByRedcap }}
             </span>
             <span class="banner-sub" *ngIf="!manifest?.approvedByRedcap">
-              Kalkış için Redcap dijital imzası gereklidir
+              Digital signature required prior to pushback
             </span>
           </div>
         </div>
       </div>
 
-      <!-- TAB NAVIGATION -->
       <div class="tab-nav mb-4">
         <button class="tab-btn" [class.active]="activeTab === 'TASKS'" (click)="activeTab = 'TASKS'">
-          📋 Turnaround Görevleri & Redcap ({{ tasks.length }})
+          Turnaround Milestones & Ramp ({{ tasks.length }})
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'BOARDING'" (click)="activeTab = 'BOARDING'">
-          🚶‍♂️ Yolcu Hizmetleri & Biniş (Gate Agent)
+          Gate Boarding & BRS Reconciliation
         </button>
         <button class="tab-btn" [class.active]="activeTab === 'LOADSHEET'" (click)="activeTab = 'LOADSHEET'">
-          ⚖️ Yük & Denge Formu (e-Loadsheet)
+          Weight & Balance (e-Loadsheet)
         </button>
       </div>
 
-      <!-- ============================================== -->
-      <!-- TAB 1: TURNAROUND GÖREVLERİ (REDCAP KOORDİNASYONU) -->
-      <!-- ============================================== -->
       <div *ngIf="activeTab === 'TASKS'" class="tab-content">
         <div class="glass-card mb-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <h3 class="card-section-title">⏱️ Kritik Dönüş Adımları (7 Temel Görev)</h3>
-              <p class="text-muted mb-0">Uçağın inişinden kalkışına kadar sahada yürütülen eş zamanlı yer hizmetleri</p>
+              <h3 class="card-section-title">Critical Turnaround Milestones</h3>
+              <p class="text-muted mb-0">Synchronized airside services from block-on to pushback clearance</p>
             </div>
-            <button class="btn btn-sm btn-outline" (click)="loadTurnaroundData()">Görevleri Tazele</button>
+            <button class="btn btn-sm btn-outline" (click)="loadTurnaroundData()">Sync Telemetry</button>
           </div>
 
           <div class="tasks-list">
             <div *ngFor="let task of tasks" class="task-card" [ngClass]="getTaskCardClass(task.status)">
-              <!-- SOL: İKON VE BİLGİ -->
               <div class="task-left">
                 <div class="task-icon-box">
                   <span class="task-icon">{{ getTaskIcon(task.taskType) }}</span>
@@ -141,7 +131,6 @@ interface MissingPassenger {
                     </span>
                   </div>
 
-                  <!-- GÖREVE ÖZEL CANLI METRİK -->
                   <div class="task-dynamic-metric mt-1">
                     <span class="metric-text">{{ getDynamicTaskMetric(task) }}</span>
                   </div>
@@ -149,23 +138,22 @@ interface MissingPassenger {
                   <p class="task-notes text-muted mt-1 mb-0" *ngIf="task.notes">{{ task.notes }}</p>
 
                   <div class="task-meta mt-2">
-                    <a *ngIf="task.assignedGSECode" routerLink="/ops/gse-fleet" class="meta-pill gse" style="text-decoration: none; cursor: pointer;" title="Apron GSE Filosunda Gör">
-                      🚜 Araç: <strong>{{ task.assignedGSECode }} ➔</strong>
+                    <a *ngIf="task.assignedGSECode" routerLink="/ops/gse-fleet" class="meta-pill gse" style="text-decoration: none; cursor: pointer;">
+                      GSE Unit: <strong>{{ task.assignedGSECode }}</strong>
                     </a>
                     <span *ngIf="task.assignedUserName" class="meta-pill user">
-                      👷 Sorumlu: <strong>{{ task.assignedUserName }}</strong>
+                      Lead: <strong>{{ task.assignedUserName }}</strong>
                     </span>
                     <span class="meta-pill time">
-                      ⏱️ Hedef: {{ task.targetDurationMinutes }} dk
+                      Target: {{ task.targetDurationMinutes }}m
                     </span>
                   </div>
                 </div>
               </div>
 
-              <!-- ORTA / İLERLEME ÇUBUĞU VE SLIDER -->
               <div class="task-center">
                 <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
-                  <span class="text-muted">İlerleme Seviyesi</span>
+                  <span class="text-muted">Completion Level</span>
                   <strong>{{ task.progressPercentage }}%</strong>
                 </div>
                 <div class="progress-track">
@@ -178,28 +166,27 @@ interface MissingPassenger {
                   [(ngModel)]="task.progressPercentage" 
                   class="progress-slider mt-2" 
                   (change)="quickUpdateProgress(task)"
-                  title="İlerlemeyi kaydırın"
+                  title="Adjust progress percentage"
                 />
               </div>
 
-              <!-- SAĞ / AKSİYON BUTONLARI -->
               <div class="task-actions">
                 <button 
                   *ngIf="task.status === 0" 
                   class="btn btn-sm btn-primary" 
                   (click)="updateTaskStatus(task, 2)"
                 >
-                  ▶ Başlat
+                  Start Task
                 </button>
                 <button 
                   *ngIf="task.status === 2" 
                   class="btn btn-sm btn-success" 
                   (click)="updateTaskStatus(task, 3)"
                 >
-                  ✓ Tamamla
+                  Complete
                 </button>
                 <span *ngIf="task.status === 3" class="text-success font-weight-bold" style="font-size: 0.85rem;">
-                  ✅ Bitti
+                  Completed
                 </span>
               </div>
             </div>
@@ -207,36 +194,32 @@ interface MissingPassenger {
         </div>
       </div>
 
-      <!-- ============================================== -->
-      <!-- TAB 2: YOLCU HİZMETLERİ & BİNİŞ (GATE AGENT & BRS) -->
-      <!-- ============================================== -->
       <div *ngIf="activeTab === 'BOARDING'" class="tab-content">
         <div class="grid grid-2 mb-4">
-          <!-- SOL: MANİFESTO & CANLI BİNİŞ SAYAÇLARI -->
           <div class="glass-card">
-            <h3 class="card-section-title mb-3">🚶‍♂️ Yolcu Manifestosu & Biniş Sayacı (Gate Agent)</h3>
+            <h3 class="card-section-title mb-3">Passenger Manifest & Boarding Counters</h3>
 
             <div class="boarding-stats-grid mb-4">
               <div class="boarding-stat-box">
-                <span class="label">TOPLAM BİLETLİ</span>
+                <span class="label">TOTAL BOOKED</span>
                 <span class="num">{{ manifest?.totalBooked || 180 }}</span>
-                <small class="text-muted">Kayıtlı Yolcu</small>
+                <small class="text-muted">Confirmed Pax</small>
               </div>
               <div class="boarding-stat-box highlight">
-                <span class="label">UÇAĞA BİNEN</span>
+                <span class="label">BOARDED</span>
                 <span class="num text-success">{{ manifest?.boardedCount || 0 }}</span>
-                <small class="text-muted">{{ ((manifest?.boardedCount || 0) / (manifest?.totalBooked || 180) * 100) | number:'1.0-0' }}% Tamamlandı</small>
+                <small class="text-muted">{{ ((manifest?.boardedCount || 0) / (manifest?.totalBooked || 180) * 100) | number:'1.0-0' }}% On Board</small>
               </div>
               <div class="boarding-stat-box">
-                <span class="label">KAPIDA BEKLEYEN</span>
+                <span class="label">UNBOARDED</span>
                 <span class="num text-warning">{{ missingPassengerCount }}</span>
-                <small class="text-muted">Eksik / Gelmeyen</small>
+                <small class="text-muted">Gate Standby</small>
               </div>
             </div>
 
             <div class="mb-4">
               <div class="d-flex justify-content-between mb-1">
-                <span>Kapı Biniş İlerlemesi</span>
+                <span>Gate Boarding Progress</span>
                 <strong>{{ ((manifest?.boardedCount || 0) / (manifest?.totalBooked || 180) * 100) | number:'1.0-0' }}%</strong>
               </div>
               <div class="progress-track" style="height: 12px;">
@@ -244,77 +227,73 @@ interface MissingPassenger {
               </div>
             </div>
 
-            <!-- BARKOD / BİNİŞ SİMÜLATÖRÜ -->
             <div class="d-flex gap-2 flex-wrap mb-2">
               <button class="btn btn-primary" (click)="scanSinglePassenger()" [disabled]="(manifest?.boardedCount || 0) >= (manifest?.totalBooked || 180)">
-                🎫 Biniş Kartı Tara (+1 Yolcu)
+                Scan Boarding Pass (+1)
               </button>
               <button class="btn btn-outline" (click)="bulkScanPassengers(10)" [disabled]="(manifest?.boardedCount || 0) >= (manifest?.totalBooked || 180)">
-                👥 Grup Tara (+10 Yolcu)
+                Batch Scan (+10)
               </button>
               <button class="btn btn-secondary" (click)="completeAllBoarding()">
-                ✓ Kapıyı Kapat (Tümünü Al)
+                Close Gate (All Boarded)
               </button>
             </div>
           </div>
 
-          <!-- SAĞ: BRS (BAGAJ EŞLEŞTİRME SİSTEMİ) GÜVENLİK KONTROLÜ -->
           <div class="glass-card">
-            <h3 class="card-section-title mb-3">🧳 BRS (Baggage Reconciliation System)</h3>
+            <h3 class="card-section-title mb-3">Baggage Reconciliation System (BRS)</h3>
             
             <div class="brs-box mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Kayıtlı Ambar Bagajı:</span>
-                <strong>{{ manifest?.checkedBaggageCount || 154 }} Adet</strong>
+                <span>Checked Baggage Units:</span>
+                <strong>{{ manifest?.checkedBaggageCount || 154 }} Bags</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Uçağa Yüklenen Bagaj:</span>
-                <strong class="text-info">{{ manifest?.loadedBaggageCount || 0 }} Adet</strong>
+                <span>Loaded in Holds:</span>
+                <strong class="text-info">{{ manifest?.loadedBaggageCount || 0 }} Bags</strong>
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <span>Bagaj-Yolcu Eşleşmesi:</span>
+                <span>Passenger-Bag Match Integrity:</span>
                 <span class="badge" [ngClass]="isLuggageCompliant ? 'success' : 'warning'">
-                  {{ isLuggageCompliant ? '✅ %100 Güvenli & Eşleşti' : '⚠️ Eksik Yolcu Bagajı Var' }}
+                  {{ isLuggageCompliant ? '100% Secure & Reconciled' : 'Discrepancy Detected' }}
                 </span>
               </div>
             </div>
 
             <div class="brs-alert-card mb-3" *ngIf="missingPassengerCount > 0 && hasLoadedMissingBags">
-              <div class="alert-icon">⚠️</div>
               <div>
-                <strong>ICAO Annex 17 & IATA Güvenlik Kuralı:</strong>
+                <strong>ICAO Annex 17 / IATA Security Protocol:</strong>
                 <p class="mb-0 text-muted" style="font-size: 0.85rem;">
-                  Uçağa henüz binmemiş {{ missingPassengerCount }} yolcu bulunmaktadır. Ambarda uçağa binmeyen yolcuya ait bagaj varsa uçuştan derhal indirilmelidir!
+                  There are {{ missingPassengerCount }} unboarded passenger(s). Bags belonging to no-show passengers must be offloaded prior to departure clearance.
                 </p>
               </div>
             </div>
 
             <button class="btn btn-warning w-100 mb-2" (click)="notifyMissingPassengers()">
-              📢 Eksik Yolcuları Redcap & OCC'ye Bildir
+              Notify OCC & Dispatch of Missing Pax
             </button>
           </div>
         </div>
 
-        <!-- GELMEYEN / KAYIP YOLCULAR LİSTESİ (ANONS & BRS AMBAR İNDİRME) -->
         <div class="glass-card">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-              <h3 class="card-section-title">🚨 Biniş Yapmayan (Eksik) Yolcular & BRS Bagaj Takibi</h3>
-              <p class="text-muted mb-0">Kapıya gelmeyen yolcular için son çağrı anonsu yapabilir veya güvenlik gereği bagajını ambardan indirebilirsiniz.</p>
+              <h3 class="card-section-title">Unboarded Passengers & BRS Reconciliations</h3>
+              <p class="text-muted mb-0">Broadcast gate call or initiate offload protocol for hold luggage</p>
             </div>
-            <span class="badge warning">{{ missingPassengers.length }} Yolcu Bekleniyor</span>
+            <span class="badge warning">{{ missingPassengers.length }} Passengers Pending</span>
           </div>
 
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>KOLTUK</th>
-                  <th>YOLCU ADI</th>
-                  <th>BAGAJ ETİKETİ (TAG)</th>
-                  <th>BRS BAGAJ DURUMU</th>
-                  <th>KAPI ÇAĞRISI</th>
-                  <th style="text-align: right;">GÜVENLİK AKSİYONU</th>
+                  <th>SEAT</th>
+                  <th>PASSENGER NAME</th>
+                  <th>BAG TAG</th>
+                  <th>BRS HOLD STATUS</th>
+                  <th>CALL STATUS</th>
+                  <th style="text-align: right;">SECURITY ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -324,49 +303,49 @@ interface MissingPassenger {
                   </td>
                   <td>
                     <strong>{{ p.name }}</strong>
-                    <div class="text-muted" style="font-size: 0.75rem;">Ekonomi Sınıfı • Check-in Yapıldı</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">Economy Class • Checked-In</div>
                   </td>
                   <td>
                     <code class="bag-tag">{{ p.bagTag }}</code>
                   </td>
                   <td>
                     <span *ngIf="p.bagStatus === 'LOADED'" class="badge danger">
-                      Ambarda Yüklü (Risk)
+                      Loaded in Hold (Risk)
                     </span>
                     <span *ngIf="p.bagStatus === 'OFFLOADED'" class="badge success">
-                      ✅ Ambardan İndirildi
+                      Offloaded Safely
                     </span>
                     <span *ngIf="p.bagStatus === 'NO_BAG'" class="badge info">
-                      Bagajsız Yolcu
+                      No Checked Bags
                     </span>
                   </td>
                   <td>
-                    <span *ngIf="p.announced" class="badge info">📢 Anons Yapıldı</span>
-                    <span *ngIf="!p.announced" class="badge secondary">Bekliyor</span>
+                    <span *ngIf="p.announced" class="badge info">Final Call Made</span>
+                    <span *ngIf="!p.announced" class="badge secondary">Standby</span>
                   </td>
                   <td style="text-align: right;">
                     <div class="d-flex justify-content-end gap-2">
                       <button 
                         class="btn btn-sm btn-outline" 
                         (click)="announcePassenger(p)"
-                        title="Havalimanı hoparlöründen son çağrı anonsu simülasyonu"
+                        title="Simulate gate audio call"
                       >
-                        📢 Anons Yap
+                        Final Call
                       </button>
                       <button 
                         *ngIf="p.bagStatus === 'LOADED'"
                         class="btn btn-sm btn-danger" 
                         (click)="offloadBag(p)"
-                        title="Yolcu gelmediği için bagajı uçaktan çıkar"
+                        title="Offload bag from hold"
                       >
-                        🧳 Bagajı İndir (BRS)
+                        Offload Bag
                       </button>
                       <button 
                         *ngIf="p.bagStatus === 'OFFLOADED'"
                         class="btn btn-sm btn-secondary" 
                         (click)="restoreBag(p)"
                       >
-                        Geri Yükle
+                        Reload Bag
                       </button>
                     </div>
                   </td>
@@ -374,7 +353,7 @@ interface MissingPassenger {
 
                 <tr *ngIf="missingPassengers.length === 0">
                   <td colspan="6" class="text-center py-4 text-success font-weight-bold">
-                    🎉 Tüm yolcular uçağa bindi! Kapı kapatmaya hazır.
+                    All passengers boarded. Ready to close gate.
                   </td>
                 </tr>
               </tbody>
@@ -383,112 +362,110 @@ interface MissingPassenger {
         </div>
       </div>
 
-      <!-- ============================================== -->
-      <!-- TAB 3: YÜK VE DENGE (LOADSHEET) & FLIGHT RELEASE -->
-      <!-- ============================================== -->
       <div *ngIf="activeTab === 'LOADSHEET'" class="tab-content">
         <div class="glass-card loadsheet-card">
           <div class="loadsheet-header mb-4">
-            <div class="d-flex align-items-center gap-2">
-              <span class="logo-plane">✈️</span>
+            <div class="d-flex align-items-center gap-3">
+              <div class="logo-plane" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(37, 99, 235, 0.1); color: var(--accent-primary); border-radius: 6px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+                </svg>
+              </div>
               <div>
-                <h3 class="mb-0">AEROPULSE ELEKTRONİK YÜK VE DENGE FORMU (e-LOADSHEET)</h3>
-                <small class="text-muted">IATA AHM 560 Standardına Uygun Ağırlık ve Ağırlık Merkezi (CG) Formu</small>
+                <h3 class="mb-0">AEROPULSE ELECTRONIC WEIGHT & BALANCE SHEET (e-LOADSHEET)</h3>
+                <small class="text-muted">IATA AHM 560 Standard Compliance — Certified Aircraft Center of Gravity (CG)</small>
               </div>
             </div>
             <div class="loadsheet-status">
-              <span *ngIf="manifest?.loadsheetApproved" class="stamp approved">ONAYLANDI (RELEASED)</span>
-              <span *ngIf="!manifest?.loadsheetApproved" class="stamp pending">TASLAK (DRAFT)</span>
+              <span *ngIf="manifest?.loadsheetApproved" class="stamp approved">RELEASED</span>
+              <span *ngIf="!manifest?.loadsheetApproved" class="stamp pending">DRAFT</span>
             </div>
           </div>
 
-          <!-- AĞIRLIK VE DENGE TABLOSU -->
           <div class="loadsheet-table-wrap mb-4">
             <table class="loadsheet-table">
               <thead>
                 <tr>
-                  <th>AĞIRLIK PARAMETRESİ</th>
-                  <th>DEĞER (KG)</th>
-                  <th>LİMİT (MAX KG)</th>
-                  <th>DURUM</th>
+                  <th>WEIGHT PARAMETER</th>
+                  <th>VALUE (KG)</th>
+                  <th>STRUCTURAL LIMIT (MAX KG)</th>
+                  <th>STATUS</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Kuru Boş Ağırlık (Dry Operating Weight - DOW)</td>
+                  <td>Dry Operating Weight (DOW)</td>
                   <td><strong>41,500 kg</strong></td>
                   <td>-</td>
                   <td><span class="badge success">OK</span></td>
                 </tr>
                 <tr>
-                  <td>Yolcu Yükü (Traffic Load: {{ manifest?.boardedCount || 162 }} pax x 84 kg)</td>
+                  <td>Traffic Load ({{ manifest?.boardedCount || 162 }} pax x 84 kg)</td>
                   <td><strong>{{ (manifest?.boardedCount || 162) * 84 | number }} kg</strong></td>
                   <td>-</td>
                   <td><span class="badge success">OK</span></td>
                 </tr>
                 <tr>
-                  <td>Bagaj & Ambar Kargo (Luggage Weight)</td>
+                  <td>Checked Baggage & Cargo Weight</td>
                   <td><strong>{{ (manifest?.loadedBaggageCount || 130) * 18 | number }} kg</strong></td>
                   <td>-</td>
                   <td><span class="badge success">OK</span></td>
                 </tr>
                 <tr class="highlight-row">
-                  <td>Sıfır Yakıt Ağırlığı (Zero Fuel Weight - ZFW)</td>
+                  <td>Zero Fuel Weight (ZFW)</td>
                   <td><strong>{{ 41500 + ((manifest?.boardedCount || 162) * 84) + ((manifest?.loadedBaggageCount || 130) * 18) | number }} kg</strong></td>
                   <td>62,500 kg</td>
-                  <td><span class="badge success">LİMİT DAHİLİ</span></td>
+                  <td><span class="badge success">WITHIN LIMIT</span></td>
                 </tr>
                 <tr>
-                  <td>Alınan Blok Yakıt (Takeoff / Block Fuel)</td>
+                  <td>Takeoff / Block Fuel</td>
                   <td><strong>8,500 kg</strong></td>
                   <td>26,020 kg</td>
                   <td><span class="badge success">OK</span></td>
                 </tr>
                 <tr class="total-row">
-                  <td>Kalkış Ağırlığı (Takeoff Weight - TOW)</td>
+                  <td>Calculated Takeoff Weight (TOW)</td>
                   <td><strong>{{ 41500 + ((manifest?.boardedCount || 162) * 84) + ((manifest?.loadedBaggageCount || 130) * 18) + 8500 | number }} kg</strong></td>
                   <td>79,000 kg</td>
-                  <td><span class="badge success">UYGUN (GO)</span></td>
+                  <td><span class="badge success">GO</span></td>
                 </tr>
                 <tr>
-                  <td>Ağırlık Merkezi (Center of Gravity - CG)</td>
-                  <td><strong>%27.4 MAC</strong></td>
-                  <td>%18 - %33 MAC</td>
-                  <td><span class="badge success">DENGEDE</span></td>
+                  <td>Center of Gravity (CG)</td>
+                  <td><strong>27.4% MAC</strong></td>
+                  <td>18% - 33% MAC</td>
+                  <td><span class="badge success">BALANCED</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <!-- ONAY VE İMZA KUTULARI -->
           <div class="approval-box">
             <div class="grid grid-2 mb-3">
               <div class="signature-box">
-                <span class="sign-role">HAREKAT MEMURU (REDCAP)</span>
-                <strong class="sign-name">{{ manifest?.approvedByRedcap || 'Sarah Operations (Redcap)' }}</strong>
+                <span class="sign-role">OPERATIONS DISPATCHER (REDCAP)</span>
+                <strong class="sign-name">{{ manifest?.approvedByRedcap || 'Sarah Operations (Lead)' }}</strong>
                 <span class="sign-status" [class.signed]="manifest?.loadsheetApproved">
-                  {{ manifest?.loadsheetApproved ? '✅ DİJİTAL İMZALANDI' : '⏳ İMZA BEKLİYOR' }}
+                  {{ manifest?.loadsheetApproved ? 'DIGITALLY SIGNED' : 'PENDING SIGNATURE' }}
                 </span>
                 <small class="text-muted" *ngIf="manifest?.departureClearanceGivenAt">
-                  İmza Tarihi: {{ manifest.departureClearanceGivenAt | date:'medium' }}
+                  Timestamp: {{ manifest.departureClearanceGivenAt | date:'medium' }}
                 </small>
               </div>
 
               <div class="signature-box">
-                <span class="sign-role">SORUMLU KAPTAN PİLOT</span>
-                <strong class="sign-name">Kpt. Mehmet Yılmaz</strong>
+                <span class="sign-role">PILOT-IN-COMMAND (PIC)</span>
+                <strong class="sign-name">Capt. Edward Vance</strong>
                 <span class="sign-status" [class.signed]="manifest?.loadsheetApproved">
-                  {{ manifest?.loadsheetApproved ? '✅ ACARS ÜZERİNDEN KABUL EDİLDİ' : '⏳ ACARS İLETİMİ BEKLİYOR' }}
+                  {{ manifest?.loadsheetApproved ? 'ACCEPTED VIA ACARS' : 'PENDING ACARS TRANSMISSION' }}
                 </span>
-                <small class="text-muted">Kokpit EFBsine iletildi</small>
+                <small class="text-muted">Transmitted to Cockpit EFB</small>
               </div>
             </div>
 
-            <!-- BUTON AKSİYONLARI -->
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
               <div>
                 <p class="mb-0 text-muted" style="font-size: 0.85rem;">
-                  Bu form onaylandığında ATC kulesine kalkış hazırlığının tamamlandığı bildirilir ve uçağa kalkış izni (departure clearance) verilir.
+                  Authorizing this document transmits final departure readiness to ATC Tower and releases aircraft for pushback.
                 </p>
               </div>
               <div class="d-flex gap-2">
@@ -498,15 +475,15 @@ interface MissingPassenger {
                   (click)="toggleClearance(true)"
                   [disabled]="approvalSubmitting"
                 >
-                  🚀 Loadsheet'i Onayla ve Kalkış İzni Ver
+                  Sign & Authorize Departure Release
                 </button>
                 <button 
                   *ngIf="manifest?.loadsheetApproved"
-                  class="btn btn-outline-danger btn-lg" 
+                  class="btn btn-outline-danger" 
                   (click)="toggleClearance(false)"
                   [disabled]="approvalSubmitting"
                 >
-                  🛑 Kalkış İznini Geri Al (Revoke Clearance)
+                  Revoke Clearance
                 </button>
               </div>
             </div>
@@ -517,35 +494,53 @@ interface MissingPassenger {
   `,
   styles: [`
     .dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    .d-flex { display: flex; }
+    .align-items-center { align-items: center; }
+    .justify-content-between { justify-content: space-between; }
+    .justify-content-end { justify-content: flex-end; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-grow-1 { flex-grow: 1; }
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.5rem; }
+    .mb-0 { margin-bottom: 0; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .w-100 { width: 100%; }
+
+    .flight-badge {
+      padding: 4px 10px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 6px;
+      color: #0284c7;
+      font-weight: 700;
+      font-size: 0.95rem;
     }
 
     .section-title {
       font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .flight-badge {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #00d4ff;
-      background: rgba(0, 212, 255, 0.1);
-      padding: 4px 12px;
-      border-radius: 6px;
-      border: 1px solid rgba(0, 212, 255, 0.3);
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .status-badge {
-      font-size: 0.8rem;
       padding: 3px 8px;
-      border-radius: 999px;
-      font-weight: 700;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
-    .status-badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .status-badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-badge.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .status-badge.warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
 
     .header-actions {
       display: flex;
@@ -561,67 +556,70 @@ interface MissingPassenger {
       flex-wrap: wrap;
     }
 
-    .btn-refresh {
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      color: #374151;
-      padding: 0.5rem 0.875rem;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    /* BANNER */
     .banner-card {
       background: #ffffff;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
       padding: 1.25rem;
-      border-radius: 4px;
     }
 
     .banner-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
     }
 
     .banner-col {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      gap: 0.25rem;
     }
 
     .banner-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-      letter-spacing: 0.05em;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
     }
 
     .countdown-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #111827;
-      font-family: monospace;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
     }
 
     .banner-sub {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .progress-track {
+      background: #f1f5f9;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      background: #0284c7;
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
     }
 
     .clearance-toggle-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      background: #fffbeb;
+      gap: 8px;
       border: 1px solid #fde68a;
-      color: #92400e;
+      background: #fffbeb;
+      color: #b45309;
     }
 
     .clearance-toggle-btn.authorized {
@@ -631,45 +629,43 @@ interface MissingPassenger {
     }
 
     .indicator-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: currentColor;
     }
 
-    /* TAB NAV */
     .tab-nav {
       display: flex;
       gap: 0.5rem;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e2e8f0;
       padding-bottom: 0.5rem;
-      overflow-x: auto;
     }
 
     .tab-btn {
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      color: #4b5563;
       padding: 0.5rem 1rem;
-      border-radius: 4px;
-      font-weight: 500;
-      font-size: 0.875rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.8125rem;
       cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .tab-btn:hover {
-      background: #f9fafb;
-      color: #111827;
     }
 
     .tab-btn.active {
-      background: #2563eb;
-      border-color: #2563eb;
+      background: #0284c7;
+      border-color: #0284c7;
       color: #ffffff;
     }
 
-    /* TASKS LIST */
+    .card-section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0;
+    }
+
     .tasks-list {
       display: flex;
       flex-direction: column;
@@ -678,302 +674,294 @@ interface MissingPassenger {
 
     .task-card {
       display: grid;
-      grid-template-columns: 1fr 200px 140px;
-      gap: 1rem;
+      grid-template-columns: 2fr 1fr auto;
       align-items: center;
-      padding: 0.875rem 1rem;
+      gap: 1.5rem;
+      padding: 1rem;
       background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
     }
 
-    .task-card.in-progress {
-      border-left: 4px solid #d97706;
-      background: #fffbeb;
-    }
-
-    .task-card.completed {
-      border-left: 4px solid #16a34a;
-      background: #f0fdf4;
-    }
+    .task-card.completed { border-left: 4px solid #16a34a; }
+    .task-card.in-progress { border-left: 4px solid #0284c7; }
+    .task-card.pending { border-left: 4px solid #cbd5e1; }
 
     .task-left {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      align-items: flex-start;
+      gap: 1rem;
     }
 
     .task-icon-box {
-      width: 36px;
-      height: 36px;
-      border-radius: 4px;
+      min-width: 48px;
+      height: 32px;
       background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.125rem;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #334155;
+      font-family: var(--font-mono, monospace);
       flex-shrink: 0;
-      color: #111827;
-    }
-
-    .task-details {
-      flex: 1;
     }
 
     .task-title-row {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      flex-wrap: wrap;
     }
 
     .task-name {
       margin: 0;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      color: #111827;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .task-dynamic-metric {
       font-size: 0.8125rem;
-      color: #2563eb;
+      color: #0284c7;
       font-weight: 600;
     }
 
     .task-meta {
       display: flex;
-      gap: 0.375rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
     }
 
     .meta-pill {
       font-size: 0.6875rem;
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
-      color: #4b5563;
-    }
-    .meta-pill.gse { border-color: #fde68a; color: #92400e; }
-    .meta-pill.user { border-color: #e9d5ff; color: #7e22ce; }
-
-    .progress-track {
-      width: 100%;
-      height: 6px;
-      background: #e5e7eb;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: #16a34a;
-      border-radius: 3px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
     }
 
     .progress-slider {
       width: 100%;
-      height: 4px;
-      cursor: pointer;
     }
 
-    .task-actions {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-
-    /* BOARDING & BRS */
-    .boarding-stats-grid {
+    .grid-2 {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
 
+    .boarding-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
     .boarding-stat-box {
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      text-align: center;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
     }
 
     .boarding-stat-box.highlight {
-      border-color: rgba(16, 185, 129, 0.3);
-      background: rgba(16, 185, 129, 0.08);
+      background: #f0fdf4;
+      border-color: #bbf7d0;
     }
 
     .boarding-stat-box .label {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
       font-weight: 700;
+      color: #64748b;
     }
 
     .boarding-stat-box .num {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 800;
+      color: #0f172a;
     }
 
     .brs-box {
       padding: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.875rem;
     }
 
     .brs-alert-card {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-      padding: 0.85rem;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      color: #f87171;
+      padding: 0.75rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      color: #991b1b;
+      font-size: 0.8125rem;
     }
 
     .seat-badge {
-      display: inline-block;
-      padding: 3px 8px;
-      background: rgba(0, 212, 255, 0.15);
-      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 2px 6px;
       border-radius: 4px;
-      color: #00d4ff;
-      font-weight: 800;
-      font-size: 0.85rem;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      color: #0284c7;
+      font-weight: 700;
+      font-size: 0.8125rem;
     }
 
     .bag-tag {
-      background: rgba(255, 255, 255, 0.08);
+      background: #f1f5f9;
       padding: 2px 6px;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      font-family: monospace;
     }
 
-    /* LOADSHEET */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+    }
+
+    .data-table th {
+      padding: 0.625rem 0.75rem;
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.6875rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .data-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+      color: #0f172a;
+    }
+
     .loadsheet-card {
-      padding: 2rem;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.5rem;
     }
 
     .loadsheet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 1rem;
     }
 
     .stamp {
-      font-size: 0.85rem;
+      font-size: 0.8125rem;
       font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 6px;
-      border: 2px solid currentColor;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
     }
-    .stamp.approved { color: #10b981; background: rgba(16, 185, 129, 0.1); }
-    .stamp.pending { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .stamp.approved { color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .stamp.pending { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
 
     .loadsheet-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.95rem;
+      font-size: 0.875rem;
     }
+
     .loadsheet-table th, .loadsheet-table td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .loadsheet-table th {
-      color: #94a3b8;
-      font-size: 0.8rem;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
       text-align: left;
     }
-    .highlight-row { background: rgba(0, 212, 255, 0.05); }
-    .total-row { background: rgba(16, 185, 129, 0.1); font-weight: 700; font-size: 1.05rem; }
+
+    .loadsheet-table th {
+      color: #475569;
+      font-weight: 700;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      background: #f8fafc;
+    }
+
+    .highlight-row { background: #f0f9ff; }
+    .total-row { background: #f0fdf4; font-weight: 700; }
 
     .approval-box {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid #e2e8f0;
       padding-top: 1.5rem;
       margin-top: 1rem;
     }
 
     .signature-box {
       padding: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.25rem;
     }
 
     .sign-role {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
       font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
     }
 
     .sign-name {
-      font-size: 1rem;
-      color: #fff;
+      font-size: 0.95rem;
+      color: #0f172a;
     }
 
     .sign-status {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: #f59e0b;
+      color: #b45309;
     }
-    .sign-status.signed {
-      color: #10b981;
-    }
+    .sign-status.signed { color: #166534; }
 
-    /* BADGES */
     .badge {
       display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
       font-weight: 600;
     }
-    .badge.secondary { background: rgba(255, 255, 255, 0.1); color: #94a3b8; }
-    .badge.info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-    .badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-    .badge.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-    .badge.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .badge.secondary { background: #f1f5f9; color: #475569; }
+    .badge.info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .badge.warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge.danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
     .btn-lg {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 700;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
     }
 
     .btn-outline-danger {
-      background: transparent;
-      border: 1px solid #ef4444;
-      color: #ef4444;
-      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #fca5a5;
+      color: #dc2626;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
       cursor: pointer;
     }
     .btn-outline-danger:hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    @media (max-width: 900px) {
-      .task-card {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      .task-actions {
-        justify-content: flex-start;
-      }
+      background: #fef2f2;
     }
   `]
 })
@@ -988,11 +976,10 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   countdownText = '00:38:15';
   approvalSubmitting = false;
 
-  // Eksik / Gelmeyen Yolcular Listesi (Gate Agent & BRS Simülasyonu)
   missingPassengers: MissingPassenger[] = [
-    { id: '1', name: 'Ahmet Yılmaz', seat: '14B', bagTag: 'TK-849201', bagStatus: 'LOADED', announced: false },
+    { id: '1', name: 'Thomas Miller', seat: '14B', bagTag: 'TK-849201', bagStatus: 'LOADED', announced: false },
     { id: '2', name: 'Elena Rostova', seat: '22F', bagTag: 'TK-849202', bagStatus: 'LOADED', announced: false },
-    { id: '3', name: 'Can Demir', seat: '08C', bagTag: 'TK-849203', bagStatus: 'LOADED', announced: false },
+    { id: '3', name: 'Marcus Vance', seat: '08C', bagTag: 'TK-849203', bagStatus: 'LOADED', announced: false },
   ];
 
   private pollTimer: any = null;
@@ -1007,7 +994,6 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // URL bazlı otomatik sekme seçimi (/turnaround/:id, /gate-agent/:id, /loadsheet/:id)
     const currentUrl = this.router.url;
     if (currentUrl.includes('gate-agent')) {
       this.activeTab = 'BOARDING';
@@ -1031,7 +1017,6 @@ export class ChecklistComponent implements OnInit, OnDestroy {
       if (tab === 'tasks') this.activeTab = 'TASKS';
     });
 
-    // Canli turnaround ve yolcu binis durumunu dinle
     this.subs.push(
       this.signalr.turnaround$.subscribe((ev) => {
         if (ev.operationId === this.operationId || (this.operation && ev.flightNumber === this.operation.flightNumber)) {
@@ -1087,7 +1072,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.loading = false;
-        console.error('Turnaround detayı yüklenemedi:', err);
+        console.error('Failed to load turnaround telemetry:', err);
       }
     });
   }
@@ -1115,7 +1100,6 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   get isLuggageCompliant(): boolean {
     if (this.manifest?.luggageMatchComplete) return true;
     if (this.missingPassengerCount === 0) return true;
-    // Eğer biniş yapmayan tüm yolcuların bagajı indirilmişse güvenlik tamdır
     return this.missingPassengers.every(p => p.bagStatus !== 'LOADED');
   }
 
@@ -1126,7 +1110,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     }
     const diffMs = new Date(this.operation.departureTime).getTime() - new Date().getTime();
     if (diffMs <= 0) {
-      this.countdownText = '00:00:00 (Kalkış Zamanı)';
+      this.countdownText = '00:00:00 (Departure Window)';
       return;
     }
     const mins = Math.floor(diffMs / 60000);
@@ -1134,69 +1118,67 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     this.countdownText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  // Dinamik Metrik Hesaplayıcı
   getDynamicTaskMetric(task: any): string {
     const pct = task.progressPercentage || 0;
     switch (task.taskType) {
-      case 1: // Baggage Unload
-        return `🧳 ${Math.round((pct / 100) * 142)} / 142 Gelen Bagaj Boşaltıldı`;
-      case 2: // Refueling
-        return `⛽ ${Math.round((pct / 100) * 8500).toLocaleString()} kg / 8,500 kg Jet A-1 İkmal Edildi`;
-      case 3: // Cleaning
-        return pct >= 100 ? '🧹 Kabin & Lavabo Temizliği Tamamlandı' : '🧹 Kabin Temizliği Devam Ediyor';
-      case 4: // Catering
-        return pct >= 100 ? '🥪 Galley & Sıcak Yemek Yüklemesi Bitti' : '🥪 İkram & Trolley Yüklemesi Sürüyor';
-      case 5: // Baggage Load
+      case 1:
+        return `${Math.round((pct / 100) * 142)} / 142 Inbound Bags Unloaded`;
+      case 2:
+        return `${Math.round((pct / 100) * 8500).toLocaleString()} kg / 8,500 kg Jet A-1 Fuel Uploaded`;
+      case 3:
+        return pct >= 100 ? 'Cabin & Lavatory Servicing Completed' : 'Cabin Grooming In Progress';
+      case 4:
+        return pct >= 100 ? 'Galley & Meal Uplift Finished' : 'Catering & Bar Units In Progress';
+      case 5:
         const totalLuggage = this.manifest?.checkedBaggageCount || 154;
-        return `📦 ${Math.round((pct / 100) * totalLuggage)} / ${totalLuggage} Çanta Ambara Yerleştirildi`;
-      case 6: // Boarding
+        return `${Math.round((pct / 100) * totalLuggage)} / ${totalLuggage} Outbound Bags Stowed in Holds`;
+      case 6:
         const booked = this.manifest?.totalBooked || 180;
         const boarded = this.manifest?.boardedCount || 162;
-        return `🚶‍♂️ ${boarded} / ${booked} Yolcu Uçakta`;
-      case 7: // Pushback
-        return pct >= 100 ? '🚜 Pushback Tamamlandı • Takozlar Alındı' : '🚜 Çeki Demiri Bağlandı • Onay Bekleniyor';
+        return `${boarded} / ${booked} Passengers Boarded`;
+      case 7:
+        return pct >= 100 ? 'Pushback Finished • Chocks Away' : 'Towbar Connected • Standby for Release';
       default:
-        return `${pct}% İlerleme`;
+        return `${pct}% Complete`;
     }
   }
 
-  // Task Helpers
   getTaskTitle(taskType: number): string {
     switch (taskType) {
-      case 0: return 'Yolcu İndirme (Deboarding)';
-      case 1: return 'Bagaj Boşaltma (Baggage Unload)';
-      case 2: return 'Yakıt İkmali (Refueling)';
-      case 3: return 'Kabin Temizliği (Cleaning)';
-      case 4: return 'İkram Yükleme (Catering)';
-      case 5: return 'Bagaj Yükleme (Baggage Load)';
-      case 6: return 'Yolcu Binişi (Boarding)';
-      case 7: return 'Pushback & Motor Çalıştırma';
-      default: return 'Yer Hizmeti Görevi';
+      case 0: return 'Passenger Deboarding';
+      case 1: return 'Inbound Baggage Unload';
+      case 2: return 'Aircraft Refueling';
+      case 3: return 'Cabin Cleaning & Grooming';
+      case 4: return 'Galley Catering Uplift';
+      case 5: return 'Outbound Baggage Loading';
+      case 6: return 'Passenger Boarding';
+      case 7: return 'Pushback & Engine Start';
+      default: return 'Ground Handling Task';
     }
   }
 
   getTaskIcon(taskType: number): string {
     switch (taskType) {
-      case 0: return '🚶‍♀️';
-      case 1: return '🧳';
-      case 2: return '⛽';
-      case 3: return '🧹';
-      case 4: return '🥪';
-      case 5: return '📦';
-      case 6: return '🚶‍♂️';
-      case 7: return '🚜';
-      default: return '⚙️';
+      case 0: return 'DEPLN';
+      case 1: return 'BAG';
+      case 2: return 'FUEL';
+      case 3: return 'CLN';
+      case 4: return 'CATR';
+      case 5: return 'CRG';
+      case 6: return 'BRD';
+      case 7: return 'PUSH';
+      default: return 'TASK';
     }
   }
 
   getTaskStatusText(status: number): string {
     switch (status) {
-      case 0: return 'Beklemede';
-      case 1: return 'Kabul Edildi';
-      case 2: return 'Devam Ediyor';
-      case 3: return 'Tamamlandı';
-      case 4: return 'Gecikmeli';
-      default: return 'Bilinmiyor';
+      case 0: return 'Pending';
+      case 1: return 'Accepted';
+      case 2: return 'In Progress';
+      case 3: return 'Completed';
+      case 4: return 'Delayed';
+      default: return 'Unknown';
     }
   }
 
@@ -1229,10 +1211,10 @@ export class ChecklistComponent implements OnInit, OnDestroy {
         if (res.success) {
           task.status = newStatus;
           task.progressPercentage = progress;
-          this.notification.success(`✅ ${this.getTaskTitle(task.taskType)} güncellendi.`);
+          this.notification.success(`${this.getTaskTitle(task.taskType)} updated.`);
         }
       },
-      error: () => this.notification.error('Görev güncellenemedi.')
+      error: () => this.notification.error('Failed to update task status.')
     });
   }
 
@@ -1248,7 +1230,6 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Boarding Actions
   scanSinglePassenger() {
     if (!this.manifest) return;
     const nextCount = (this.manifest.boardedCount || 0) + 1;
@@ -1256,7 +1237,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     this.api.updateBoarding(this.manifest.id, {
       boardedCount: nextCount
     }).subscribe({
-      next: () => this.notification.success(`🎫 Yolcu Bindi: #${nextCount}`)
+      next: () => this.notification.success(`Passenger Boarded: #${nextCount}`)
     });
   }
 
@@ -1267,7 +1248,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     this.api.updateBoarding(this.manifest.id, {
       boardedCount: nextCount
     }).subscribe({
-      next: () => this.notification.success(`👥 ${count} Yolcu Bindi. Toplam: ${nextCount}`)
+      next: () => this.notification.success(`Batch: ${count} passengers boarded. Total: ${nextCount}`)
     });
   }
 
@@ -1276,10 +1257,9 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     const total = this.manifest.totalBooked || 180;
     this.manifest.boardedCount = total;
     this.manifest.loadedBaggageCount = this.manifest.checkedBaggageCount || 154;
-    this.manifest.boardingStatus = 3; // Closed
+    this.manifest.boardingStatus = 3;
     this.manifest.luggageMatchComplete = true;
 
-    // Eksik yolcular listesini temizle
     this.missingPassengers = [];
 
     this.api.updateBoarding(this.manifest.id, {
@@ -1288,17 +1268,17 @@ export class ChecklistComponent implements OnInit, OnDestroy {
       boardingStatus: 3,
       luggageMatchComplete: true
     }).subscribe({
-      next: () => this.notification.success('✅ Tüm yolcular bindi ve kapı kapatıldı (Boarding Closed).')
+      next: () => this.notification.success('All passengers boarded. Gate closed.')
     });
   }
 
   notifyMissingPassengers() {
-    this.notification.warning(`📢 Harekat Memuruna (Redcap) & OCC'ye bildirildi: ${this.missingPassengerCount} yolcu henüz gelmedi!`);
+    this.notification.warning(`Dispatched to OCC & Lead: ${this.missingPassengerCount} passenger(s) unboarded.`);
   }
 
   announcePassenger(p: MissingPassenger) {
     p.announced = true;
-    this.notification.info(`📢 [KAPI ANONS] Kapı ${this.operation.gateNo || 'A1'}: Sayın ${p.name} (Koltuk ${p.seat}), uçağınız kalkmak üzeredir. Lütfen derhal biniş kapısına geliniz!`);
+    this.notification.info(`Gate ${this.operation.gateNo || 'A1'}: Final boarding call for ${p.name} (Seat ${p.seat}).`);
   }
 
   offloadBag(p: MissingPassenger) {
@@ -1309,7 +1289,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
         loadedBaggageCount: this.manifest.loadedBaggageCount
       }).subscribe();
     }
-    this.notification.warning(`🧳 [BRS AMBAR İNDİRME] Bagaj #${p.bagTag} (${p.name}) ICAO/IATA güvenlik kuralı gereğince ambardan indirildi!`);
+    this.notification.warning(`[BRS Offload] Bag #${p.bagTag} for ${p.name} offloaded per ICAO/IATA security requirements.`);
   }
 
   restoreBag(p: MissingPassenger) {
@@ -1320,34 +1300,33 @@ export class ChecklistComponent implements OnInit, OnDestroy {
         loadedBaggageCount: this.manifest.loadedBaggageCount
       }).subscribe();
     }
-    this.notification.success(`🧳 Bagaj #${p.bagTag} tekrar ambara yüklendi.`);
+    this.notification.success(`Bag #${p.bagTag} reloaded into hold.`);
   }
 
-  // Loadsheet & Departure Clearance
   toggleClearance(status?: boolean) {
     if (!this.manifest) return;
     const targetStatus = status !== undefined ? status : !this.manifest.loadsheetApproved;
 
     this.approvalSubmitting = true;
-    this.api.approveLoadsheet(this.manifest.id, 'Sarah Operations (Redcap)', targetStatus).subscribe({
+    this.api.approveLoadsheet(this.manifest.id, 'Sarah Operations (Lead)', targetStatus).subscribe({
       next: (res) => {
         this.approvalSubmitting = false;
         if (res.success) {
           this.manifest.loadsheetApproved = targetStatus;
-          this.manifest.approvedByRedcap = targetStatus ? 'Sarah Operations (Redcap)' : null;
+          this.manifest.approvedByRedcap = targetStatus ? 'Sarah Operations (Lead)' : null;
           this.manifest.departureClearanceGivenAt = targetStatus ? new Date() : null;
           if (targetStatus) {
-            this.notification.success('🚀 Loadsheet Onaylandı ve Uçuşa Kalkış İzni (Release) Verildi!');
+            this.notification.success('Loadsheet approved. Aircraft released for pushback.');
           } else {
-            this.notification.warning('🛑 Kalkış izni geri alındı (Clearance Revoked).');
+            this.notification.warning('Departure clearance revoked.');
           }
         } else {
-          this.notification.error(res.message || 'İşlem başarısız.');
+          this.notification.error(res.message || 'Operation failed.');
         }
       },
       error: () => {
         this.approvalSubmitting = false;
-        this.notification.error('Sunucu hatası.');
+        this.notification.error('Server communication error.');
       }
     });
   }

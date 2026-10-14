@@ -17,7 +17,6 @@ import { User, UserRole, RegisterRequest } from '../../../core/models';
       <button class="btn btn-primary" (click)="showAddModal = true">+ Add User</button>
     </div>
 
-    <!-- Users Table -->
     <div class="glass-card" style="padding: 0; overflow: hidden;">
       <table class="data-table">
         <thead>
@@ -61,7 +60,6 @@ import { User, UserRole, RegisterRequest } from '../../../core/models';
       </table>
     </div>
 
-    <!-- Add User Modal -->
     <div class="modal-backdrop" *ngIf="showAddModal" (click)="showAddModal = false">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
@@ -90,8 +88,13 @@ import { User, UserRole, RegisterRequest } from '../../../core/models';
               <option value="FieldTechnician">Field Technician</option>
             </select>
           </div>
-          <div class="error-message" *ngIf="errorMessage" style="margin-top: 0.5rem;">
-            ⚠️ {{ errorMessage }}
+          <div class="error-message" *ngIf="errorMessage" style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>{{ errorMessage }}</span>
           </div>
           <div class="flex gap-2 mt-2" style="justify-content: flex-end;">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>

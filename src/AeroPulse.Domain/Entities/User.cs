@@ -14,7 +14,6 @@ public class User : BaseEntity, ITenantEntity
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
 
-    // Navigation properties
     public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
     public ICollection<FaultReport> ReportedFaults { get; set; } = new List<FaultReport>();
     public ICollection<FaultReport> AssignedFaults { get; set; } = new List<FaultReport>();

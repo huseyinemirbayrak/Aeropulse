@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ApiResponse, PagedResult, Aircraft, Part, MaintenanceRecord,
-  AdminDashboard, MRODashboard
+  AdminDashboard, MRODashboard, WeatherData, CrisisStatus
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -13,7 +13,6 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  // Aircraft
   getAircraft(page = 1, pageSize = 20, search?: string): Observable<ApiResponse<PagedResult<Aircraft>>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (search) params = params.set('search', search);
@@ -36,7 +35,6 @@ export class ApiService {
     return this.http.delete<ApiResponse<boolean>>(`${this.API}/aircraft/${id}`);
   }
 
-  // Parts
   getParts(page = 1, pageSize = 20, search?: string, aircraftId?: string): Observable<ApiResponse<PagedResult<Part>>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (search) params = params.set('search', search);
@@ -60,7 +58,6 @@ export class ApiService {
     return this.http.get<ApiResponse<Part[]>>(`${this.API}/parts/critical-alerts`);
   }
 
-  // Maintenance
   getMaintenanceRecords(page = 1, pageSize = 20, aircraftId?: string): Observable<ApiResponse<PagedResult<MaintenanceRecord>>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (aircraftId) params = params.set('aircraftId', aircraftId);
@@ -79,7 +76,6 @@ export class ApiService {
     return this.http.put<ApiResponse<MaintenanceRecord>>(`${this.API}/maintenance/${id}`, data);
   }
 
-  // Dashboard
   getAdminDashboard(): Observable<ApiResponse<AdminDashboard>> {
     return this.http.get<ApiResponse<AdminDashboard>>(`${this.API}/dashboard/admin`);
   }
@@ -88,9 +84,6 @@ export class ApiService {
     return this.http.get<ApiResponse<MRODashboard>>(`${this.API}/dashboard/mro`);
   }
 
-  // ============================================
-  // ===== MODULE 3: Operations =====
-  // ============================================
   getOperations(page = 1, pageSize = 20, flightNumber?: string, status?: string): Observable<ApiResponse<PagedResult<any>>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (flightNumber) params = params.set('flightNumber', flightNumber);
@@ -122,9 +115,6 @@ export class ApiService {
     return this.http.get<ApiResponse<any[]>>(`${this.API}/operations/delayed`);
   }
 
-  // ============================================
-  // ===== MODULE 3: Fault Reports =====
-  // ============================================
   getFaultReports(page = 1, pageSize = 20, status?: string, aircraftId?: string): Observable<ApiResponse<PagedResult<any>>> {
     let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (status) params = params.set('status', status);
@@ -152,9 +142,6 @@ export class ApiService {
     return this.http.get<ApiResponse<any[]>>(`${this.API}/fault-reports/overdue`);
   }
 
-  // ============================================
-  // ===== MODULE 3B: Jet Bridges =====
-  // ============================================
   getJetBridges(terminalNo?: string): Observable<ApiResponse<any[]>> {
     let params = new HttpParams();
     if (terminalNo) params = params.set('terminalNo', terminalNo);
@@ -185,9 +172,6 @@ export class ApiService {
     return this.http.get<ApiResponse<any>>(`${this.API}/jet-bridges/${id}/check-availability`, { params });
   }
 
-  // ============================================
-  // ===== MODULE 4: Notifications =====
-  // ============================================
   getMyNotifications(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.API}/notifications`);
   }
@@ -204,7 +188,6 @@ export class ApiService {
     return this.http.put<ApiResponse<boolean>>(`${this.API}/notifications/read-all`, {});
   }
 
-  // Operasyon ve ucus donus (turnaround) istekleri
   getOccOverview(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.API}/occ/overview`);
   }
@@ -262,5 +245,21 @@ export class ApiService {
   executeRampWorkflow(taskId: string, data: { action: string; userId?: string; progressPercentage?: number; notes?: string; gseId?: string }): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${this.API}/occ/ramp-tasks/${taskId}/workflow`, data);
   }
-}
 
+  getCurrentWeather(cityCode: string = 'LTFM'): Observable<ApiResponse<WeatherData>> {
+    const params = new HttpParams().set('cityCode', cityCode);
+    return this.http.get<ApiResponse<WeatherData>>(`${this.API}/crisis/weather`, { params });
+  }
+
+  getCrisisStatus(): Observable<ApiResponse<CrisisStatus>> {
+    return this.http.get<ApiResponse<CrisisStatus>>(`${this.API}/crisis/status`);
+  }
+
+  triggerWindCrisis(data: { cityCode?: string; windSpeedKmH?: number; reason?: string }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/crisis/wind/trigger`, data);
+  }
+
+  resolveWindCrisis(data: { cityCode?: string; windSpeedKmH?: number }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/crisis/wind/resolve`, data);
+  }
+}

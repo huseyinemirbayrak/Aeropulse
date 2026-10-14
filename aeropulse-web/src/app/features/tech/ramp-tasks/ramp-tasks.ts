@@ -14,73 +14,91 @@ import { SignalRService } from '../../../core/signalr.service';
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="dashboard animate-fade-in">
-      <!-- HEADER -->
       <div class="header-actions mb-4">
         <div>
           <div class="d-flex align-items-center gap-2">
-            <span class="ramp-badge">👷 RAMP</span>
-            <h1 class="section-title mb-0">Ramp Görevlisi Saha İş Emirleri</h1>
+            <span class="ramp-badge">RAMP OPS</span>
+            <h1 class="section-title mb-0">Ramp Ground Work Orders</h1>
           </div>
           <p class="text-muted mt-1 mb-0">
-            Uçak başı yer hizmetleri (Yakıt ikmali, bagaj yükleme/boşaltma, ikram, temizlik ve pushback) anlık iş akışı
+            Real-time aircraft turnaround ground handling services (Refueling, baggage offloading/loading, catering, cleaning, pushback)
           </p>
         </div>
         <div class="header-buttons">
-          <button class="btn btn-primary" (click)="loadTasks()">🔄 Yenile</button>
-          <a class="btn btn-secondary" routerLink="/ops/gse-fleet">Apron Filosu</a>
-          <a class="btn btn-outline" routerLink="/ops/operations">Uçuşlar</a>
+          <button class="btn btn-primary" (click)="loadTasks()">Refresh</button>
+          <a class="btn btn-secondary" routerLink="/ops/gse-fleet">GSE Fleet</a>
+          <a class="btn btn-outline" routerLink="/ops/operations">Operations</a>
         </div>
       </div>
 
-      <!-- KPI METRİK KARTLARI -->
       <div class="grid grid-4 mb-4">
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper blue">📋</div>
+          <div class="stat-icon-wrapper blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ tasks.length }}</div>
-            <div class="stat-label">Toplam İş Emri</div>
+            <div class="stat-label">Total Work Orders</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper amber">⚙️</div>
+          <div class="stat-icon-wrapper amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ inProgressCount }}</div>
-            <div class="stat-label">İşlemde / Sürüyor</div>
+            <div class="stat-label">In Progress</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper purple">⏳</div>
+          <div class="stat-icon-wrapper purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M10 4v4"/>
+              <path d="M2 8h20"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ pendingCount }}</div>
-            <div class="stat-label">Bekleyen / Havuzda</div>
+            <div class="stat-label">Pending Pool</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper green">✅</div>
+          <div class="stat-icon-wrapper green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ completedCount }}</div>
-            <div class="stat-label">Tamamlanan Görev</div>
+            <div class="stat-label">Completed Tasks</div>
           </div>
         </div>
       </div>
 
-      <!-- SEKME NAVİGASYONU & FİLTRELER -->
       <div class="glass-card mb-4 filter-bar">
         <div class="tabs-group">
           <button class="tab-pill" [class.active]="activeTab === 'ACTIVE'" (click)="activeTab = 'ACTIVE'">
-            🔥 Aktif Görevler ({{ inProgressCount + acceptedCount }})
+            Active Tasks ({{ inProgressCount + acceptedCount }})
           </button>
           <button class="tab-pill" [class.active]="activeTab === 'POOL'" (click)="activeTab = 'POOL'">
-            ⏳ Görev Havuzu / Bekleyenler ({{ pendingCount }})
+            Pending Pool ({{ pendingCount }})
           </button>
           <button class="tab-pill" [class.active]="activeTab === 'COMPLETED'" (click)="activeTab = 'COMPLETED'">
-            ✅ Tamamlananlar ({{ completedCount }})
+            Completed ({{ completedCount }})
           </button>
           <button class="tab-pill" [class.active]="activeTab === 'ALL'" (click)="activeTab = 'ALL'">
-            Tümü ({{ tasks.length }})
+            All ({{ tasks.length }})
           </button>
         </div>
 
@@ -88,21 +106,19 @@ import { SignalRService } from '../../../core/signalr.service';
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
-            placeholder="Uçuş (TK1821), Görev veya Kapı ara..." 
+            placeholder="Search flight, task or gate..." 
             class="search-input"
           />
         </div>
       </div>
 
-      <!-- İŞ EMİRLERİ LİSTESİ -->
       <div class="tasks-grid">
         <div *ngFor="let task of filteredTasks" class="glass-card task-card" [ngClass]="getCardClass(task.status)">
-          <!-- KART ÜST STRİP -->
           <div class="task-top">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-              <span class="flight-pill">✈️ {{ task.flightNumber }}</span>
-              <span class="gate-pill">🚪 {{ task.gateNo || 'Stand-101' }}</span>
-              <span class="runway-pill">🛫 {{ task.assignedRunwayCode || '35L' }}</span>
+              <span class="flight-pill">{{ task.flightNumber }}</span>
+              <span class="gate-pill">STAND {{ task.gateNo || '101' }}</span>
+              <span class="runway-pill">RWY {{ task.assignedRunwayCode || '35L' }}</span>
             </div>
 
             <span class="badge" [ngClass]="getStatusBadgeClass(task.status)">
@@ -110,7 +126,6 @@ import { SignalRService } from '../../../core/signalr.service';
             </span>
           </div>
 
-          <!-- GÖREV BAŞLIĞI VE UÇAK -->
           <div class="task-main mt-3 mb-2">
             <div class="d-flex align-items-center gap-3">
               <div class="task-icon-circle">
@@ -119,38 +134,35 @@ import { SignalRService } from '../../../core/signalr.service';
               <div>
                 <h3 class="task-title mb-0">{{ getTaskTitle(task.taskType) }}</h3>
                 <span class="text-muted aircraft-text">
-                  Uçak: <strong>{{ task.aircraftTailNumber }}</strong> ({{ task.aircraftModel }})
+                  Aircraft: <strong>{{ task.aircraftTailNumber }}</strong> ({{ task.aircraftModel }})
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- NOTLAR VEYA METRİK -->
           <div class="task-notes-box mb-3" *ngIf="task.notes">
-            <span class="notes-label">GÖREV NOTU:</span>
+            <span class="notes-label">TASK NOTE:</span>
             <p class="notes-text mb-0">{{ task.notes }}</p>
           </div>
 
-          <!-- DETAY METADATA -->
           <div class="meta-row mb-3">
             <div class="meta-cell" *ngIf="task.assignedGSECode">
-              <span class="meta-label">ATANAN ARAÇ (GSE)</span>
-              <span class="gse-tag">🚜 {{ task.assignedGSECode }}</span>
+              <span class="meta-label">ASSIGNED GSE</span>
+              <span class="gse-tag">{{ task.assignedGSECode }}</span>
             </div>
             <div class="meta-cell">
-              <span class="meta-label">HEDEF SÜRE</span>
-              <span class="time-tag">⏱️ {{ task.targetDurationMinutes }} dk</span>
+              <span class="meta-label">TARGET DURATION</span>
+              <span class="time-tag">{{ task.targetDurationMinutes }} MIN</span>
             </div>
             <div class="meta-cell" *ngIf="task.assignedUserName">
-              <span class="meta-label">SORUMLU RAMP PERSONELİ</span>
-              <span class="user-tag">👷 {{ task.assignedUserName }}</span>
+              <span class="meta-label">ASSIGNED OPERATOR</span>
+              <span class="user-tag">{{ task.assignedUserName }}</span>
             </div>
           </div>
 
-          <!-- İLERLEME ÇUBUĞU -->
           <div class="progress-section mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <span class="prog-label">İlerleme Seviyesi</span>
+              <span class="prog-label">Progress</span>
               <strong class="prog-val">{{ task.progressPercentage }}%</strong>
             </div>
             <div class="prog-track">
@@ -158,54 +170,49 @@ import { SignalRService } from '../../../core/signalr.service';
             </div>
           </div>
 
-          <!-- 3 ADIMLI İŞ EMRİ AKSİYON BUTONLARI -->
           <div class="task-actions-area">
-            <!-- 1. ADIM: KABUL ET -->
             <button 
               *ngIf="task.status === 0" 
               class="btn btn-primary w-100 action-flow-btn" 
               (click)="executeStep(task, 'ACCEPT')"
               [disabled]="submittingId === task.id"
             >
-              ▶ Görevi Kabul Et (İşi Üzerine Al)
+              Accept Work Order
             </button>
 
-            <!-- 2. ADIM: İŞLEME AL / BAŞLAT -->
             <div *ngIf="task.status === 1" class="d-flex gap-2 w-100">
               <button 
                 class="btn btn-info flex-grow-1 action-flow-btn" 
                 (click)="executeStep(task, 'START')"
                 [disabled]="submittingId === task.id"
               >
-                ⚙️ İşe Başla / İşleme Al
+                Start Operations
               </button>
             </div>
 
-            <!-- 3. ADIM: DEVAM EDİYOR VE TAMAMLA -->
             <div *ngIf="task.status === 2" class="d-flex flex-column gap-2 w-100">
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-outline flex-grow-1" (click)="quickProgress(task, 50)">%50 Yap</button>
-                <button class="btn btn-sm btn-outline flex-grow-1" (click)="quickProgress(task, 75)">%75 Yap</button>
+                <button class="btn btn-sm btn-outline flex-grow-1" (click)="quickProgress(task, 50)">50%</button>
+                <button class="btn btn-sm btn-outline flex-grow-1" (click)="quickProgress(task, 75)">75%</button>
               </div>
               <button 
                 class="btn btn-success w-100 action-flow-btn" 
                 (click)="executeStep(task, 'COMPLETE')"
                 [disabled]="submittingId === task.id"
               >
-                ✓ Görevi Tamamla (İşi Bitir)
+                Complete Operation
               </button>
             </div>
 
-            <!-- 4. ADIM: BİTTİ -->
             <div *ngIf="task.status === 3" class="completed-banner">
-              ✅ Görev Başarıyla Tamamlandı
+              Task Completed
             </div>
           </div>
         </div>
       </div>
 
       <div *ngIf="filteredTasks.length === 0" class="glass-card text-center py-5">
-        <p class="text-muted mb-0">Bu sekmede gösterilecek iş emri bulunmamaktadır.</p>
+        <p class="text-muted mb-0">No work orders found in this category.</p>
       </div>
     </div>
   `,
@@ -246,7 +253,6 @@ import { SignalRService } from '../../../core/signalr.service';
       flex-wrap: wrap;
     }
 
-    /* GRID */
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -289,7 +295,6 @@ import { SignalRService } from '../../../core/signalr.service';
       color: #94a3b8;
     }
 
-    /* FILTER BAR */
     .filter-bar {
       display: flex;
       justify-content: space-between;
@@ -339,7 +344,6 @@ import { SignalRService } from '../../../core/signalr.service';
     }
     .search-input:focus { border-color: #00d4ff; }
 
-    /* TASKS GRID */
     .tasks-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -399,16 +403,20 @@ import { SignalRService } from '../../../core/signalr.service';
     }
 
     .task-icon-circle {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.25);
+      min-width: 52px;
+      height: 38px;
+      border-radius: 6px;
+      background: rgba(0, 212, 255, 0.12);
+      border: 1px solid rgba(0, 212, 255, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 0.725rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #00d4ff;
       flex-shrink: 0;
+      font-family: var(--font-mono, monospace);
     }
 
     .task-title {
@@ -498,7 +506,6 @@ import { SignalRService } from '../../../core/signalr.service';
       font-size: 0.85rem;
     }
 
-    /* BADGES */
     .badge {
       display: inline-block;
       padding: 3px 8px;
@@ -531,7 +538,6 @@ export class RampTasksComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadTasks();
 
-    // Canli gelen is emri guncellemelerini dinle
     this.subs.push(
       this.signalr.turnaround$.subscribe((ev) => {
         const t = this.tasks.find(x => x.id === ev.taskId);
@@ -565,7 +571,7 @@ export class RampTasksComponent implements OnInit, OnDestroy {
           this.tasks = res.data;
         }
       },
-      error: (err) => console.error('Ramp görevleri yüklenemedi:', err)
+      error: (err) => console.error('Failed to load ramp tasks:', err)
     });
   }
 
@@ -597,11 +603,11 @@ export class RampTasksComponent implements OnInit, OnDestroy {
 
       let matchesTab = true;
       if (this.activeTab === 'ACTIVE') {
-        matchesTab = t.status === 1 || t.status === 2; // Accepted or InProgress
+        matchesTab = t.status === 1 || t.status === 2;
       } else if (this.activeTab === 'POOL') {
-        matchesTab = t.status === 0; // Pending
+        matchesTab = t.status === 0;
       } else if (this.activeTab === 'COMPLETED') {
-        matchesTab = t.status === 3; // Completed
+        matchesTab = t.status === 3;
       }
 
       return matchesSearch && matchesTab;
@@ -610,39 +616,39 @@ export class RampTasksComponent implements OnInit, OnDestroy {
 
   getTaskTitle(type: number): string {
     switch (type) {
-      case 0: return '🚶‍♀️ Yolcu İndirme (Deboarding)';
-      case 1: return '🧳 Bagaj Boşaltma (Baggage Unload)';
-      case 2: return '⛽ Jet A-1 Yakıt İkmali (Refueling)';
-      case 3: return '🧹 Kabin & Tuvalet Temizliği';
-      case 4: return '🥪 İkram & Galley Yükleme (Catering)';
-      case 5: return '📦 Giden Bagaj Yükleme (Baggage Load)';
-      case 6: return '🚶‍♂️ Yolcu Binişi (Boarding)';
-      case 7: return '🚜 Pushback & Motor Çalıştırma';
-      default: return 'Ramp Saha Görevi';
+      case 0: return 'Passenger Deboarding';
+      case 1: return 'Baggage Offloading';
+      case 2: return 'Jet A-1 Refueling';
+      case 3: return 'Cabin & Lavatory Cleaning';
+      case 4: return 'Catering & Galley Service';
+      case 5: return 'Outbound Baggage Loading';
+      case 6: return 'Passenger Boarding';
+      case 7: return 'Pushback & Engine Startup';
+      default: return 'Ramp Ground Operation';
     }
   }
 
   getTaskIcon(type: number): string {
     switch (type) {
-      case 0: return '🚶‍♀️';
-      case 1: return '🧳';
-      case 2: return '⛽';
-      case 3: return '🧹';
-      case 4: return '🥪';
-      case 5: return '📦';
-      case 6: return '🚶‍♂️';
-      case 7: return '🚜';
-      default: return '⚙️';
+      case 0: return 'DEPLN';
+      case 1: return 'BAG';
+      case 2: return 'FUEL';
+      case 3: return 'CLN';
+      case 4: return 'CATR';
+      case 5: return 'CRG';
+      case 6: return 'BRD';
+      case 7: return 'PUSH';
+      default: return 'RAMP';
     }
   }
 
   getStatusText(status: number): string {
     switch (status) {
-      case 0: return 'Havuzda (Bekliyor)';
-      case 1: return 'Kabul Edildi';
-      case 2: return 'İşlemde (Sürüyor)';
-      case 3: return 'Tamamlandı';
-      default: return 'Bilinmiyor';
+      case 0: return 'Pending Pool';
+      case 1: return 'Accepted';
+      case 2: return 'In Progress';
+      case 3: return 'Completed';
+      default: return 'Unknown';
     }
   }
 
@@ -679,24 +685,24 @@ export class RampTasksComponent implements OnInit, OnDestroy {
         if (res.success) {
           if (action === 'ACCEPT') {
             task.status = 1;
-            task.assignedUserName = this.auth.currentUser?.fullName || 'Ramp Görevlisi';
-            this.notification.success(`✅ Görev kabul edildi: ${task.flightNumber} - ${this.getTaskTitle(task.taskType)}`);
+            task.assignedUserName = this.auth.currentUser?.fullName || 'Ramp Agent';
+            this.notification.success(`Task accepted: ${task.flightNumber} - ${this.getTaskTitle(task.taskType)}`);
           } else if (action === 'START') {
             task.status = 2;
             task.progressPercentage = 30;
-            this.notification.info(`⚙️ Görev başlatıldı: ${task.flightNumber}`);
+            this.notification.info(`Task started: ${task.flightNumber}`);
           } else if (action === 'COMPLETE') {
             task.status = 3;
             task.progressPercentage = 100;
-            this.notification.success(`🎉 Görev tamamlandı! Turnaround ekranı yeşile döndü.`);
+            this.notification.success(`Task completed successfully.`);
           }
         } else {
-          this.notification.error(res.message || 'İşlem başarısız.');
+          this.notification.error(res.message || 'Operation failed.');
         }
       },
       error: () => {
         this.submittingId = '';
-        this.notification.error('Sunucu hatası.');
+        this.notification.error('Server error.');
       }
     });
   }
@@ -707,7 +713,7 @@ export class RampTasksComponent implements OnInit, OnDestroy {
       status: 2,
       progressPercentage: pct
     }).subscribe({
-      next: () => this.notification.info(`İlerleme: %${pct}`)
+      next: () => this.notification.info(`Progress: ${pct}%`)
     });
   }
 }

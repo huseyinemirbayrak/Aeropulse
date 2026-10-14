@@ -27,14 +27,13 @@ export class SignalRService {
   public isConnected$ = new BehaviorSubject<boolean>(false);
   public connectionStatus$ = new BehaviorSubject<'connected' | 'connecting' | 'reconnecting' | 'disconnected'>('disconnected');
 
-  // Event Streams
   public turnaround$ = new Subject<TurnaroundTaskUpdatedEvent>();
   public gateOverride$ = new Subject<FlightGateOverrideEvent>();
   public gse$ = new Subject<GSEStatusChangedEvent>();
   public boarding$ = new Subject<BoardingProgressEvent>();
   public flightAlert$ = new Subject<FlightAlertEvent>();
+  public weatherAlert$ = new Subject<any>();
 
-  // Global Active Toast Stream for notifications banner
   public toast$ = new Subject<LiveToastNotification>();
 
   constructor() {
@@ -60,38 +59,36 @@ export class SignalRService {
   private registerHandlers(): void {
     if (!this.hubConnection) return;
 
-    this.hubConnection.onreconnecting((error) => {
-      console.warn('⚠️ [SignalR] Yeniden bağlanılıyor...', error);
+    this.hubConnection.onreconnecting((error?: any) => {
+      console.warn('[SignalR] Reconnecting telemetry stream...', error);
       this.isConnected$.next(false);
       this.connectionStatus$.next('reconnecting');
     });
 
-    this.hubConnection.onreconnected((connectionId) => {
-      console.log('✅ [SignalR] Yeniden bağlandı:', connectionId);
+    this.hubConnection.onreconnected((connectionId?: string) => {
+      console.log('[SignalR] Telemetry stream reconnected:', connectionId);
       this.isConnected$.next(true);
       this.connectionStatus$.next('connected');
-      this.showToast('Canlı Bağlantı Kuruldu', 'Operasyon akışı senkronize edildi.', 'success');
+      this.showToast('Telemetry Stream Active', 'Airside operational feed synchronized.', 'success');
     });
 
-    this.hubConnection.onclose((error) => {
-      console.warn('❌ [SignalR] Bağlantı kapandı:', error);
+    this.hubConnection.onclose((error?: any) => {
+      console.warn('[SignalR] Telemetry connection terminated:', error);
       this.isConnected$.next(false);
       this.connectionStatus$.next('disconnected');
     });
 
-    // Event Dinleyicileri
-    this.hubConnection.on('ReceiveConnectionAck', (ack) => {
-      console.log('[SignalR] Bağlantı sağlandı:', ack);
+    this.hubConnection.on('ReceiveConnectionAck', (ack: any) => {
+      console.log('[SignalR] Connection acknowledged:', ack);
       this.isConnected$.next(true);
       this.connectionStatus$.next('connected');
     });
 
     this.hubConnection.on('ReceiveTurnaroundUpdate', (task: TurnaroundTaskUpdatedEvent) => {
-      console.log('[SignalR] Görev güncellendi:', task.flightNumber, task.taskType);
       this.turnaround$.next(task);
       this.showToast(
-        `Görev: ${task.flightNumber}`,
-        `${task.taskType} görevi ${task.status} durumuna geçti (%${task.progressPercentage}).`,
+        `Task: ${task.flightNumber}`,
+        `${task.taskType} milestone transitioned to ${task.status} (${task.progressPercentage}%).`,
         task.status === 'Completed' ? 'success' : 'info'
       );
     });
@@ -101,34 +98,31 @@ export class SignalRService {
     });
 
     this.hubConnection.on('ReceiveGateOverride', (gate: FlightGateOverrideEvent) => {
-      console.log('[SignalR] Kapı değişikliği:', gate.flightNumber, gate.newGateNumber);
       this.gateOverride$.next(gate);
       this.showToast(
-        `Kapı Değişikliği: ${gate.flightNumber}`,
-        `Eski: ${gate.oldGateNumber || 'Açık'} ➔ Yeni Kapı: ${gate.newGateNumber}`,
+        `Gate Reassignment: ${gate.flightNumber}`,
+        `Previous: ${gate.oldGateNumber || 'Open Stand'} ➔ New Assigned Gate: ${gate.newGateNumber}`,
         'warning'
       );
     });
 
     this.hubConnection.on('ReceiveGseUpdate', (gse: GSEStatusChangedEvent) => {
-      console.log('[SignalR] GSE filosu güncellendi:', gse.code);
       this.gse$.next(gse);
       if (gse.status === 'OutOfService') {
         this.showToast(
-          `Araç Arıza Bildirimi: ${gse.code}`,
-          `${gse.name} bakım/arıza durumuna alındı!`,
+          `GSE Equipment Defect: ${gse.code}`,
+          `${gse.name} transitioned to out-of-service / maintenance.`,
           'danger'
         );
       }
     });
 
     this.hubConnection.on('ReceiveBoardingUpdate', (b: BoardingProgressEvent) => {
-      console.log('[SignalR] Biniş/Bagaj güncellemesi:', b.flightNumber);
       this.boarding$.next(b);
       if (b.loadsheetApproved) {
         this.showToast(
-          `Loadsheet Onayı: ${b.flightNumber}`,
-          `Kalkış izni verildi (${b.approvedByRedcap || 'Redcap'})`,
+          `Loadsheet Authorization: ${b.flightNumber}`,
+          `Departure clearance confirmed by ${b.approvedByRedcap || 'Operations Lead'}.`,
           'success'
         );
       }
@@ -139,13 +133,21 @@ export class SignalRService {
     });
 
     this.hubConnection.on('ReceiveFlightAlert', (alert: FlightAlertEvent) => {
-      console.log('[SignalR] Operasyon uyarısı:', alert);
       this.flightAlert$.next(alert);
       const toastType: 'info' | 'warning' | 'danger' =
         alert.severity === 'Danger' ? 'danger' :
         alert.severity === 'Warning' ? 'warning' : 'info';
 
-      this.showToast(`Uyarı: ${alert.flightNumber}`, alert.message, toastType);
+      this.showToast(`Airside Alert: ${alert.flightNumber}`, alert.message, toastType);
+    });
+
+    this.hubConnection.on('ReceiveWeatherAlert', (weatherAlert: any) => {
+      this.weatherAlert$.next(weatherAlert);
+      this.showToast(
+        weatherAlert.isCrisisActive ? 'Meteorological Crisis Active' : 'Weather Nominal',
+        weatherAlert.message || 'Aerodrome weather alert updated.',
+        weatherAlert.isCrisisActive ? 'danger' : 'success'
+      );
     });
   }
 
@@ -155,11 +157,11 @@ export class SignalRService {
 
     try {
       await this.hubConnection.start();
-      console.log('[SignalR] Canlı bağlantı açıldı.');
+      console.log('[SignalR] Telemetry stream established.');
       this.isConnected$.next(true);
       this.connectionStatus$.next('connected');
     } catch (err) {
-      console.warn('[SignalR] Bağlantı hatası, tekrar denenecek...', err);
+      console.warn('[SignalR] Connection fault, retrying in 5s...', err);
       this.isConnected$.next(false);
       this.connectionStatus$.next('disconnected');
       setTimeout(() => this.startConnection(), 5000);
@@ -171,7 +173,7 @@ export class SignalRService {
       try {
         await this.hubConnection.invoke('JoinFlightGroup', flightNumber);
       } catch (err) {
-        console.error(`Uçuş ${flightNumber} grubuna katılırken hata:`, err);
+        console.error(`Error subscribing to flight telemetry group ${flightNumber}:`, err);
       }
     }
   }
@@ -181,7 +183,7 @@ export class SignalRService {
       try {
         await this.hubConnection.invoke('LeaveFlightGroup', flightNumber);
       } catch (err) {
-        console.error(`Uçuş ${flightNumber} grubundan ayrılırken hata:`, err);
+        console.error(`Error unsubscribing from flight telemetry group ${flightNumber}:`, err);
       }
     }
   }

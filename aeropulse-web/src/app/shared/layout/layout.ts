@@ -19,53 +19,61 @@ interface MenuItem {
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <div class="layout">
-      <!-- Sidebar -->
       <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
         <div class="sidebar-header">
           <div class="logo" *ngIf="!sidebarCollapsed">
-            <span class="logo-icon">✈</span>
+            <span class="logo-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+              </svg>
+            </span>
             <span class="logo-text">AeroPulse</span>
           </div>
           <div class="logo" *ngIf="sidebarCollapsed">
-            <span class="logo-icon">✈</span>
+            <span class="logo-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+              </svg>
+            </span>
           </div>
-          <button class="toggle-btn" (click)="sidebarCollapsed = !sidebarCollapsed">
+          <button class="toggle-btn" (click)="sidebarCollapsed = !sidebarCollapsed" [attr.aria-label]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
             {{ sidebarCollapsed ? '→' : '←' }}
           </button>
         </div>
+
         <nav class="sidebar-nav">
           @for (item of menuItems; track item.route) {
             <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
-              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-icon-wrapper">
+                <span class="nav-dot"></span>
+              </span>
               <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
             </a>
           }
         </nav>
+
         <div class="sidebar-footer">
           <div class="user-info" *ngIf="!sidebarCollapsed">
             <div class="user-avatar">{{ userInitials }}</div>
             <div class="user-details">
               <div class="user-name">{{ authService.currentUser?.fullName }}</div>
-              <div class="user-role">{{ authService.currentUser?.roleName }}</div>
+              <div class="user-role">{{ roleBadge }}</div>
             </div>
           </div>
           <button class="logout-btn" (click)="logout()">
-            <span>⏻</span>
-            <span *ngIf="!sidebarCollapsed">Logout</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      <!-- Main Content -->
       <main class="main-content" [class.expanded]="sidebarCollapsed">
         <header class="top-header">
           <div class="header-left">
             <h2 class="page-title">{{ pageTitle }}</h2>
           </div>
           <div class="header-right">
-            <!-- Firma / Kiraci Secici -->
             <div class="tenant-switcher-wrapper">
-              <span class="tenant-label">✈️ Aktif Havayolu / Firma:</span>
+              <span class="tenant-label">Carrier Context:</span>
               <button type="button" class="tenant-select-box" (click)="toggleTenantDropdown()">
                 <span class="tenant-dot" [style.background-color]="selectedTenantColor"></span>
                 <span class="tenant-name">{{ selectedTenantName }}</span>
@@ -75,13 +83,13 @@ interface MenuItem {
               <div class="tenant-dropdown-backdrop" *ngIf="tenantDropdownOpen" (click)="tenantDropdownOpen = false"></div>
 
               <div class="tenant-dropdown" *ngIf="tenantDropdownOpen">
-                <div class="tenant-dropdown-header">Firma / Kurum Değiştir</div>
+                <div class="tenant-dropdown-header">Switch Carrier Context</div>
                 
                 <div class="tenant-option" [class.active]="!tenantService.currentTenant" (click)="onSelectTenant(null)">
                   <span class="tenant-dot" style="background-color: #8b5cf6;"></span>
                   <div class="tenant-opt-info">
-                    <span class="tenant-opt-title">Tüm Havalimanı (İGA / Genel)</span>
-                    <span class="tenant-opt-sub">Tüm havayolu ve yer hizmetleri verileri</span>
+                    <span class="tenant-opt-title">All Terminals (İGA Hub Authority)</span>
+                    <span class="tenant-opt-sub">Consolidated aerodrome & ground telemetry</span>
                   </div>
                   <span class="check-mark" *ngIf="!tenantService.currentTenant">✓</span>
                 </div>
@@ -91,7 +99,7 @@ interface MenuItem {
                     <span class="tenant-dot" [style.background-color]="tenant.primaryColor"></span>
                     <div class="tenant-opt-info">
                       <span class="tenant-opt-title">{{ tenant.name }} ({{ tenant.code }})</span>
-                      <span class="tenant-opt-sub">{{ tenant.type === 'Airline' ? 'Havayolu' : tenant.type === 'GroundHandler' ? 'Yer Hizmetleri' : 'Havalimanı Otoritesi' }}</span>
+                      <span class="tenant-opt-sub">{{ tenant.type === 'Airline' ? 'Commercial Airline' : tenant.type === 'GroundHandler' ? 'Ground Handling' : 'Aerodrome Authority' }}</span>
                     </div>
                     <span class="check-mark" *ngIf="tenantService.currentTenant?.id === tenant.id">✓</span>
                   </div>
@@ -99,25 +107,25 @@ interface MenuItem {
               </div>
             </div>
 
-            <!-- WebSocket Baglanti Rozeti -->
+            <div class="zulu-clock font-mono">
+              <span class="zulu-label">ZULU:</span> {{ utcTime }}
+            </div>
+
             <div class="ws-badge" [class.connected]="(signalrService.isConnected$ | async)" [class.disconnected]="!(signalrService.isConnected$ | async)">
               <span class="ws-dot"></span>
-              <span class="ws-text">{{ (signalrService.isConnected$ | async) ? 'Canlı Bağlantı: Aktif' : 'Bağlantı Kesildi' }}</span>
+              <span class="ws-text">{{ (signalrService.isConnected$ | async) ? 'Telemetry: Active' : 'Offline' }}</span>
             </div>
+
             <div class="header-badge">
               <span class="badge badge-info">{{ roleBadge }}</span>
             </div>
           </div>
         </header>
 
-        <!-- Canlı Operasyonel Toast Bildirimleri -->
         <div class="toast-container" *ngIf="activeToasts.length > 0">
           @for (toast of activeToasts; track toast.id) {
             <div class="toast-card" [class]="'toast-' + toast.type" (click)="removeToast(toast.id)">
               <div class="toast-header">
-                <span class="toast-icon">
-                  {{ toast.type === 'danger' ? '🚨' : toast.type === 'warning' ? '⚠️' : toast.type === 'success' ? '✅' : 'ℹ️' }}
-                </span>
                 <span class="toast-title">{{ toast.title }}</span>
                 <span class="toast-time">{{ toast.timestamp | date:'HH:mm:ss' }}</span>
               </div>
@@ -137,12 +145,13 @@ interface MenuItem {
       display: flex;
       min-height: 100vh;
       background: #ffffff;
+      font-family: 'Inter', -apple-system, sans-serif;
     }
 
     .sidebar {
-      width: var(--sidebar-width);
-      background: #ffffff;
-      border-right: 1px solid #e5e7eb;
+      width: var(--sidebar-width, 240px);
+      background: #0f172a;
+      border-right: 1px solid #1e293b;
       display: flex;
       flex-direction: column;
       position: fixed;
@@ -151,6 +160,7 @@ interface MenuItem {
       bottom: 0;
       z-index: 100;
       overflow: hidden;
+      transition: width 0.2s ease;
     }
 
     .sidebar.collapsed {
@@ -162,42 +172,42 @@ interface MenuItem {
       align-items: center;
       justify-content: space-between;
       padding: 0 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      height: var(--header-height);
-      background: #ffffff;
+      border-bottom: 1px solid #1e293b;
+      height: var(--header-height, 60px);
+      background: #0f172a;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.625rem;
     }
 
     .logo-icon {
-      font-size: 1.25rem;
       width: 32px;
       height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      color: #111827;
+      background: rgba(2, 132, 199, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 6px;
+      color: #38bdf8;
       flex-shrink: 0;
     }
 
     .logo-text {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #111827;
+      color: #f8fafc;
+      letter-spacing: -0.3px;
       white-space: nowrap;
     }
 
     .toggle-btn {
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      color: #4b5563;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
       cursor: pointer;
       font-size: 0.875rem;
       padding: 0.25rem 0.5rem;
@@ -205,8 +215,8 @@ interface MenuItem {
     }
 
     .toggle-btn:hover {
-      background: #f9fafb;
-      color: #111827;
+      background: #334155;
+      color: #f8fafc;
     }
 
     .sidebar-nav {
@@ -214,46 +224,54 @@ interface MenuItem {
       padding: 0.75rem 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.125rem;
+      gap: 0.2rem;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.625rem 0.75rem;
-      border-radius: 4px;
-      color: #374151;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      color: #94a3b8;
       font-weight: 500;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       text-decoration: none;
       white-space: nowrap;
-      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
     }
 
     .nav-item:hover {
-      background: #f3f4f6;
-      color: #111827;
+      background: #1e293b;
+      color: #f8fafc;
     }
 
     .nav-item.active {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-left: 3px solid #2563eb;
+      background: #0369a1;
+      color: #ffffff;
       font-weight: 600;
     }
 
-    .nav-icon {
-      width: 20px;
-      text-align: center;
-      font-size: 1rem;
+    .nav-icon-wrapper {
+      width: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
+    }
+
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.7;
     }
 
     .sidebar-footer {
       padding: 0.75rem 1rem;
-      border-top: 1px solid #e5e7eb;
-      background: #fafafa;
+      border-top: 1px solid #1e293b;
+      background: #090e17;
     }
 
     .user-info {
@@ -266,22 +284,22 @@ interface MenuItem {
     .user-avatar {
       width: 32px;
       height: 32px;
-      border-radius: 50%;
-      background: #e2e8f0;
-      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1px solid #334155;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       font-size: 0.75rem;
-      color: #1e293b;
+      color: #38bdf8;
       flex-shrink: 0;
     }
 
     .user-name {
       font-weight: 600;
       font-size: 0.8125rem;
-      color: #111827;
+      color: #f8fafc;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -289,37 +307,37 @@ interface MenuItem {
     }
 
     .user-role {
-      font-size: 0.75rem;
-      color: #6b7280;
+      font-size: 0.6875rem;
+      color: #64748b;
     }
 
     .logout-btn {
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.75rem;
+      padding: 0.45rem 0.75rem;
       border-radius: 4px;
-      background: #ffffff;
-      border: 1px solid #fca5a5;
-      color: #dc2626;
+      background: transparent;
+      border: 1px solid #334155;
+      color: #94a3b8;
       cursor: pointer;
-      font-size: 0.8125rem;
-      font-weight: 500;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
     }
 
     .logout-btn:hover {
-      background: #fef2f2;
+      background: #1e293b;
+      color: #ef4444;
+      border-color: #ef4444;
     }
 
     .main-content {
-      margin-left: var(--sidebar-width);
+      margin-left: var(--sidebar-width, 240px);
       flex: 1;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       background: #ffffff;
+      transition: margin-left 0.2s ease;
     }
 
     .main-content.expanded {
@@ -327,13 +345,13 @@ interface MenuItem {
     }
 
     .top-header {
-      height: var(--header-height);
+      height: var(--header-height, 60px);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 1.5rem;
       background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e2e8f0;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -341,8 +359,10 @@ interface MenuItem {
 
     .page-title {
       font-size: 1.125rem;
-      font-weight: 600;
-      color: #111827;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      margin: 0;
     }
 
     .header-right {
@@ -359,10 +379,11 @@ interface MenuItem {
     }
 
     .tenant-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: #64748b;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .tenant-select-box {
@@ -370,19 +391,19 @@ interface MenuItem {
       align-items: center;
       gap: 0.5rem;
       background: #ffffff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
       padding: 0.35rem 0.75rem;
       cursor: pointer;
-      color: #111827;
+      color: #0f172a;
       font-size: 0.8125rem;
       font-weight: 500;
       outline: none;
     }
 
     .tenant-select-box:hover {
-      background: #f9fafb;
-      border-color: #9ca3af;
+      background: #f8fafc;
+      border-color: #94a3b8;
     }
 
     .tenant-dot {
@@ -394,7 +415,7 @@ interface MenuItem {
 
     .tenant-name {
       font-size: 0.8125rem;
-      font-weight: 500;
+      font-weight: 600;
       max-width: 200px;
       white-space: nowrap;
       overflow: hidden;
@@ -403,7 +424,7 @@ interface MenuItem {
 
     .tenant-arrow {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: #64748b;
     }
 
     .tenant-dropdown-backdrop {
@@ -419,21 +440,22 @@ interface MenuItem {
       position: absolute;
       top: calc(100% + 4px);
       right: 0;
-      width: 300px;
+      width: 320px;
       background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
       padding: 0.25rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       z-index: 160;
     }
 
     .tenant-dropdown-header {
       font-size: 0.6875rem;
       font-weight: 700;
-      color: #6b7280;
-      padding: 0.375rem 0.625rem;
+      color: #64748b;
+      padding: 0.5rem 0.75rem;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
       border-bottom: 1px solid #f1f5f9;
     }
 
@@ -441,17 +463,17 @@ interface MenuItem {
       display: flex;
       align-items: center;
       gap: 0.625rem;
-      padding: 0.5rem 0.625rem;
+      padding: 0.5rem 0.75rem;
       border-radius: 4px;
       cursor: pointer;
     }
 
     .tenant-option:hover {
-      background: #f3f4f6;
+      background: #f1f5f9;
     }
 
     .tenant-option.active {
-      background: #eff6ff;
+      background: #f0f9ff;
     }
 
     .tenant-opt-info {
@@ -463,17 +485,17 @@ interface MenuItem {
 
     .tenant-opt-title {
       font-size: 0.8125rem;
-      font-weight: 500;
-      color: #111827;
+      font-weight: 600;
+      color: #0f172a;
     }
 
     .tenant-opt-sub {
       font-size: 0.6875rem;
-      color: #6b7280;
+      color: #64748b;
     }
 
     .check-mark {
-      color: #2563eb;
+      color: #0284c7;
       font-weight: 700;
       font-size: 0.875rem;
     }
@@ -485,10 +507,10 @@ interface MenuItem {
       padding: 0.25rem 0.625rem;
       border-radius: 4px;
       font-size: 0.75rem;
-      font-weight: 500;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      color: #374151;
+      font-weight: 600;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
     }
 
     .ws-badge.connected {
@@ -510,9 +532,42 @@ interface MenuItem {
       background: currentColor;
     }
 
+    .zulu-clock {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      letter-spacing: 0.5px;
+    }
+
+    .zulu-label {
+      color: #64748b;
+      font-size: 0.6875rem;
+    }
+
+    .font-mono {
+      font-family: monospace;
+    }
+
+    .badge-info {
+      background: #f1f5f9;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+
     .toast-container {
       position: fixed;
-      top: 64px;
+      top: 68px;
       right: 20px;
       z-index: 9999;
       display: flex;
@@ -526,11 +581,11 @@ interface MenuItem {
       pointer-events: auto;
       cursor: pointer;
       background: #ffffff;
-      border-radius: 4px;
+      border-radius: 6px;
       padding: 0.75rem 1rem;
-      border: 1px solid #e5e7eb;
-      border-left: 4px solid #2563eb;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0284c7;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
     .toast-card.toast-info { border-left-color: #0284c7; }
@@ -546,27 +601,27 @@ interface MenuItem {
     }
 
     .toast-title {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.8125rem;
-      color: #111827;
+      color: #0f172a;
       flex: 1;
     }
 
     .toast-time {
       font-size: 0.6875rem;
-      color: #6b7280;
+      color: #64748b;
     }
 
     .toast-body {
       font-size: 0.75rem;
-      color: #4b5563;
+      color: #334155;
       line-height: 1.4;
     }
 
     .content-area {
       flex: 1;
       padding: 1.5rem;
-      background: #ffffff;
+      background: #f8fafc;
     }
   `]
 })
@@ -576,6 +631,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   activeToasts: LiveToastNotification[] = [];
   private toastSub?: Subscription;
   tenantDropdownOpen = false;
+  utcTime = '';
+  private clockTimer?: any;
 
   constructor(
     public authService: AuthService,
@@ -584,11 +641,17 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.buildMenu();
+    this.updateClock();
+  }
+
+  updateClock(): void {
+    const now = new Date();
+    this.utcTime = now.toISOString().substring(11, 19) + 'Z';
   }
 
   get selectedTenantName(): string {
     const tenant = this.tenantService.currentTenant;
-    if (!tenant) return 'Tüm Havalimanı (İGA)';
+    if (!tenant) return 'All Terminals (İGA Hub Authority)';
     return `${tenant.code} - ${tenant.name}`;
   }
 
@@ -606,9 +669,11 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.updateClock();
+    this.clockTimer = setInterval(() => this.updateClock(), 1000);
+
     this.toastSub = this.signalrService.toast$.subscribe((toast) => {
       this.activeToasts.push(toast);
-      // bildirim 4 saniye sonra kapansin
       setTimeout(() => {
         this.removeToast(toast.id);
       }, 4000);
@@ -616,6 +681,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.clockTimer) clearInterval(this.clockTimer);
     this.toastSub?.unsubscribe();
   }
 
@@ -630,33 +696,35 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   get pageTitle(): string {
     const url = this.router.url;
-    if (url.includes('dashboard')) return 'Operasyon Kontrol Merkezi (OCC)';
-    if (url.includes('users')) return 'Kullanıcı Yönetimi';
-    if (url.includes('my-tasks')) return 'Görevlerim';
-    if (url.includes('inventory')) return 'Yedek Parça Stoğu';
-    if (url.includes('maintenance-log')) return 'Bakım Günlüğü';
-    if (url.includes('gse-fleet')) return 'Apron Araç & Ekipman Filosu';
-    if (url.includes('ramp')) return 'Ramp Saha Görevleri';
-    if (url.includes('turnaround')) return 'Uçuş Dönüş Koordinasyonu';
-    if (url.includes('gate-agent')) return 'Yolcu Biniş & Kapı Kontrol';
-    if (url.includes('loadsheet')) return 'Uçuş Yük ve Denge Formu';
-    if (url.includes('checklist')) return 'Uçuş Kontrol Listesi';
-    if (url.includes('operations')) return 'Aktif Uçuş Seferleri';
-    if (url.includes('fault-reports')) return 'Arıza Bildirimleri';
-    if (url.includes('jet-bridges')) return 'Körük ve Park Pozisyonları';
-    if (url.includes('my-faults')) return 'Arıza Kayıtlarım';
-    if (url.includes('fault-form')) return 'Arıza Bildir';
-    return 'AeroPulse Havalimanı Sistemi';
+    if (url.includes('dashboard') && url.includes('admin')) return 'Executive Administration Console';
+    if (url.includes('users')) return 'Directory & Access Control';
+    if (url.includes('my-tasks')) return 'Assigned Engineering Tasks';
+    if (url.includes('inventory')) return 'MRO Spare Parts Inventory';
+    if (url.includes('maintenance-log')) return 'Certified Maintenance Registry';
+    if (url.includes('gse-fleet')) return 'Ground Support Equipment (GSE) Fleet';
+    if (url.includes('ramp')) return 'Ramp Operations Dispatch';
+    if (url.includes('turnaround')) return 'Flight Turnaround Coordination';
+    if (url.includes('gate-agent')) return 'Gate Dispatch & Passenger Boarding';
+    if (url.includes('loadsheet')) return 'Weight & Balance Loadsheet';
+    if (url.includes('checklist')) return 'Turnaround Milestone Checklist';
+    if (url.includes('operations')) return 'Active Flight Operations Schedule';
+    if (url.includes('fault-reports')) return 'Airside Discrepancy & Defect Logs';
+    if (url.includes('jet-bridges')) return 'Passenger Boarding Bridge Matrix';
+    if (url.includes('my-faults')) return 'Logged Technician Defects';
+    if (url.includes('fault-form')) return 'Submit Defect Report';
+    if (url.includes('mro/dashboard')) return 'MRO Engineering Command Suite';
+    if (url.includes('ops/dashboard')) return 'Operations Control Center (OCC)';
+    return 'AeroPulse Enterprise Hub';
   }
 
   get roleBadge(): string {
     const role = this.authService.currentUser?.role;
     switch (role) {
-      case UserRole.Admin: return 'Sistem Yöneticisi';
-      case UserRole.MROEngineer: return 'Teknik Bakım Mühendisi';
-      case UserRole.OperationsManager: return 'Operasyon Müdürü';
-      case UserRole.FieldTechnician: return 'Saha / Ramp Teknisyeni';
-      default: return role || '';
+      case UserRole.Admin: return 'System Administrator';
+      case UserRole.MROEngineer: return 'MRO Avionics Engineer';
+      case UserRole.OperationsManager: return 'Operations Manager (OCC)';
+      case UserRole.FieldTechnician: return 'Field Ramp Technician';
+      default: return role || 'Operator';
     }
   }
 
@@ -669,45 +737,45 @@ export class LayoutComponent implements OnInit, OnDestroy {
     switch (role) {
       case UserRole.Admin:
         this.menuItems = [
-          { label: 'Genel Bakış', icon: '📊', route: '/admin/dashboard' },
-          { label: 'Kullanıcılar', icon: '👥', route: '/admin/users' },
-          { label: 'Uçuş Radarı', icon: '🛫', route: '/ops/dashboard' },
-          { label: 'Uçuş Seferleri', icon: '✈️', route: '/ops/operations' },
-          { label: 'Apron Filosu', icon: '🚜', route: '/ops/gse-fleet' },
-          { label: 'Ramp Görevleri', icon: '📋', route: '/ops/ramp' },
-          { label: 'Körük ve Kapı', icon: '🔗', route: '/ops/jet-bridges' },
-          { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
-          { label: 'Mühendislik (MRO)', icon: '⚙️', route: '/mro/dashboard' }
+          { label: 'System Overview', icon: 'dashboard', route: '/admin/dashboard' },
+          { label: 'Directory Management', icon: 'people', route: '/admin/users' },
+          { label: 'OCC Flight Radar', icon: 'radar', route: '/ops/dashboard' },
+          { label: 'Flight Operations', icon: 'flight', route: '/ops/operations' },
+          { label: 'GSE Ramp Fleet', icon: 'commute', route: '/ops/gse-fleet' },
+          { label: 'Ramp Dispatch', icon: 'assignment', route: '/ops/ramp' },
+          { label: 'Jet Bridges & Stands', icon: 'dock', route: '/ops/jet-bridges' },
+          { label: 'Defect Reports', icon: 'warning', route: '/ops/fault-reports' },
+          { label: 'MRO Engineering', icon: 'build', route: '/mro/dashboard' }
         ];
         break;
       case UserRole.MROEngineer:
         this.menuItems = [
-          { label: 'Mühendislik Paneli', icon: '📊', route: '/mro/dashboard' },
-          { label: 'Görevlerim', icon: '📋', route: '/mro/my-tasks' },
-          { label: 'Yedek Parça Stoğu', icon: '⚙️', route: '/mro/inventory' },
-          { label: 'Bakım Günlüğü', icon: '📝', route: '/mro/maintenance-log' },
-          { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
-          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' }
+          { label: 'Engineering Console', icon: 'dashboard', route: '/mro/dashboard' },
+          { label: 'Assigned Tasks', icon: 'assignment', route: '/mro/my-tasks' },
+          { label: 'Parts Inventory', icon: 'inventory', route: '/mro/inventory' },
+          { label: 'Maintenance Registry', icon: 'history', route: '/mro/maintenance-log' },
+          { label: 'Defect Reports', icon: 'warning', route: '/ops/fault-reports' },
+          { label: 'Jet Bridges & Stands', icon: 'dock', route: '/ops/jet-bridges' }
         ];
         break;
       case UserRole.OperationsManager:
         this.menuItems = [
-          { label: 'Uçuş Radarı', icon: '🛫', route: '/ops/dashboard' },
-          { label: 'Uçuş Seferleri', icon: '✈️', route: '/ops/operations' },
-          { label: 'Apron Filosu', icon: '🚜', route: '/ops/gse-fleet' },
-          { label: 'Saha Görevleri', icon: '📋', route: '/ops/ramp' },
-          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' },
-          { label: 'Arıza Raporları', icon: '⚠️', route: '/ops/fault-reports' },
-          { label: 'Mühendislik Durumu', icon: '⚙️', route: '/mro/dashboard' }
+          { label: 'OCC Flight Radar', icon: 'radar', route: '/ops/dashboard' },
+          { label: 'Flight Operations', icon: 'flight', route: '/ops/operations' },
+          { label: 'GSE Ramp Fleet', icon: 'commute', route: '/ops/gse-fleet' },
+          { label: 'Ramp Dispatch', icon: 'assignment', route: '/ops/ramp' },
+          { label: 'Jet Bridges & Stands', icon: 'dock', route: '/ops/jet-bridges' },
+          { label: 'Defect Reports', icon: 'warning', route: '/ops/fault-reports' },
+          { label: 'MRO Status', icon: 'build', route: '/mro/dashboard' }
         ];
         break;
       case UserRole.FieldTechnician:
         this.menuItems = [
-          { label: 'Ramp İş Emirleri', icon: '📋', route: '/tech/ramp-tasks' },
-          { label: 'Apron Araçları', icon: '🚜', route: '/tech/gse-fleet' },
-          { label: 'Arıza Kayıtlarım', icon: '🛠️', route: '/tech/my-faults' },
-          { label: 'Arıza Bildir', icon: '⚠️', route: '/tech/fault-form' },
-          { label: 'Körük Durumu', icon: '🔗', route: '/ops/jet-bridges' }
+          { label: 'Ramp Work Orders', icon: 'assignment', route: '/tech/ramp-tasks' },
+          { label: 'GSE Equipment', icon: 'commute', route: '/tech/gse-fleet' },
+          { label: 'My Reported Defects', icon: 'report', route: '/tech/my-faults' },
+          { label: 'Log New Defect', icon: 'add_alert', route: '/tech/fault-form' },
+          { label: 'Jet Bridges & Stands', icon: 'dock', route: '/ops/jet-bridges' }
         ];
         break;
     }

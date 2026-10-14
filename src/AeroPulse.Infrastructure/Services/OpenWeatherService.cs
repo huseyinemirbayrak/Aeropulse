@@ -8,10 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AeroPulse.Infrastructure.Services;
 
-/// <summary>
-/// OpenWeatherMap API'sine HttpClient ile istek atarak hava durumu verisi sağlayan servis.
-/// API anahtarı yapılandırılmamışsa mock veri döndürür.
-/// </summary>
 public class OpenWeatherService : IWeatherService
 {
     private readonly HttpClient _httpClient;
@@ -20,10 +16,8 @@ public class OpenWeatherService : IWeatherService
     private readonly string _baseUrl;
     private readonly bool _useMock;
 
-    // ICAO/IATA kodlarından şehir ismine çeviri tablosu
     private static readonly Dictionary<string, string> AirportCityMap = new(StringComparer.OrdinalIgnoreCase)
     {
-        // ── Türkiye ──
         ["IST"]  = "Istanbul",
         ["LTFM"] = "Istanbul",
         ["SAW"]  = "Istanbul",
@@ -35,7 +29,6 @@ public class OpenWeatherService : IWeatherService
         ["AYT"]  = "Antalya",
         ["LTAI"] = "Antalya",
 
-        // ── Avrupa ──
         ["LHR"]  = "London",
         ["EGLL"] = "London",
         ["CDG"]  = "Paris",
@@ -53,7 +46,6 @@ public class OpenWeatherService : IWeatherService
         ["ATH"]  = "Athens",
         ["LGAV"] = "Athens",
 
-        // ── Amerika ──
         ["JFK"]  = "New York",
         ["KJFK"] = "New York",
         ["LAX"]  = "Los Angeles",
@@ -67,7 +59,6 @@ public class OpenWeatherService : IWeatherService
         ["LAS"]  = "Las Vegas",
         ["KLAS"] = "Las Vegas",
 
-        // ── Asya & Ortadoğu ──
         ["DXB"]  = "Dubai",
         ["OMDB"] = "Dubai",
         ["BKK"]  = "Bangkok",
@@ -93,29 +84,26 @@ public class OpenWeatherService : IWeatherService
 
         if (_useMock)
         {
-            _logger.LogInformation(
-                "Weather:ApiKey yapılandırılmamış. OpenWeatherService mock modda çalışacak. " +
-                "Gerçek veri için appsettings.json'a Weather:ApiKey ekleyin.");
+            _logger.LogInformation("Weather:ApiKey is unconfigured. Operating in synthetic simulation mode.");
         }
     }
 
-    /// <inheritdoc />
     public async Task<WeatherData> GetCurrentWeatherAsync(string cityCode)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(cityCode);
 
         if (_useMock)
         {
-            _logger.LogInformation("Mock hava durumu verisi döndürülüyor: {CityCode}", cityCode);
+            _logger.LogInformation("Returning synthetic weather telemetry: {CityCode}", cityCode);
             return GenerateMockWeatherData(cityCode);
         }
 
         try
         {
             var cityName = ResolveCityName(cityCode);
-            var requestUrl = $"{_baseUrl}/weather?q={Uri.EscapeDataString(cityName)}&appid={_apiKey}&units=metric&lang=tr";
+            var requestUrl = $"{_baseUrl}/weather?q={Uri.EscapeDataString(cityName)}&appid={_apiKey}&units=metric&lang=en";
 
-            _logger.LogInformation("OpenWeatherMap API isteği: {CityCode} → {CityName}", cityCode, cityName);
+            _logger.LogInformation("OpenWeatherMap request dispatched: {CityCode} -> {CityName}", cityCode, cityName);
 
             var response = await _httpClient.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
@@ -124,41 +112,37 @@ public class OpenWeatherService : IWeatherService
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (apiResponse is null)
-                throw new InvalidOperationException("API'den boş yanıt alındı.");
+                throw new InvalidOperationException("Empty response payload received from OpenWeatherMap API.");
 
             var weatherData = MapToWeatherData(apiResponse, cityCode);
 
             _logger.LogInformation(
-                "Hava durumu alındı: {City} → {Temp}°C, {Desc}",
+                "Weather telemetry ingested: {City} -> {Temp}C, {Desc}",
                 weatherData.CityName, weatherData.Temperature, weatherData.Description);
 
             return weatherData;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "OpenWeatherMap API hatası: {CityCode}", cityCode);
-
-            // API hatası durumunda mock veriye fallback
-            _logger.LogWarning("API hatası nedeniyle mock veri döndürülüyor: {CityCode}", cityCode);
+            _logger.LogError(ex, "OpenWeatherMap API error for {CityCode}", cityCode);
             return GenerateMockWeatherData(cityCode);
         }
     }
 
-    /// <inheritdoc />
     public async Task<List<WeatherForecastItem>> GetForecastAsync(string cityCode, int hours = 24)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(cityCode);
 
         if (_useMock)
         {
-            _logger.LogInformation("Mock tahmin verisi döndürülüyor: {CityCode}, {Hours} saat", cityCode, hours);
+            _logger.LogInformation("Returning synthetic forecast telemetry: {CityCode}, {Hours} hours", cityCode, hours);
             return GenerateMockForecast(cityCode, hours);
         }
 
         try
         {
             var cityName = ResolveCityName(cityCode);
-            var requestUrl = $"{_baseUrl}/forecast?q={Uri.EscapeDataString(cityName)}&appid={_apiKey}&units=metric&lang=tr";
+            var requestUrl = $"{_baseUrl}/forecast?q={Uri.EscapeDataString(cityName)}&appid={_apiKey}&units=metric&lang=en";
 
             var response = await _httpClient.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
@@ -167,9 +151,8 @@ public class OpenWeatherService : IWeatherService
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (apiResponse?.List is null)
-                throw new InvalidOperationException("Forecast API'den boş yanıt alındı.");
+                throw new InvalidOperationException("Empty forecast response received from API.");
 
-            // İstenen saat kadar veriyi al (her biri 3 saatlik aralıklar)
             var count = Math.Min(hours / 3, apiResponse.List.Count);
 
             return apiResponse.List
@@ -180,7 +163,7 @@ public class OpenWeatherService : IWeatherService
                     Temperature = item.Main?.Temp ?? 0,
                     FeelsLike = item.Main?.FeelsLike ?? 0,
                     Humidity = item.Main?.Humidity ?? 0,
-                    Description = item.Weather?.FirstOrDefault()?.Description ?? "Bilinmiyor",
+                    Description = item.Weather?.FirstOrDefault()?.Description ?? "Unknown",
                     Icon = item.Weather?.FirstOrDefault()?.Icon ?? "01d",
                     WindSpeed = item.Wind?.Speed ?? 0,
                     WindDeg = item.Wind?.Deg ?? 0,
@@ -191,18 +174,16 @@ public class OpenWeatherService : IWeatherService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "OpenWeatherMap Forecast API hatası: {CityCode}", cityCode);
+            _logger.LogError(ex, "OpenWeatherMap forecast API error: {CityCode}", cityCode);
             return GenerateMockForecast(cityCode, hours);
         }
     }
-
-    // ───────────────────────── Yardımcı Metotlar ─────────────────────────
 
     private static string ResolveCityName(string cityCode)
     {
         return AirportCityMap.TryGetValue(cityCode, out var city)
             ? city
-            : cityCode; // Bilinmeyen kod → doğrudan API'ye gönder
+            : cityCode;
     }
 
     private static WeatherData MapToWeatherData(OpenWeatherApiResponse api, string cityCode)
@@ -217,7 +198,7 @@ public class OpenWeatherService : IWeatherService
             TempMax = api.Main?.TempMax ?? 0,
             Humidity = api.Main?.Humidity ?? 0,
             Pressure = api.Main?.Pressure ?? 0,
-            Description = api.Weather?.FirstOrDefault()?.Description ?? "Bilinmiyor",
+            Description = api.Weather?.FirstOrDefault()?.Description ?? "Unknown",
             Icon = api.Weather?.FirstOrDefault()?.Icon ?? "01d",
             WindSpeed = api.Wind?.Speed ?? 0,
             WindDeg = api.Wind?.Deg ?? 0,
@@ -239,7 +220,7 @@ public class OpenWeatherService : IWeatherService
         var rng = new Random(cityCode.GetHashCode() ^ DateTime.UtcNow.Hour);
         var cityName = AirportCityMap.TryGetValue(cityCode, out var city) ? city : cityCode;
 
-        string[] descriptions = ["Açık", "Parçalı bulutlu", "Kapalı", "Hafif yağmurlu", "Sisli"];
+        string[] descriptions = ["Clear Sky", "Partly Cloudy", "Overcast", "Light Rain", "Fog / Mist"];
         string[] icons = ["01d", "02d", "04d", "10d", "50d"];
         var idx = rng.Next(descriptions.Length);
 
@@ -273,7 +254,7 @@ public class OpenWeatherService : IWeatherService
         var baseTemp = 15 + rng.NextDouble() * 20;
         var now = DateTime.UtcNow;
 
-        string[] descriptions = ["Açık", "Parçalı bulutlu", "Bulutlu", "Hafif yağmur", "Sağanak"];
+        string[] descriptions = ["Clear Sky", "Partly Cloudy", "Cloudy", "Light Rain", "Heavy Rain"];
         string[] icons = ["01d", "02d", "04d", "10d", "09d"];
 
         for (int i = 0; i < hours / 3; i++)
@@ -299,8 +280,6 @@ public class OpenWeatherService : IWeatherService
 
         return items;
     }
-
-    // ───────────────────────── OpenWeatherMap API JSON Modelleri ─────────────────────────
 
     private class OpenWeatherApiResponse
     {

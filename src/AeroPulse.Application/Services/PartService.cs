@@ -95,7 +95,6 @@ public class PartService : IPartService
         _context.Parts.Add(part);
         await _context.SaveChangesAsync();
 
-        // Check critical threshold and create notifications
         if (part.IsCritical)
         {
             await CreateCriticalPartNotificationsAsync(part, aircraft.TailNumber);
@@ -123,7 +122,6 @@ public class PartService : IPartService
         if (request.IsActive.HasValue) part.IsActive = request.IsActive.Value;
         part.UpdatedAt = DateTime.UtcNow;
 
-        // If part just became critical, trigger notifications
         if (!wasCriticalBefore && part.IsCritical)
         {
             await CreateCriticalPartNotificationsAsync(part, part.Aircraft.TailNumber);
@@ -164,7 +162,6 @@ public class PartService : IPartService
 
     private async Task CreateCriticalPartNotificationsAsync(Part part, string tailNumber)
     {
-        // Notify all MRO Engineers
         var engineers = await _context.Users
             .Where(u => u.Role == UserRole.MROEngineer && u.IsActive)
             .ToListAsync();

@@ -5,11 +5,6 @@ using System.Text.Json;
 
 namespace AeroPulse.Infrastructure.Services;
 
-/// <summary>
-/// In-memory mesaj kuyruğu & SignalR Real-Time köprüsü.
-/// Mesaj kuyruğuna atılan tüm operasyonel event'leri JSON loglar ve
-/// anında IRealTimeNotifier aracılığıyla SignalR WebSocket istemcilerine dağıtır.
-/// </summary>
 public class InMemoryMessageBusService : IMessageBusService
 {
     private readonly ILogger<InMemoryMessageBusService> _logger;
@@ -26,19 +21,11 @@ public class InMemoryMessageBusService : IMessageBusService
         var json = JsonSerializer.Serialize(message, new JsonSerializerOptions { WriteIndented = true });
 
         _logger.LogInformation(
-            """
-            ╔══════════════════════════════════════════════════════╗
-            ║  📨 [IN-MEMORY MESSAGE BUS] Mesaj Kuyruğa Düştü     ║
-            ╠══════════════════════════════════════════════════════╣
-            ║  Queue : {QueueName,-44} ║
-            ╚══════════════════════════════════════════════════════╝
-            {Message}
-            """,
+            "[MessageBus] Event published to {QueueName}: {Payload}",
             queueName,
             json
         );
 
-        // SignalR Real-Time Notifier üzerinden WebSocket abonelerine canlı fırlat
         try
         {
             using var scope = _serviceProvider.CreateScope();
@@ -73,7 +60,7 @@ public class InMemoryMessageBusService : IMessageBusService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "⚠️ [MESSAGE BUS] Real-time notifier dağıtımında hata oluştu.");
+            _logger.LogWarning(ex, "[MessageBus] Failed to dispatch real-time notification.");
         }
     }
 }

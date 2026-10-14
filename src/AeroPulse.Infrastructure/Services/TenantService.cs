@@ -38,14 +38,13 @@ public class TenantService : ITenantService
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null) return null;
 
-            // 1. X-Tenant-ID Header Kontrolü
             if (httpContext.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantHeader))
             {
                 var val = tenantHeader.ToString().Trim();
                 if (string.Equals(val, "ALL", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(val, "IGA", StringComparison.OrdinalIgnoreCase))
                 {
-                    return null; // Cross-tenant (SuperAdmin view)
+                    return null;
                 }
 
                 if (Guid.TryParse(val, out var parsedGuid))
@@ -58,8 +57,6 @@ public class TenantService : ITenantService
                     return mappedGuid;
                 }
             }
-
-            // 2. JWT Claims Kontrolü
             var tenantClaim = httpContext.User?.FindFirst("tenant_id")?.Value;
             if (!string.IsNullOrEmpty(tenantClaim) && Guid.TryParse(tenantClaim, out var claimGuid))
             {
@@ -97,7 +94,6 @@ public class TenantService : ITenantService
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext == null) return true;
 
-            // Header'da ALL veya IGA belirtilmişse
             if (httpContext.Request.Headers.TryGetValue("X-Tenant-ID", out var tenantHeader))
             {
                 var val = tenantHeader.ToString().Trim();
@@ -108,14 +104,12 @@ public class TenantService : ITenantService
                 }
             }
 
-            // Kullanıcı Admin rolündeyse ve belirli bir kiracı zorlanmamışsa
             var role = httpContext.User?.FindFirst(ClaimTypes.Role)?.Value;
             if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase) && !CurrentTenantId.HasValue)
             {
                 return true;
             }
 
-            // Eğer kiracı kimliği seçilmemişse varsayılan olarak SuperAdmin modundadır (tüm operasyonları izler)
             return !CurrentTenantId.HasValue;
         }
     }

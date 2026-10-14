@@ -25,13 +25,11 @@ export class TenantService {
         if (res.success && res.data) {
           this.tenantsSubject.next(res.data);
           this.restoreSelectedTenant(res.data);
-          // console.log('Kiracılar listesi geldi:', res.data);
         }
       })
     );
   }
 
-  // Tarayıcı hafızasındaki seçili firmayı geri yüklüyoruz
   private restoreSelectedTenant(tenants: Tenant[]): void {
     const savedTenantId = localStorage.getItem(this.STORAGE_KEY);
     if (savedTenantId && savedTenantId !== 'ALL') {
@@ -43,22 +41,17 @@ export class TenantService {
         return;
       }
     }
-    // Seçim yoksa genel havalimanı görünümü aktif kalsın
     this.currentTenantSubject.next(null);
   }
 
-  // Kullanıcı dropdown'dan firma seçtiğinde çalışır
   public selectTenant(tenant: Tenant | null): void {
     if (tenant) {
       localStorage.setItem(this.STORAGE_KEY, tenant.code);
       this.currentTenantSubject.next(tenant);
-      console.log('Firma seçildi:', tenant.code);
     } else {
       localStorage.setItem(this.STORAGE_KEY, 'ALL');
       this.currentTenantSubject.next(null);
-      console.log('Genel havalimanı görünümüne geçildi');
     }
-    // Verilerin yeni firma filtresine göre temiz yüklenmesi için sayfayı yeniliyoruz
     window.location.reload();
   }
 

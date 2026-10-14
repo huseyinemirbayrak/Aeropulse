@@ -1,7 +1,4 @@
-/* ===== AEROPULSE ENTERPRISE DESIGN SYSTEM - MINIMAL & CLEAN ===== */
-
 :root {
-  /* Clean light palette */
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-card: #ffffff;
@@ -10,79 +7,72 @@
   --bg-input: #ffffff;
   --bg-glass: #ffffff;
 
-  /* Accent colors - Solid Enterprise Blue */
   --accent-primary: #2563eb;
   --accent-primary-rgb: 37, 99, 235;
   --accent-secondary: #1d4ed8;
   --accent-gradient: #2563eb;
 
-  /* Status colors */
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-danger: #dc2626;
   --color-info: #0284c7;
 
-  /* Text colors */
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-muted: #6b7280;
   --text-accent: #2563eb;
 
-  /* Clean subtle borders */
   --border-color: #e5e7eb;
   --border-active: #d1d5db;
 
-  /* Shadows - Flat / None */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-glow: none;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 15px rgba(2, 132, 199, 0.25);
 
-  /* Layout */
   --sidebar-width: 250px;
   --header-height: 56px;
-  --border-radius: 4px;
+  --border-radius: 6px;
   --border-radius-sm: 4px;
-  --border-radius-lg: 6px;
+  --border-radius-lg: 8px;
 
-  /* NO TRANSITIONS */
-  --transition-fast: 0s;
-  --transition-normal: 0s;
-  --transition-slow: 0s;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
 }
 
-/* ===== GLOBAL RESET & STRICT NO-ANIMATION ===== */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  animation: none !important;
-  transition: none !important;
 }
 
 html {
   font-size: 14px;
-  background: #ffffff;
+  background: #f8fafc;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #ffffff !important;
-  color: #111827 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: #2563eb;
+  color: #0284c7;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 a:hover {
+  color: #0369a1;
   text-decoration: underline;
 }
 
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -94,38 +84,32 @@ a:hover {
   background: #cbd5e1;
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 
-/* ===== PLAIN CARDS (NO GLASSMORPHISM) ===== */
 .glass-card,
 .stat-card,
 .card,
 .mat-mdc-card {
-  background: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 4px !important;
-  padding: 1.25rem !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .glass-card:hover,
 .stat-card:hover {
-  transform: none !important;
-  box-shadow: none !important;
-  border-color: #d1d5db !important;
-}
-
-.stat-card::before {
-  display: none !important;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
 }
 
 .stat-card .stat-value {
-  font-size: 1.75rem !important;
-  font-weight: 700 !important;
-  color: #111827 !important;
-  background: none !important;
-  -webkit-text-fill-color: initial !important;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .stat-card .stat-label {
@@ -134,7 +118,6 @@ a:hover {
   font-weight: 600 !important;
 }
 
-/* ===== CLEAN SOLID BUTTONS ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -217,7 +200,6 @@ a:hover {
   background: #f9fafb !important;
 }
 
-/* ===== FORM INPUTS ===== */
 .form-group {
   margin-bottom: 1rem;
 }
@@ -260,7 +242,6 @@ input::placeholder {
   color: #9ca3af !important;
 }
 
-/* ===== CLEAN PLAIN DATA TABLES ===== */
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -292,7 +273,6 @@ input::placeholder {
   background: #f8fafc !important;
 }
 
-/* ===== SIMPLE CLEAN STATUS BADGES ===== */
 .badge,
 .badge-table,
 .gate-badge-table,
@@ -338,7 +318,6 @@ input::placeholder {
   border: 1px solid #e5e7eb !important;
 }
 
-/* Live indicators */
 .live-pill {
   display: inline-flex !important;
   align-items: center !important;
@@ -359,7 +338,6 @@ input::placeholder {
   background: #16a34a !important;
 }
 
-/* ===== PAGE HEADERS (NO GRADIENTS) ===== */
 .page-header h1,
 .section-title,
 .card-section-title {
@@ -376,7 +354,6 @@ input::placeholder {
   font-size: 0.875rem !important;
 }
 
-/* Layout Utilities */
 .page-header {
   display: flex;
   align-items: center;
@@ -409,7 +386,6 @@ input::placeholder {
 .mb-4 { margin-bottom: 1.5rem; }
 .text-center { text-align: center; }
 
-/* ===== CLEAN SIMPLE MODAL ===== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -454,7 +430,6 @@ input::placeholder {
   cursor: pointer;
 }
 
-/* ===== PROGRESS BAR ===== */
 .progress-bar {
   width: 100%;
   height: 6px;
@@ -468,3 +443,22 @@ input::placeholder {
 .progress-fill.green { background: #16a34a; }
 .progress-fill.yellow { background: #d97706; }
 .progress-fill.red { background: #dc2626; }
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.tail-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  font-size: 0.8125rem;
+}
+

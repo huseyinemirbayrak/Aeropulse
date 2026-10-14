@@ -6,17 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AeroPulse.Application.Services;
 
-/// <summary>
-/// Weather crisis management service.
-/// Manages wind/windshear crises, shuts down jet bridges for safety,
-/// sends emergency notifications, and publishes events to the message queue.
-/// </summary>
 public class WeatherCrisisService : IWeatherCrisisService
 {
     private readonly IAeroPulseDbContext _context;
     private readonly ICacheService _cache;
     private readonly IMessageBusService _messageBus;
     private readonly INotificationService _notificationService;
+    private readonly IRealTimeNotifier? _realTimeNotifier;
     private readonly ILogger<WeatherCrisisService> _logger;
 
     private const string CRISIS_CACHE_KEY = "crisis:weather:wind:status";
@@ -27,16 +23,17 @@ public class WeatherCrisisService : IWeatherCrisisService
         ICacheService cache,
         IMessageBusService messageBus,
         INotificationService notificationService,
-        ILogger<WeatherCrisisService> logger)
+        ILogger<WeatherCrisisService> logger,
+        IRealTimeNotifier? realTimeNotifier = null)
     {
         _context = context;
         _cache = cache;
         _messageBus = messageBus;
         _notificationService = notificationService;
         _logger = logger;
+        _realTimeNotifier = realTimeNotifier;
     }
 
-    /// <inheritdoc />
     public async Task<ApiResponse<CrisisOperationResultDto>> TriggerWindCrisisAsync(
         string cityCode,
         double windSpeedKmH,
@@ -45,12 +42,10 @@ public class WeatherCrisisService : IWeatherCrisisService
     {
         var currentStatus = await _cache.GetAsync<CrisisStatusDto>(CRISIS_CACHE_KEY);
 
-        // ===== SPAM PROTECTION =====
-        // If crisis is already active, prevent repeated jet bridge shutdowns and notification spam
         if (currentStatus?.IsCrisisActive == true)
         {
             _logger.LogWarning(
-                "⚠️ High wind crisis is already active! Location: {CityCode}, Wind: {Speed:F1} km/h. Spam protection applied.",
+                "High wind crisis state already engaged. Hub: {CityCode}, Velocity: {Speed:F1} km/h. Rate-limiting enforced.",
                 cityCode, windSpeedKmH);
 
             return ApiResponse<CrisisOperationResultDto>.Ok(new CrisisOperationResultDto
@@ -61,16 +56,15 @@ public class WeatherCrisisService : IWeatherCrisisService
                 ThresholdKmH = thresholdKmH,
                 AffectedJetBridgesCount = currentStatus.DisabledJetBridgesCount,
                 NotifiedUsersCount = 0,
-                Message = $"Crisis is already active ({windSpeedKmH:F1} km/h). Excessive notifications prevented.",
+                Message = $"Crisis condition active ({windSpeedKmH:F1} km/h). Telemetry notifications rate-limited.",
                 Timestamp = DateTime.UtcNow
             });
         }
 
         _logger.LogCritical(
-            "🚨 WEATHER CRISIS TRIGGERED! Location: {CityCode} | Wind: {Speed:F1} km/h (Threshold: {Threshold} km/h)",
+            "METEOROLOGICAL CRISIS ENGAGED: Hub: {CityCode} | Velocity: {Speed:F1} km/h (Threshold: {Threshold} km/h)",
             cityCode, windSpeedKmH, thresholdKmH);
 
-        // 1. Set Jet Bridges to "UnderMaintenance" (Out of Service) for Safety
         var bridges = await _context.JetBridges.ToListAsync();
         var affectedCount = 0;
 
@@ -87,9 +81,8 @@ public class WeatherCrisisService : IWeatherCrisisService
         if (affectedCount > 0)
         {
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Total of {Count} jet bridges set to 'UnderMaintenance' for safety.", affectedCount);
+            _logger.LogInformation("{Count} passenger boarding bridges transitioned to UnderMaintenance for ramp safety.", affectedCount);
 
-            // Clear jet bridges cache
             var terminals = bridges.Select(b => b.TerminalNo).Distinct();
             foreach (var terminal in terminals)
             {
@@ -97,7 +90,6 @@ public class WeatherCrisisService : IWeatherCrisisService
             }
         }
 
-        // 2. Publish Emergency Event to Message Queue (Event Bus)
         await _messageBus.PublishAsync("crisis.weather.windshear", new
         {
             EventType = "WindshearCrisisTriggered",
@@ -106,29 +98,50 @@ public class WeatherCrisisService : IWeatherCrisisService
             ThresholdKmH = thresholdKmH,
             Timestamp = DateTime.UtcNow,
             AffectedJetBridgesCount = affectedCount,
-            Reason = reason ?? "Wind speed exceeded safety limit.",
-            Action = "All jet bridges have been closed due to safety concerns."
+            Reason = reason ?? "Wind velocity exceeded operational limits.",
+            Action = "Airside passenger boarding bridges secured per aerodrome safety protocols."
         });
 
-        // 3. Send Notifications to Authorized Users (OperationsManager & Admin)
         var recipients = await _context.Users
             .Where(u => u.Role == UserRole.OperationsManager || u.Role == UserRole.Admin)
             .ToListAsync();
 
-        var alertMessage = $"🚨 CRITICAL WEATHER ALERT: {cityCode} wind speed reached {windSpeedKmH:F1} km/h ({thresholdKmH} km/h exceeded)! As per safety protocols, all jet bridges are out of service. {(string.IsNullOrWhiteSpace(reason) ? "" : "Detail: " + reason)}".Trim();
+        var alertMessage = $"METEOROLOGICAL WARNING: {cityCode} wind velocity reached {windSpeedKmH:F1} km/h ({thresholdKmH} km/h exceeded). All passenger boarding bridges secured. {(string.IsNullOrWhiteSpace(reason) ? "" : "Details: " + reason)}".Trim();
 
         foreach (var user in recipients)
         {
             await _notificationService.CreateAsync(user.Id, alertMessage, NotificationType.General);
         }
 
-        _logger.LogInformation("Crisis notification sent to {Count} authorized users.", recipients.Count);
+        if (_realTimeNotifier != null)
+        {
+            await _realTimeNotifier.SendFlightAlertAsync(new FlightAlertEvent
+            {
+                FlightNumber = "AERODROME-CRISIS",
+                AlertType = "WeatherCrisis",
+                Message = $"METEOROLOGICAL WARNING: {cityCode} wind velocity reached {windSpeedKmH:F1} km/h. Passenger boarding bridges secured.",
+                Severity = "Danger",
+                OccurredAt = DateTime.UtcNow
+            });
 
-        // 4. Cache the Status
+            await _realTimeNotifier.SendRawEventAsync("ReceiveWeatherAlert", new
+            {
+                isCrisisActive = true,
+                cityCode = cityCode,
+                windSpeedKmH = Math.Round(windSpeedKmH, 1),
+                thresholdKmH = thresholdKmH,
+                affectedJetBridgesCount = affectedCount,
+                message = alertMessage,
+                timestamp = DateTime.UtcNow
+            });
+        }
+
+        _logger.LogInformation("Crisis alerts transmitted to {Count} authorized duty personnel.", recipients.Count);
+
         var newStatus = new CrisisStatusDto
         {
             IsCrisisActive = true,
-            ActiveCrisisType = "Windshear (High Wind)",
+            ActiveCrisisType = "Windshear (High Wind Velocity)",
             CityCode = cityCode,
             CurrentWindSpeedKmH = windSpeedKmH,
             ThresholdKmH = thresholdKmH,
@@ -148,12 +161,11 @@ public class WeatherCrisisService : IWeatherCrisisService
             ThresholdKmH = thresholdKmH,
             AffectedJetBridgesCount = affectedCount,
             NotifiedUsersCount = recipients.Count,
-            Message = "Wind crisis successfully triggered. Jet bridges secured and emergency notifications sent.",
+            Message = "Meteorological crisis protocols engaged. Boarding bridges locked out and emergency notifications dispatched.",
             Timestamp = DateTime.UtcNow
         });
     }
 
-    /// <inheritdoc />
     public async Task<ApiResponse<CrisisOperationResultDto>> ResolveWindCrisisAsync(
         string cityCode,
         double windSpeedKmH,
@@ -171,18 +183,17 @@ public class WeatherCrisisService : IWeatherCrisisService
                 ThresholdKmH = currentStatus?.ThresholdKmH ?? 80.0,
                 AffectedJetBridgesCount = 0,
                 NotifiedUsersCount = 0,
-                Message = "No active weather crisis found.",
+                Message = "No active meteorological crisis found.",
                 Timestamp = DateTime.UtcNow
             });
         }
 
         _logger.LogInformation(
-            "✅ WEATHER CRISIS ENDING: {CityCode} | Wind speed decreased to {Speed:F1} km/h.",
+            "METEOROLOGICAL CRISIS RESOLVED: {CityCode} | Wind velocity stabilized at {Speed:F1} km/h.",
             cityCode, windSpeedKmH);
 
         var restoredCount = 0;
 
-        // 1. Optionally restore jet bridges back to Available status
         if (restoreJetBridges)
         {
             var bridges = await _context.JetBridges
@@ -199,7 +210,7 @@ public class WeatherCrisisService : IWeatherCrisisService
             if (restoredCount > 0)
             {
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Total of {Count} jet bridges restored to 'Available' status.", restoredCount);
+                _logger.LogInformation("{Count} passenger boarding bridges restored to Available status.", restoredCount);
 
                 var terminals = bridges.Select(b => b.TerminalNo).Distinct();
                 foreach (var terminal in terminals)
@@ -209,7 +220,6 @@ public class WeatherCrisisService : IWeatherCrisisService
             }
         }
 
-        // 2. Publish Normalcy Event to Message Queue
         await _messageBus.PublishAsync("crisis.weather.normal", new
         {
             EventType = "WindshearCrisisResolved",
@@ -217,22 +227,42 @@ public class WeatherCrisisService : IWeatherCrisisService
             WindSpeedKmH = Math.Round(windSpeedKmH, 1),
             Timestamp = DateTime.UtcNow,
             RestoredJetBridgesCount = restoredCount,
-            Message = "Wind speed dropped to safety limits, weather crisis resolved."
+            Message = "Wind velocity subsided below safety threshold. Normal aerodrome operations resumed."
         });
 
-        // 3. Send Normalcy Notifications to Authorized Users
         var recipients = await _context.Users
             .Where(u => u.Role == UserRole.OperationsManager || u.Role == UserRole.Admin)
             .ToListAsync();
 
-        var resolveMessage = $"✅ WEATHER CONDITIONS BACK TO NORMAL: {cityCode} wind speed decreased to {windSpeedKmH:F1} km/h. {(restoreJetBridges ? "Jet bridges are available for use." : "Jet bridge operations can be evaluated.")}";
+        var resolveMessage = $"METEOROLOGICAL CONDITIONS NORMALIZED: {cityCode} wind velocity stabilized at {windSpeedKmH:F1} km/h. {(restoreJetBridges ? "Passenger boarding bridges returned to service." : "Bridge status under ramp review.")}";
 
         foreach (var user in recipients)
         {
             await _notificationService.CreateAsync(user.Id, resolveMessage, NotificationType.General);
         }
 
-        // 4. Update Status in Cache
+        if (_realTimeNotifier != null)
+        {
+            await _realTimeNotifier.SendFlightAlertAsync(new FlightAlertEvent
+            {
+                FlightNumber = "AERODROME-CLEAR",
+                AlertType = "WeatherResolved",
+                Message = $"METEOROLOGICAL CLEARANCE: {cityCode} wind velocity stabilized at {windSpeedKmH:F1} km/h. Normal aerodrome operations resumed.",
+                Severity = "Success",
+                OccurredAt = DateTime.UtcNow
+            });
+
+            await _realTimeNotifier.SendRawEventAsync("ReceiveWeatherAlert", new
+            {
+                isCrisisActive = false,
+                cityCode = cityCode,
+                windSpeedKmH = Math.Round(windSpeedKmH, 1),
+                thresholdKmH = currentStatus.ThresholdKmH,
+                message = resolveMessage,
+                timestamp = DateTime.UtcNow
+            });
+        }
+
         var updatedStatus = new CrisisStatusDto
         {
             IsCrisisActive = false,
@@ -256,12 +286,11 @@ public class WeatherCrisisService : IWeatherCrisisService
             ThresholdKmH = currentStatus.ThresholdKmH,
             AffectedJetBridgesCount = restoredCount,
             NotifiedUsersCount = recipients.Count,
-            Message = "Weather crisis successfully resolved. System returned to normal.",
+            Message = "Meteorological crisis normalized. Normal operational state reinstated.",
             Timestamp = DateTime.UtcNow
         });
     }
 
-    /// <inheritdoc />
     public async Task<ApiResponse<CrisisStatusDto>> GetCrisisStatusAsync()
     {
         var status = await _cache.GetAsync<CrisisStatusDto>(CRISIS_CACHE_KEY);

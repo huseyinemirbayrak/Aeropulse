@@ -9,32 +9,50 @@ import { MRODashboard } from '../../../core/models';
   imports: [CommonModule],
   template: `
     <div class="dashboard" *ngIf="data; else loadingTpl">
-      <!-- Stats Grid -->
       <div class="grid grid-4 stagger">
         <div class="stat-card animate-fade-in">
-          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--color-danger);">📋</div>
+          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.12); color: var(--color-danger);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+          </div>
           <div class="stat-value">{{ data.myOpenTasks }}</div>
-          <div class="stat-label">My Open Tasks</div>
+          <div class="stat-label">Assigned Open Orders</div>
         </div>
         <div class="stat-card animate-fade-in">
-          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-success);">✅</div>
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.12); color: var(--color-success);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
           <div class="stat-value">{{ data.completedThisMonth }}</div>
-          <div class="stat-label">Completed This Month</div>
+          <div class="stat-label">Released This Month</div>
         </div>
         <div class="stat-card animate-fade-in">
-          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning);">⚡</div>
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--color-warning);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
           <div class="stat-value">{{ data.criticalPartsCount }}</div>
-          <div class="stat-label">Critical Parts in Fleet</div>
+          <div class="stat-label">Life-Limited (LLP) Alerts</div>
         </div>
         <div class="stat-card animate-fade-in">
-          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--color-info);">🔧</div>
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.12); color: var(--color-info);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+          </div>
           <div class="stat-value">{{ data.pendingMaintenanceCount }}</div>
-          <div class="stat-label">Pending Maintenance</div>
+          <div class="stat-label">Scheduled Inspections</div>
         </div>
       </div>
 
       <div class="grid grid-2 mt-3">
-        <!-- Upcoming Maintenance -->
         <div class="glass-card">
           <h3 class="section-title">Upcoming Maintenance</h3>
           <div class="list-container">
@@ -54,7 +72,6 @@ import { MRODashboard } from '../../../core/models';
           </div>
         </div>
 
-        <!-- Critical Parts -->
         <div class="glass-card">
           <h3 class="section-title">Critical Parts (Action Required)</h3>
           <div class="list-container">

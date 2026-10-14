@@ -1,8 +1,8 @@
 @echo off
-title AeroPulse Full-Stack Baslatici
+title AeroPulse Enterprise Platform Launcher
 cd /d "%~dp0"
 echo ============================================================
-echo      AEROPULSE FULL-STACK YONETIM SISTEMI
+echo      AEROPULSE ENTERPRISE AVIATION PLATFORM
 echo ============================================================
 echo   Backend API  : http://localhost:5253 (Swagger: /swagger)
 echo   Frontend Web : http://localhost:4200

@@ -18,7 +18,6 @@ public class FaultReport : BaseEntity, ITenantEntity
     public string Description { get; set; } = string.Empty;
     public string ResolutionNotes { get; set; } = string.Empty;
 
-    // Navigation properties
     public Aircraft Aircraft { get; set; } = null!;
     public User ReportedByTechnician { get; set; } = null!;
     public User? AssignedEngineer { get; set; }

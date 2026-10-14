@@ -12,11 +12,9 @@ public class Part : BaseEntity
     public string Manufacturer { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 
-    // Navigation properties
     public Aircraft Aircraft { get; set; } = null!;
     public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
 
-    // Domain logic
     public bool IsCritical => UsedHours >= CriticalThresholdHours;
     public double RemainingLifeHours => Math.Max(0, LifeSpanHours - UsedHours);
     public double UsagePercentage => LifeSpanHours > 0 ? (UsedHours / LifeSpanHours) * 100 : 0;

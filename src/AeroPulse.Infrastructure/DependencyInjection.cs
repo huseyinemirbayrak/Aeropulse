@@ -16,7 +16,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Database
         services.AddHttpContextAccessor();
         services.AddScoped<ITenantService, TenantService>();
 
@@ -27,7 +26,6 @@ public static class DependencyInjection
 
         services.AddScoped<IAeroPulseDbContext>(provider => provider.GetRequiredService<AeroPulseDbContext>());
 
-        // JWT Authentication
         var jwtKey = configuration["Jwt:Key"] ?? "AeroPulse-Super-Secret-Key-2026-MustBe32Chars!";
         services.AddAuthentication(options =>
         {
@@ -49,7 +47,6 @@ public static class DependencyInjection
             };
         });
 
-        // ===== CORE SERVICES (Mevcut) =====
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IAircraftService, AircraftService>();
@@ -57,37 +54,27 @@ public static class DependencyInjection
         services.AddScoped<IMaintenanceService, MaintenanceService>();
         services.AddScoped<IDashboardService, DashboardService>();
 
-        // ===== MODÜL 3: OPERATIONS & FAULT REPORTS =====
         services.AddScoped<IOperationService, OperationService>();
         services.AddScoped<IFaultReportService, FaultReportService>();
 
-        // ===== MODÜL 3B: JET BRIDGE =====
         services.AddScoped<IJetBridgeService, JetBridgeService>();
 
-        // ===== MODÜL 4: NOTIFICATIONS =====
         services.AddScoped<INotificationService, NotificationService>();
 
-        // ===== MESAJ KUYRUĞU & REAL-TIME EVENT BUS (In-Memory) =====
         services.AddScoped<IMessageBusService, InMemoryMessageBusService>();
 
-        // ===== CACHE (In-Memory) =====
         services.AddMemoryCache();
         services.AddScoped<ICacheService, InMemoryCacheService>();
 
-        // ===== HAVA DURUMU SERVİSİ (OpenWeatherMap) =====
-        // API anahtarı olmadan mock modda çalışır.
-        // Gerçek veri için appsettings.json: "Weather": { "ApiKey": "YOUR_KEY" }
         services.AddHttpClient<IWeatherService, OpenWeatherService>(client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
             client.DefaultRequestHeaders.Add("User-Agent", "AeroPulse/1.0");
         });
 
-        // ===== MODÜL 7: DIŞ VERİ & KRİZ YÖNETİMİ =====
         services.AddScoped<IWeatherCrisisService, WeatherCrisisService>();
         services.AddScoped<IFlightEventProcessorService, FlightEventProcessorService>();
 
-        // ===== ARKA PLAN İŞÇİLERİ (Background Services / Workers) =====
         services.AddHostedService<WeatherMonitorWorker>();
 
         return services;

@@ -19,7 +19,7 @@ public class TurnaroundTask : BaseEntity, ITenantEntity
     public DateTime? ActualStartTime { get; set; }
     public DateTime? ActualEndTime { get; set; }
 
-    public int ProgressPercentage { get; set; } = 0; // 0 - 100
+    public int ProgressPercentage { get; set; } = 0;
     public string? Notes { get; set; }
 
     public Guid? AssignedUserId { get; set; }

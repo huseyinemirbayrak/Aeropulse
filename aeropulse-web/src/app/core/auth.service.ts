@@ -80,7 +80,6 @@ export class AuthService {
     return !!this.currentUser && roles.includes(this.currentUser.role);
   }
 
-  // Admin endpoints
   getAllUsers(): Observable<ApiResponse<User[]>> {
     return this.http.get<ApiResponse<User[]>>(`${this.API}/users`);
   }

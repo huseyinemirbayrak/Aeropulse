@@ -3,10 +3,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace AeroPulse.Infrastructure.Services;
 
-/// <summary>
-/// .NET'in yerleşik IMemoryCache altyapısını kullanan In-Memory Önbellekleme (Cache) servisi.
-/// Sık sorgulanan verilerin (müsait körükler, kriz durumu vb.) RAM üzerinde hızlıca önbelleğe alınmasını sağlar.
-/// </summary>
 public class InMemoryCacheService : ICacheService
 {
     private readonly IMemoryCache _cache;
@@ -22,7 +18,7 @@ public class InMemoryCacheService : ICacheService
         if (expiry.HasValue)
             options.AbsoluteExpirationRelativeToNow = expiry;
         else
-            options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30); // Varsayılan 30 dk
+            options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
 
         _cache.Set(key, value, options);
         return Task.CompletedTask;

@@ -141,7 +141,6 @@ export interface UpdateUser {
   isActive?: boolean;
 }
 
-// ===== MODULE 3: Operations =====
 export enum OperationStatus {
   Scheduled = 'Scheduled',
   InProgress = 'InProgress',
@@ -216,7 +215,6 @@ export interface OperationChecklist {
   items: OperationChecklistItem[];
 }
 
-// ===== MODULE 3: Fault Reports =====
 export enum FaultStatus {
   Open = 'Open',
   UnderReview = 'UnderReview',
@@ -265,7 +263,6 @@ export interface UpdateFaultReport {
   assignedEngineerId?: string;
 }
 
-// ===== MODULE 3B: Jet Bridges =====
 export enum JetBridgeStatus {
   Available = 'Available',
   Reserved = 'Reserved',
@@ -340,7 +337,6 @@ export interface JetBridgeConflictResult {
   alternativeBridges: JetBridge[];
 }
 
-// ===== MODULE 4: Notifications =====
 export enum NotificationType {
   FaultAssigned = 'FaultAssigned',
   FaultStatusChanged = 'FaultStatusChanged',
@@ -366,7 +362,6 @@ export interface AppNotification {
   date: string;
 }
 
-// ===== MODULE 6: Metrics =====
 export interface Metrics {
   totalOpenFaults: number;
   totalSLABreaches: number;
@@ -378,7 +373,6 @@ export interface Metrics {
   generatedAt: string;
 }
 
-// SignalR canli bildirim modelleri
 export interface TurnaroundTaskUpdatedEvent {
   taskId: string;
   operationId: string;
@@ -448,4 +442,41 @@ export interface Tenant {
   description?: string;
   contactEmail?: string;
   isActive: boolean;
+}
+
+export interface WeatherData {
+  cityName: string;
+  cityCode: string;
+  temperature: number;
+  feelsLike: number;
+  humidity: number;
+  windSpeed: number;
+  windDirectionDegrees: number;
+  windGust?: number;
+  description: string;
+  icon: string;
+  measuredAt: string;
+}
+
+export interface CrisisStatus {
+  isCrisisActive: boolean;
+  activeCrisisType?: string;
+  cityCode: string;
+  currentWindSpeedKmH: number;
+  thresholdKmH: number;
+  startedAt?: string;
+  resolvedAt?: string;
+  disabledJetBridgesCount: number;
+  lastActionMessage?: string;
+  lastCheckedAt: string;
+}
+
+export interface WeatherAlertEvent {
+  isCrisisActive: boolean;
+  cityCode: string;
+  windSpeedKmH: number;
+  thresholdKmH: number;
+  affectedJetBridgesCount?: number;
+  message: string;
+  timestamp: string;
 }

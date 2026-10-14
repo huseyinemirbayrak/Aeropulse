@@ -13,111 +13,132 @@ import { SignalRService } from '../../../core/signalr.service';
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="dashboard animate-fade-in">
-      <!-- HEADER -->
       <div class="header-actions mb-4">
         <div>
           <div class="d-flex align-items-center gap-2">
-            <span class="fleet-badge">🚜 GSE</span>
-            <h1 class="section-title mb-0">Apron Yer Destek Ekipmanları Filosu</h1>
+            <span class="fleet-badge">GSE</span>
+            <h1 class="section-title mb-0">Ground Support Equipment (GSE) Fleet</h1>
           </div>
           <p class="text-muted mt-1 mb-0">
-            Otobüsler, yakıt tankerleri, bagaj çekicileri ve pushback araçlarının anlık apron takibi, yakıt ve bakım yönetimi
+            Real-time ramp telemetry for transit buses, hydrant dispensers, baggage tugs, and pushback tractors
           </p>
         </div>
         <div class="header-buttons">
-          <button class="btn btn-primary" (click)="loadGSE()">🔄 Yenile</button>
-          <a class="btn btn-outline" routerLink="/ops/dashboard">Uçuş Radarı</a>
-          <a class="btn btn-secondary" routerLink="/ops/ramp">Saha Görevleri</a>
+          <button class="btn btn-primary" (click)="loadGSE()">Refresh Fleet</button>
+          <a class="btn btn-outline" routerLink="/ops/dashboard">Radar View</a>
+          <a class="btn btn-secondary" routerLink="/ops/ramp">Ramp Dispatch</a>
         </div>
       </div>
 
-      <!-- KPI METRİK KARTLARI -->
       <div class="grid grid-4 mb-4">
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper blue">🚜</div>
+          <div class="stat-icon-wrapper blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ gseList.length }}</div>
-            <div class="stat-label">Toplam GSE Ekipmanı</div>
+            <div class="stat-label">Total Fleet Units</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper green">🟢</div>
+          <div class="stat-icon-wrapper green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ idleCount }}</div>
-            <div class="stat-label">Boşta / Göreve Hazır</div>
+            <div class="stat-label">Standby / Available</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper amber">🟡</div>
+          <div class="stat-icon-wrapper amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ busyCount }}</div>
-            <div class="stat-label">Görevde (Aktif Sefer)</div>
+            <div class="stat-label">Active on Ramp</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper red">🔴</div>
+          <div class="stat-icon-wrapper red">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ outOfServiceCount }}</div>
-            <div class="stat-label">Bakımda / Arızalı</div>
+            <div class="stat-label">Maintenance / OOS</div>
           </div>
         </div>
       </div>
 
-      <!-- FİLTRE VE ARAMA ÇUBUĞU -->
       <div class="glass-card mb-4 filter-bar">
         <div class="search-input-wrapper">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
-            placeholder="Araç Kodu (BUS-01, TANKER-01), Operatör veya Bölge ara..."
+            placeholder="Search GSE Code (BUS-01, TANKER-01), Operator, or Apron Zone..."
             class="search-input"
           />
         </div>
 
-        <!-- TİP FİLTRELERİ -->
         <div class="type-filters">
           <button class="filter-pill" [class.active]="selectedType === 'ALL'" (click)="selectedType = 'ALL'">
-            Tüm Tipler ({{ gseList.length }})
+            All Types ({{ gseList.length }})
           </button>
           <button class="filter-pill" [class.active]="selectedType === 'PassengerBus'" (click)="selectedType = 'PassengerBus'">
-            🚌 Otobüsler
+            Buses
           </button>
           <button class="filter-pill" [class.active]="selectedType === 'FuelTanker'" (click)="selectedType = 'FuelTanker'">
-            ⛽ Yakıt Tankerleri
+            Fuel Tankers
           </button>
           <button class="filter-pill" [class.active]="selectedType === 'BaggageTug'" (click)="selectedType = 'BaggageTug'">
-            🚜 Bagaj Çekicileri
+            Baggage Tugs
           </button>
           <button class="filter-pill" [class.active]="selectedType === 'PushbackTruck'" (click)="selectedType = 'PushbackTruck'">
-            🛫 Pushback Araçları
+            Pushback Tractors
           </button>
         </div>
 
-        <!-- STATÜ FİLTRELERİ -->
         <div class="status-filters">
           <button class="status-pill-btn" [class.active]="selectedStatus === 'ALL'" (click)="selectedStatus = 'ALL'">
-            Tüm Statüler
+            All Statuses
           </button>
           <button class="status-pill-btn idle" [class.active]="selectedStatus === 'Idle'" (click)="selectedStatus = 'Idle'">
-            🟢 Boşta ({{ idleCount }})
+            Standby ({{ idleCount }})
           </button>
           <button class="status-pill-btn busy" [class.active]="selectedStatus === 'Busy'" (click)="selectedStatus = 'Busy'">
-            🟡 Görevde ({{ busyCount }})
+            Active ({{ busyCount }})
           </button>
           <button class="status-pill-btn out" [class.active]="selectedStatus === 'OutOfService'" (click)="selectedStatus = 'OutOfService'">
-            🔴 Bakımda ({{ outOfServiceCount }})
+            Maintenance ({{ outOfServiceCount }})
           </button>
         </div>
       </div>
 
-      <!-- ARAÇ KARTLARI IZGARASI -->
       <div class="gse-grid">
         <div *ngFor="let vehicle of filteredGSE" class="glass-card vehicle-card" [ngClass]="getCardStatusClass(vehicle.status)">
-          <!-- KART ÜST BAŞLIK -->
           <div class="vehicle-card-top">
             <div class="d-flex align-items-center gap-2">
               <span class="vehicle-icon-box">{{ getVehicleTypeIcon(vehicle.type) }}</span>
@@ -127,49 +148,44 @@ import { SignalRService } from '../../../core/signalr.service';
               </div>
             </div>
 
-            <!-- STATÜ ROZETİ -->
             <span class="badge" [ngClass]="getStatusBadgeClass(vehicle.status)">
               {{ getStatusText(vehicle.status) }}
             </span>
           </div>
 
-          <!-- ARAÇ ADI VE AÇIKLAMA -->
           <p class="vehicle-name text-white mt-3 mb-2 font-weight-bold">
             {{ vehicle.name }}
           </p>
 
-          <!-- GÖREVDE VEYA BAKIMDA BİLGİSİ -->
           <div *ngIf="vehicle.status === 1" class="task-info-box busy-box mb-3">
-            <span class="box-label">AKTİF GÖREV:</span>
+            <span class="box-label">CURRENT ASSIGNMENT:</span>
             <div class="task-desc">
-              {{ vehicle.currentTaskDescription || 'Uçuş Dönüş Operasyonunda' }}
+              {{ vehicle.currentTaskDescription || 'Turnaround Ramp Operation' }}
             </div>
           </div>
 
           <div *ngIf="vehicle.status === 2" class="task-info-box out-of-service-box mb-3">
-            <span class="box-label">⚠️ ARIZA & BAKIM KAYDI:</span>
+            <span class="box-label">DEFECT / MAINTENANCE LOG:</span>
             <div class="task-desc text-danger font-weight-bold">
-              {{ vehicle.currentTaskDescription || 'Serviste / Bakım Hangarı (Yeni Göreve Kilitli)' }}
+              {{ vehicle.currentTaskDescription || 'Maintenance Hold / Locked from Dispatch' }}
             </div>
           </div>
 
-          <!-- DETAY METADATA PİLLERİ -->
           <div class="vehicle-meta-grid mb-3">
             <div class="meta-item">
-              <span class="meta-label">APRON BÖLGESİ</span>
-              <strong class="meta-val">📍 {{ vehicle.apronZone || 'Terminal 1 Ramp' }}</strong>
+              <span class="meta-label">APRON ZONE</span>
+              <strong class="meta-val">{{ vehicle.apronZone || 'Terminal 1 Ramp' }}</strong>
             </div>
             <div class="meta-item">
-              <span class="meta-label">SORUMLU OPERATÖR</span>
-              <strong class="meta-val">👤 {{ vehicle.operatorName || 'Atanmadı' }}</strong>
+              <span class="meta-label">DESIGNATED OPERATOR</span>
+              <strong class="meta-val">{{ vehicle.operatorName || 'Unassigned' }}</strong>
             </div>
           </div>
 
-          <!-- YAKIT / ŞARJ SEVİYESİ GÖSTERGESİ -->
           <div class="fuel-section mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
               <span class="fuel-label">
-                {{ vehicle.type === 4 ? '⚡ Akü / Şarj Seviyesi' : '⛽ Yakıt / Enerji Seviyesi' }}
+                {{ vehicle.type === 4 ? 'Battery / Charge Level' : 'Fuel / Energy Level' }}
               </span>
               <strong class="fuel-percentage" [ngClass]="getFuelColorClass(vehicle.fuelLevelPercentage)">
                 {{ vehicle.fuelLevelPercentage }}%
@@ -184,43 +200,40 @@ import { SignalRService } from '../../../core/signalr.service';
             </div>
           </div>
 
-          <!-- AKSİYON BUTONLARI -->
           <div class="vehicle-actions">
             <button class="btn btn-sm btn-outline flex-grow-1" (click)="openStatusModal(vehicle)">
-              ⚙️ Durumu Güncelle
+              Update Telemetry
             </button>
             <button 
               class="btn btn-sm btn-secondary" 
               (click)="refuelVehicle(vehicle)"
               [disabled]="vehicle.fuelLevelPercentage >= 100"
-              title="Yakıt / Şarj seviyesini %100 doldur"
+              title="Refuel unit to 100%"
             >
-              ⛽ İkmal (%100)
+              Refuel (100%)
             </button>
           </div>
         </div>
       </div>
 
       <div *ngIf="filteredGSE.length === 0" class="glass-card text-center py-5">
-        <p class="text-muted mb-0">Seçilen filtre ve arama kriterlerine uygun apron aracı bulunamadı.</p>
+        <p class="text-muted mb-0">No GSE equipment matched the specified filter criteria.</p>
       </div>
 
-      <!-- MODAL: ARAÇ STATÜSÜ GÜNCELLEME VE ARIZA BİLDİRİMİ -->
       <div class="modal-backdrop" *ngIf="showModal">
         <div class="modal-content glass-card animate-fade-in">
           <div class="modal-header">
-            <h3>⚙️ {{ selectedVehicle?.code }} — GSE Durum ve Konum Yönetimi</h3>
+            <h3>{{ selectedVehicle?.code }} — GSE Allocation & Telemetry</h3>
             <button class="close-btn" (click)="closeStatusModal()">✕</button>
           </div>
 
           <div class="modal-body" *ngIf="selectedVehicle">
             <p class="text-muted mb-3">
-              {{ selectedVehicle.name }} aracının sahadaki anlık durumunu, bulunduğu apron bölgesini ve yakıt seviyesini güncelleyin.
+              Configure operational state, apron stand position, and fuel status for {{ selectedVehicle.name }}.
             </p>
 
-            <!-- STATÜ SEÇİMİ -->
             <div class="form-group mb-3">
-              <label class="form-label">Araç Operasyonel Statüsü</label>
+              <label class="form-label">Operational Status</label>
               <div class="status-select-grid">
                 <button 
                   type="button"
@@ -228,7 +241,7 @@ import { SignalRService } from '../../../core/signalr.service';
                   [class.selected]="modalStatus === 0"
                   (click)="modalStatus = 0"
                 >
-                  🟢 Boşta (Idle)
+                  Standby (Idle)
                 </button>
                 <button 
                   type="button"
@@ -236,7 +249,7 @@ import { SignalRService } from '../../../core/signalr.service';
                   [class.selected]="modalStatus === 1"
                   (click)="modalStatus = 1"
                 >
-                  🟡 Görevde (Busy)
+                  Active (Busy)
                 </button>
                 <button 
                   type="button"
@@ -244,51 +257,47 @@ import { SignalRService } from '../../../core/signalr.service';
                   [class.selected]="modalStatus === 2"
                   (click)="modalStatus = 2"
                 >
-                  🔴 Bakımda / Arızalı
+                  Maintenance (OOS)
                 </button>
               </div>
             </div>
 
-            <!-- BAKIMDA / ARIZALI UYARISI -->
             <div class="form-group mb-3" *ngIf="modalStatus === 2">
               <div class="out-warning-alert mb-2">
-                ⚠️ <strong>Uyarı:</strong> Araç "Bakımda / Arızalı" statüsüne alındığında Turnaround ve Ramp iş emirlerine atanması sistem tarafından engellenir!
+                <strong>Safety Hold:</strong> Setting this unit to Out of Service prevents dispatch to turnaround tasks.
               </div>
-              <label class="form-label">Arıza / Bakım Açıklaması</label>
+              <label class="form-label">Maintenance / Defect Reason</label>
               <input 
                 type="text" 
                 class="form-control" 
                 [(ngModel)]="modalTaskDescription"
-                placeholder="Örn: Fren hidroliği sızıntısı / 2 saat bakım hangarı"
+                placeholder="e.g. Brake hydraulic leak / Hangar inspection"
               />
             </div>
 
-            <!-- GÖREVDE İSE GÖREV AÇIKLAMASI -->
             <div class="form-group mb-3" *ngIf="modalStatus === 1">
-              <label class="form-label">Aktif Görev / Sefer Açıklaması</label>
+              <label class="form-label">Active Task Assignment</label>
               <input 
                 type="text" 
                 class="form-control" 
                 [(ngModel)]="modalTaskDescription"
-                placeholder="Örn: TK1984 Yakıt İkmali (8.500 kg)"
+                placeholder="e.g. TK1984 Refueling (8,500 kg)"
               />
             </div>
 
-            <!-- APRON BÖLGESİ -->
             <div class="form-group mb-3">
-              <label class="form-label">Bulunduğu Apron Bölgesi</label>
+              <label class="form-label">Apron Zone / Stand Position</label>
               <input 
                 type="text" 
                 class="form-control" 
                 [(ngModel)]="modalApronZone"
-                placeholder="Örn: Gate A1, Stand-102, Bakım Hangarı, Tasnif Alanı"
+                placeholder="e.g. Gate A1, Stand-102, West Remote"
               />
             </div>
 
-            <!-- YAKIT SEVİYESİ -->
             <div class="form-group mb-4">
               <div class="d-flex justify-content-between align-items-center mb-1">
-                <label class="form-label mb-0">Yakıt / Şarj Seviyesi (%)</label>
+                <label class="form-label mb-0">Fuel / Charge Level (%)</label>
                 <strong>{{ modalFuelLevel }}%</strong>
               </div>
               <input 
@@ -299,14 +308,13 @@ import { SignalRService } from '../../../core/signalr.service';
                 class="range-slider w-100"
               />
             </div>
+          </div>
 
-            <!-- MODAL AKSİYONLARI -->
-            <div class="d-flex justify-content-end gap-2">
-              <button class="btn btn-secondary" (click)="closeStatusModal()">İptal</button>
-              <button class="btn btn-primary" (click)="saveStatusChanges()" [disabled]="modalSaving">
-                {{ modalSaving ? 'Kaydediliyor...' : '✓ Değişiklikleri Kaydet' }}
-              </button>
-            </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeStatusModal()">Cancel</button>
+            <button class="btn btn-primary" (click)="saveStatusChanges()" [disabled]="modalSaving">
+              {{ modalSaving ? 'Saving...' : 'Save Configuration' }}
+            </button>
           </div>
         </div>
       </div>
@@ -314,9 +322,40 @@ import { SignalRService } from '../../../core/signalr.service';
   `,
   styles: [`
     .dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    .d-flex { display: flex; }
+    .align-items-center { align-items: center; }
+    .justify-content-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .mb-0 { margin-bottom: 0; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .w-100 { width: 100%; }
+    .flex-grow-1 { flex-grow: 1; }
+
+    .fleet-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      color: #0284c7;
+      font-weight: 700;
+      font-size: 0.8125rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .header-actions {
@@ -327,33 +366,16 @@ import { SignalRService } from '../../../core/signalr.service';
       gap: 1rem;
     }
 
-    .section-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .fleet-badge {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.15);
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
     .header-buttons {
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
     }
 
-    /* GRID */
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
     .stat-card {
@@ -361,46 +383,47 @@ import { SignalRService } from '../../../core/signalr.service';
       align-items: center;
       gap: 1rem;
       padding: 1.25rem;
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
     }
 
     .stat-icon-wrapper {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
-    .stat-icon-wrapper.blue { background: rgba(0, 212, 255, 0.15); border: 1px solid rgba(0, 212, 255, 0.3); }
-    .stat-icon-wrapper.green { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .stat-icon-wrapper.amber { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .stat-icon-wrapper.red { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .stat-icon-wrapper.blue { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .stat-icon-wrapper.green { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .stat-icon-wrapper.amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .stat-icon-wrapper.red { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
     .stat-num {
       font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
     }
 
     .stat-label {
-      font-size: 0.8rem;
-      color: #94a3b8;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
     }
 
-    /* FILTER BAR */
     .filter-bar {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
       padding: 1.25rem;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
     }
 
     .search-input-wrapper {
@@ -413,24 +436,20 @@ import { SignalRService } from '../../../core/signalr.service';
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.9rem;
-      color: #64748b;
+      font-size: 0.85rem;
+      color: #94a3b8;
     }
 
     .search-input {
       width: 100%;
-      padding: 0.65rem 0.8rem 0.65rem 2.4rem;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: #fff;
+      padding: 0.55rem 0.8rem 0.55rem 2.2rem;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      color: #0f172a;
       font-size: 0.875rem;
       outline: none;
-    }
-    .search-input:focus {
-      border-color: #00d4ff;
-      background: rgba(30, 41, 59, 0.9);
-      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+      box-sizing: border-box;
     }
 
     .type-filters, .status-filters {
@@ -439,123 +458,88 @@ import { SignalRService } from '../../../core/signalr.service';
       flex-wrap: wrap;
     }
 
-    .filter-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .filter-pill:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-    .filter-pill.active {
-      background: rgba(0, 212, 255, 0.2);
-      border-color: #00d4ff;
-      color: #00d4ff;
-      font-weight: 700;
-    }
-
-    .status-pill-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
+    .filter-pill, .status-pill-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
       padding: 0.35rem 0.75rem;
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .status-pill-btn.active { background: rgba(255, 255, 255, 0.15); color: #fff; }
-    .status-pill-btn.idle.active { background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399; }
-    .status-pill-btn.busy.active { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #fbbf24; }
-    .status-pill-btn.out.active { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; }
 
-    /* VEHICLE CARDS GRID */
+    .filter-pill.active, .status-pill-btn.active {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+    }
+
     .gse-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
     }
 
     .vehicle-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
       padding: 1.25rem;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.2s ease;
     }
-    .vehicle-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(0, 212, 255, 0.3);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .vehicle-card.busy-card {
-      border-left: 4px solid #f59e0b;
-    }
-    .vehicle-card.out-card {
-      border-left: 4px solid #ef4444;
-      background: rgba(239, 68, 68, 0.03);
-    }
-    .vehicle-card.idle-card {
-      border-left: 4px solid #10b981;
-    }
+
+    .vehicle-card.idle-card { border-top: 3px solid #16a34a; }
+    .vehicle-card.busy-card { border-top: 3px solid #f59e0b; }
+    .vehicle-card.out-card { border-top: 3px solid #dc2626; }
 
     .vehicle-card-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
     }
 
     .vehicle-icon-box {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 3px 6px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      font-family: var(--font-mono, monospace);
     }
 
     .vehicle-code {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .vehicle-type-text {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
+      color: #64748b;
+      font-weight: 600;
     }
 
     .vehicle-name {
-      font-size: 0.95rem;
+      color: #0f172a !important;
+      font-size: 0.875rem;
     }
 
     .task-info-box {
-      padding: 0.6rem 0.8rem;
+      padding: 0.5rem 0.75rem;
       border-radius: 6px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
-    .busy-box {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.25);
-    }
-    .out-of-service-box {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-    }
+    .busy-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .out-of-service-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+
     .box-label {
-      font-size: 0.7rem;
+      font-size: 0.625rem;
       font-weight: 700;
-      color: #94a3b8;
       display: block;
       margin-bottom: 2px;
     }
@@ -564,184 +548,171 @@ import { SignalRService } from '../../../core/signalr.service';
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.5rem;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 0.6rem;
+      background: #f8fafc;
+      padding: 0.5rem;
       border-radius: 6px;
-    }
-
-    .meta-item {
-      display: flex;
-      flex-direction: column;
     }
 
     .meta-label {
-      font-size: 0.65rem;
-      color: #94a3b8;
-      font-weight: 700;
+      font-size: 0.625rem;
+      color: #64748b;
+      display: block;
+      font-weight: 600;
     }
 
     .meta-val {
-      font-size: 0.8rem;
-      color: #e2e8f0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* FUEL SECTION */
-    .fuel-section {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 0.6rem;
-      border-radius: 6px;
+      font-size: 0.75rem;
+      color: #0f172a;
     }
 
     .fuel-label {
-      font-size: 0.75rem;
-      color: #94a3b8;
+      font-size: 0.6875rem;
+      color: #64748b;
+      font-weight: 600;
     }
 
     .fuel-percentage {
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-size: 0.75rem;
     }
-    .fuel-percentage.high { color: #34d399; }
-    .fuel-percentage.medium { color: #fbbf24; }
-    .fuel-percentage.low { color: #f87171; }
+    .fuel-percentage.high { color: #16a34a; }
+    .fuel-percentage.medium { color: #d97706; }
+    .fuel-percentage.low { color: #dc2626; }
 
     .fuel-track {
-      width: 100%;
       height: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
+      background: #e2e8f0;
+      border-radius: 3px;
       overflow: hidden;
-      margin-top: 4px;
     }
 
     .fuel-fill {
       height: 100%;
-      border-radius: 999px;
-      transition: width 0.3s ease;
+      border-radius: 3px;
     }
-    .fuel-fill.high { background: #10b981; }
+    .fuel-fill.high { background: #16a34a; }
     .fuel-fill.medium { background: #f59e0b; }
-    .fuel-fill.low { background: #ef4444; }
+    .fuel-fill.low { background: #dc2626; }
 
     .vehicle-actions {
       display: flex;
       gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-
-    /* MODAL */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
-
-    .modal-content {
-      width: 100%;
-      max-width: 520px;
-      background: #0f172a;
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 1.25rem;
-      cursor: pointer;
+      margin-top: auto;
     }
 
     .status-select-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
-      margin-top: 0.4rem;
     }
 
     .status-opt-btn {
-      padding: 0.6rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      color: #94a3b8;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
     .status-opt-btn.selected {
-      background: rgba(0, 212, 255, 0.2);
-      border-color: #00d4ff;
-      color: #fff;
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
     }
     .status-opt-btn.danger-opt.selected {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: #ef4444;
-      color: #f87171;
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #ffffff;
     }
 
     .out-warning-alert {
       padding: 0.6rem 0.8rem;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: #fef2f2;
+      border: 1px solid #fecaca;
       border-radius: 6px;
-      color: #f87171;
-      font-size: 0.8rem;
+      color: #991b1b;
+      font-size: 0.75rem;
     }
 
     .form-control {
       width: 100%;
-      padding: 0.6rem 0.8rem;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 0.75rem;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      color: #fff;
       font-size: 0.875rem;
-      outline: none;
-    }
-    .form-control:focus {
-      border-color: #00d4ff;
+      box-sizing: border-box;
     }
 
-    .range-slider {
-      cursor: pointer;
-      margin-top: 0.5rem;
-    }
-
-    /* BADGES */
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
+    .form-label {
+      display: block;
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 4px;
     }
-    .badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .badge.warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge.danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 480px;
+      padding: 1.5rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      color: #0f172a;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .badge.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .badge.warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge.danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge.secondary { background: #f1f5f9; color: #475569; }
   `]
 })
 export class GseFleetComponent implements OnInit, OnDestroy {
@@ -750,7 +721,6 @@ export class GseFleetComponent implements OnInit, OnDestroy {
   selectedType = 'ALL';
   selectedStatus = 'ALL';
 
-  // Modal State
   showModal = false;
   selectedVehicle: any = null;
   modalStatus: number = 0;
@@ -771,7 +741,6 @@ export class GseFleetComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadGSE();
 
-    // Canli arac durumu guncellemesi
     this.subs.push(
       this.signalr.gse$.subscribe((ev) => {
         const v = this.gseList.find(x => x.id === ev.gseId || x.code === ev.code);
@@ -804,7 +773,7 @@ export class GseFleetComponent implements OnInit, OnDestroy {
           this.gseList = res.data;
         }
       },
-      error: (err) => console.error('GSE listesi yüklenemedi:', err)
+      error: (err) => console.error('Failed to load GSE fleet:', err)
     });
   }
 
@@ -862,36 +831,36 @@ export class GseFleetComponent implements OnInit, OnDestroy {
   getVehicleTypeIcon(type: any): string {
     const t = this.normalizeType(type);
     switch (t) {
-      case 'PassengerBus': return '🚌';
-      case 'FuelTanker': return '⛽';
-      case 'BaggageTug': return '🚜';
-      case 'PassengerStairs': return '🪜';
-      case 'PushbackTruck': return '🛫';
-      case 'GPU': return '⚡';
-      default: return '🚜';
+      case 'PassengerBus': return 'BUS';
+      case 'FuelTanker': return 'FUEL';
+      case 'BaggageTug': return 'TUG';
+      case 'PassengerStairs': return 'STRS';
+      case 'PushbackTruck': return 'PUSH';
+      case 'GPU': return 'GPU';
+      default: return 'GSE';
     }
   }
 
   getVehicleTypeName(type: any): string {
     const t = this.normalizeType(type);
     switch (t) {
-      case 'PassengerBus': return 'Yolcu Otobüsü';
-      case 'FuelTanker': return 'Jet A-1 Yakıt Tankeri';
-      case 'BaggageTug': return 'Bagaj Traktörü / Çekici';
-      case 'PassengerStairs': return 'Yolcu Merdiveni';
-      case 'PushbackTruck': return 'Pushback Çekici';
-      case 'GPU': return 'Yer Güç Ünitesi (GPU)';
-      default: return 'Destek Ekipmanı';
+      case 'PassengerBus': return 'Passenger Transit Bus';
+      case 'FuelTanker': return 'Hydrant / Fuel Tanker';
+      case 'BaggageTug': return 'Baggage Tractor';
+      case 'PassengerStairs': return 'Mobile Boarding Stairs';
+      case 'PushbackTruck': return 'Pushback Tractor';
+      case 'GPU': return 'Ground Power Unit (GPU)';
+      default: return 'Support Equipment';
     }
   }
 
   getStatusText(status: any): string {
     const s = this.normalizeStatus(status);
     switch (s) {
-      case 'Idle': return 'Boşta (Hazır)';
-      case 'Busy': return 'Görevde (Aktif)';
-      case 'OutOfService': return 'Bakımda / Servis Dışı';
-      default: return 'Bilinmiyor';
+      case 'Idle': return 'Standby (Ready)';
+      case 'Busy': return 'Active on Ramp';
+      case 'OutOfService': return 'Maintenance Hold';
+      default: return 'Unknown';
     }
   }
 
@@ -952,15 +921,15 @@ export class GseFleetComponent implements OnInit, OnDestroy {
           this.selectedVehicle.apronZone = this.modalApronZone;
           this.selectedVehicle.fuelLevelPercentage = this.modalFuelLevel;
           this.selectedVehicle.currentTaskDescription = this.modalTaskDescription;
-          this.notification.success(`✅ ${this.selectedVehicle.code} durumu başarıyla güncellendi.`);
+          this.notification.success(`Unit ${this.selectedVehicle.code} telemetry updated.`);
           this.closeStatusModal();
         } else {
-          this.notification.error(res.message || 'Güncellenemedi.');
+          this.notification.error(res.message || 'Update failed.');
         }
       },
       error: () => {
         this.modalSaving = false;
-        this.notification.error('Sunucu hatası.');
+        this.notification.error('Server communication error.');
       }
     });
   }
@@ -970,10 +939,10 @@ export class GseFleetComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (res.success) {
           vehicle.fuelLevelPercentage = 100;
-          this.notification.success(`⛽ ${vehicle.code} yakıt/şarj seviyesi %100 yapıldı!`);
+          this.notification.success(`${vehicle.code} refueled / charged to 100%.`);
         }
       },
-      error: () => this.notification.error('İkmal işlemi başarısız oldu.')
+      error: () => this.notification.error('Refueling dispatch failed.')
     });
   }
 }

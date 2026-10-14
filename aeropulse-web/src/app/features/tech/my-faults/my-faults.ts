@@ -21,17 +21,17 @@ import { RouterModule } from '@angular/router';
         <table class="table w-100">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Tail No</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Date</th>
+              <th>Report ID</th>
+              <th>Aircraft Tail</th>
+              <th>Priority Level</th>
+              <th>Resolution Status</th>
+              <th>Logged Date</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let f of faults">
-              <td>{{ f.id.substring(0,8) }}</td>
-              <td><strong>{{ f.aircraftTailNumber }}</strong></td>
+              <td><span class="mono-id">{{ f.id.substring(0,8).toUpperCase() }}</span></td>
+              <td><span class="tail-pill">{{ f.aircraftTailNumber }}</span></td>
               <td>
                 <span class="badge" 
                   [class.badge-danger]="f.priority === 'Critical'"
@@ -40,11 +40,15 @@ import { RouterModule } from '@angular/router';
                   {{ f.priority }}
                 </span>
               </td>
-              <td>{{ f.status }}</td>
-              <td>{{ f.openDate | date:'medium' }}</td>
+              <td>
+                <span class="status-indicator" [class.resolved]="f.status === 'Resolved' || f.status === 'Closed'">
+                  {{ f.status }}
+                </span>
+              </td>
+              <td class="text-secondary">{{ f.openDate | date:'medium' }}</td>
             </tr>
             <tr *ngIf="faults.length === 0">
-              <td colspan="5" class="text-center">You haven't reported any faults yet.</td>
+              <td colspan="5" class="text-center py-4 text-muted">No maintenance discrepancies logged by your account.</td>
             </tr>
           </tbody>
         </table>
@@ -54,6 +58,11 @@ import { RouterModule } from '@angular/router';
   styles: [`
     .header-actions { display: flex; justify-content: space-between; align-items: center; }
     .ml-2 { margin-left: 0.5rem; }
+    .mono-id { font-family: var(--font-mono, monospace); font-weight: 700; color: #64748b; font-size: 0.8125rem; }
+    .tail-pill { font-weight: 700; color: #0284c7; }
+    .status-indicator { font-weight: 600; color: #f59e0b; }
+    .status-indicator.resolved { color: #16a34a; }
+    .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
   `]
 })
 export class MyFaultsComponent implements OnInit {

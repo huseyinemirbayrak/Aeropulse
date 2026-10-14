@@ -5,7 +5,6 @@ const rootDir = __dirname;
 const webDir = path.join(rootDir, 'aeropulse-web');
 const isWin = process.platform === 'win32';
 
-// Önceki oturumlardan kalan kilitli port veya süreçleri temizle
 function freePort(port) {
   try {
     if (isWin) {
@@ -34,11 +33,11 @@ freePort(5253);
 freePort(4200);
 
 console.log('\x1b[32m============================================================\x1b[0m');
-console.log('\x1b[1m\x1b[36m   ✈️   AEROPULSE FULL-STACK BAŞLATILIYOR...\x1b[0m');
+console.log('\x1b[1m\x1b[36m   AEROPULSE ENTERPRISE PLATFORM INITIALIZING...\x1b[0m');
 console.log('\x1b[32m============================================================\x1b[0m');
-console.log('📡 \x1b[33mBackend API :\x1b[0m  http://localhost:5253  (Swagger: /swagger)');
-console.log('💻 \x1b[33mFrontend UI :\x1b[0m  http://localhost:4200');
-console.log('⚡ \x1b[90mDurdurmak için: CTRL + C\x1b[0m');
+console.log('Backend API : http://localhost:5253  (Swagger: /swagger)');
+console.log('Frontend UI : http://localhost:4200');
+console.log('To terminate: CTRL + C');
 console.log('\x1b[32m============================================================\x1b[0m\n');
 
 function pipeOutput(child, prefix, colorCode) {
@@ -54,8 +53,7 @@ function pipeOutput(child, prefix, colorCode) {
   child.stderr.on('data', format);
 }
 
-// 1. Start Backend (.NET Web API)
-console.log('\x1b[36m[Sistem]\x1b[0m Backend (.NET API) başlatılıyor...');
+console.log('\x1b[36m[System]\x1b[0m Starting Backend API (.NET Web API)...');
 const backendProcess = spawn('dotnet', ['run', '--project', 'src/AeroPulse.API'], {
   cwd: rootDir,
   shell: true,
@@ -63,8 +61,7 @@ const backendProcess = spawn('dotnet', ['run', '--project', 'src/AeroPulse.API']
 });
 pipeOutput(backendProcess, '[Backend 5253]', '\x1b[36m');
 
-// 2. Start Frontend (Angular Web)
-console.log('\x1b[35m[Sistem]\x1b[0m Frontend (Angular) başlatılıyor...');
+console.log('\x1b[35m[System]\x1b[0m Starting Frontend UI (Angular)...');
 const npmCmd = isWin ? 'npm.cmd' : 'npm';
 const frontendProcess = spawn(npmCmd, ['run', 'dev:web'], {
   cwd: webDir,
@@ -81,16 +78,14 @@ function killProcess(child) {
     } else {
       child.kill('SIGTERM');
     }
-  } catch (e) {
-    // ignore
-  }
+  } catch {}
 }
 
 let isCleaningUp = false;
 function cleanup() {
   if (isCleaningUp) return;
   isCleaningUp = true;
-  console.log('\n\x1b[33m[Sistem] Kapatılıyor, lütfen bekleyin...\x1b[0m');
+  console.log('\n\x1b[33m[System] Shutting down services...\x1b[0m');
   killProcess(backendProcess);
   killProcess(frontendProcess);
   setTimeout(() => {

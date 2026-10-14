@@ -36,7 +36,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // ===== USER =====
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -47,7 +46,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.Property(e => e.Role).HasConversion<int>();
         });
 
-        // ===== AIRCRAFT =====
         modelBuilder.Entity<Aircraft>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -58,7 +56,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.Property(e => e.StatusCode).HasConversion<int>();
         });
 
-        // ===== PART =====
         modelBuilder.Entity<Part>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -73,7 +70,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ===== MAINTENANCE RECORD =====
         modelBuilder.Entity<MaintenanceRecord>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -95,7 +91,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ===== FAULT REPORT =====
         modelBuilder.Entity<FaultReport>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -118,7 +113,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ===== OPERATION =====
         modelBuilder.Entity<Operation>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -137,7 +131,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ===== SLA RULE =====
         modelBuilder.Entity<SLARule>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -145,7 +138,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.HasIndex(e => e.Priority).IsUnique();
         });
 
-        // ===== NOTIFICATION =====
         modelBuilder.Entity<Notification>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -161,7 +153,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ===== JET BRIDGE =====
         modelBuilder.Entity<JetBridge>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -171,7 +162,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.HasIndex(e => new { e.TerminalNo, e.BridgeNo }).IsUnique();
         });
 
-        // ===== JET BRIDGE ASSIGNMENT =====
         modelBuilder.Entity<JetBridgeAssignment>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -191,7 +181,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ===== RUNWAY =====
         modelBuilder.Entity<Runway>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -202,7 +191,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.Property(e => e.CurrentFlightNumber).HasMaxLength(20);
         });
 
-        // ===== GATE =====
         modelBuilder.Entity<Gate>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -217,7 +205,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ===== GROUND SUPPORT EQUIPMENT (GSE) =====
         modelBuilder.Entity<GroundSupportEquipment>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -231,7 +218,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.Property(e => e.CurrentTaskDescription).HasMaxLength(200);
         });
 
-        // ===== TURNAROUND TASK =====
         modelBuilder.Entity<TurnaroundTask>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -252,7 +238,6 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // ===== PASSENGER MANIFEST =====
         modelBuilder.Entity<PassengerManifest>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -267,15 +252,13 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Seed SLA Rules
         modelBuilder.Entity<SLARule>().HasData(
-            new SLARule { Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"), Priority = Domain.Enums.Priority.Low, MaxResolutionTimeMinutes = 2880 },          // 48 hours
-            new SLARule { Id = Guid.Parse("a2222222-2222-2222-2222-222222222222"), Priority = Domain.Enums.Priority.Medium, MaxResolutionTimeMinutes = 1440 },        // 24 hours
-            new SLARule { Id = Guid.Parse("a3333333-3333-3333-3333-333333333333"), Priority = Domain.Enums.Priority.High, MaxResolutionTimeMinutes = 480 },            // 8 hours
-            new SLARule { Id = Guid.Parse("a4444444-4444-4444-4444-444444444444"), Priority = Domain.Enums.Priority.Critical, MaxResolutionTimeMinutes = 120 }         // 2 hours
+            new SLARule { Id = Guid.Parse("a1111111-1111-1111-1111-111111111111"), Priority = Domain.Enums.Priority.Low, MaxResolutionTimeMinutes = 2880 },
+            new SLARule { Id = Guid.Parse("a2222222-2222-2222-2222-222222222222"), Priority = Domain.Enums.Priority.Medium, MaxResolutionTimeMinutes = 1440 },
+            new SLARule { Id = Guid.Parse("a3333333-3333-3333-3333-333333333333"), Priority = Domain.Enums.Priority.High, MaxResolutionTimeMinutes = 480 },
+            new SLARule { Id = Guid.Parse("a4444444-4444-4444-4444-444444444444"), Priority = Domain.Enums.Priority.Critical, MaxResolutionTimeMinutes = 120 }
         );
 
-        // ===== TENANT =====
         modelBuilder.Entity<Tenant>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -285,10 +268,7 @@ public class AeroPulseDbContext : DbContext, IAeroPulseDbContext
             entity.Property(e => e.Type).HasConversion<int>();
             entity.Property(e => e.PrimaryColor).HasMaxLength(30);
         });
-
-        // ===== MULTI-TENANCY GLOBAL QUERY FILTERS =====
-        // SuperAdmin (veya kiracı seçilmemişse) tüm kiracıları cross-tenant izleyebilir;
-        // Belirli bir kiracı (THY, Pegasus, TGS vb.) seçildiğinde sadece o kiracının verileri gelir.
+        
         modelBuilder.Entity<Operation>()
             .HasQueryFilter(e => _tenantService == null || _tenantService.IsSuperAdmin || e.TenantId == null || e.TenantId == _tenantService.CurrentTenantId);
 

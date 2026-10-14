@@ -6,12 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AeroPulse.Infrastructure.BackgroundServices;
 
-/// <summary>
-/// Havalimanı rüzgâr hızını ve hava durumunu periyodik olarak izleyen arka plan işçisi (Background Worker).
-/// Her döngüde IWeatherService üzerinden hava durumu bilgisini çeker.
-/// Rüzgâr hızı belirlenen emniyet limitini (örn: 80 km/s - Windshear) aştığında
-/// IWeatherCrisisService üzerinden kriz senaryosunu tetikler.
-/// </summary>
 public class WeatherMonitorWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
@@ -30,9 +24,8 @@ public class WeatherMonitorWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("🚀 WeatherMonitorWorker başlatıldı. Hava durumu izleme devrede.");
+        _logger.LogInformation("WeatherMonitorWorker started. Meteorological surveillance active.");
 
-        // Yapılandırma ayarlarını oku (varsayılan: 5 dakika)
         var intervalMinutes = _configuration.GetValue<int>("Weather:CheckIntervalMinutes", 5);
         var intervalSeconds = _configuration.GetValue<int>("Weather:CheckIntervalSeconds", 0);
         var checkInterval = intervalSeconds > 0
@@ -43,17 +36,16 @@ public class WeatherMonitorWorker : BackgroundService
         var thresholdKmH = _configuration.GetValue<double>("Weather:WindSpeedThresholdKmH", 80.0);
 
         _logger.LogInformation(
-            "WeatherMonitorWorker Ayarları -> Lokasyon: {CityCode}, Periyot: {Interval}, Rüzgâr Eşiği: {Threshold} km/s",
+            "WeatherMonitorWorker configuration -> Hub: {CityCode}, Interval: {Interval}, Windshear Threshold: {Threshold} km/h",
             cityCode, checkInterval, thresholdKmH);
 
-        // Başlangıçta uygulamanın tamamen ayağa kalkması için kısa bir bekleme
         try
         {
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("🛑 WeatherMonitorWorker durduruluyor; başlangıç beklemesi iptal edildi.");
+            _logger.LogInformation("WeatherMonitorWorker stopping; initialization aborted.");
             return;
         }
 
@@ -69,7 +61,7 @@ public class WeatherMonitorWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "WeatherMonitorWorker döngüsünde beklenmeyen bir hata meydana geldi.");
+                _logger.LogError(ex, "Unexpected error in WeatherMonitorWorker execution cycle.");
             }
 
             try
@@ -82,58 +74,54 @@ public class WeatherMonitorWorker : BackgroundService
             }
         }
 
-        _logger.LogInformation("🛑 WeatherMonitorWorker durduruldu.");
+        _logger.LogInformation("WeatherMonitorWorker stopped.");
     }
 
     private async Task MonitorWeatherAsync(string cityCode, double thresholdKmH, CancellationToken cancellationToken)
     {
-        // BackgroundService Singleton olduğundan Scoped servisleri IServiceScopeFactory ile çözüyoruz
         using var scope = _scopeFactory.CreateScope();
         var weatherService = scope.ServiceProvider.GetRequiredService<IWeatherService>();
         var crisisService = scope.ServiceProvider.GetRequiredService<IWeatherCrisisService>();
 
-        _logger.LogInformation("🔍 Hava durumu kontrol ediliyor: {CityCode}", cityCode);
+        _logger.LogInformation("Sampling meteorological conditions for {CityCode}", cityCode);
 
         var weather = await weatherService.GetCurrentWeatherAsync(cityCode);
         if (weather == null)
         {
-            _logger.LogWarning("Hava durumu servisi veri döndürmedi: {CityCode}", cityCode);
+            _logger.LogWarning("Meteorological service returned null payload for {CityCode}", cityCode);
             return;
         }
 
-        // OpenWeather m/s biriminde döner; km/s çevrimi: m/s * 3.6
         var windSpeedKmH = weather.WindSpeed * 3.6;
         var windGustKmH = (weather.WindGust ?? 0) * 3.6;
         var effectiveWindSpeed = Math.Max(windSpeedKmH, windGustKmH);
 
         _logger.LogInformation(
-            "🌬️ {City} ({CityCode}) -> Rüzgâr: {Speed:F1} km/s (Esinti: {Gust:F1} km/s) | Sıcaklık: {Temp}°C | Durum: {Desc}",
+            "{City} ({CityCode}) -> Wind: {Speed:F1} km/h (Gusts: {Gust:F1} km/h) | Temp: {Temp}C | Condition: {Desc}",
             weather.CityName, weather.CityCode, windSpeedKmH, windGustKmH, weather.Temperature, weather.Description);
 
-        // Eşik kontrolü ve Kriz Yönetim Servisi çağrısı
         if (effectiveWindSpeed >= thresholdKmH)
         {
             var result = await crisisService.TriggerWindCrisisAsync(
                 cityCode,
                 effectiveWindSpeed,
                 thresholdKmH,
-                $"Otomatik Hava Durumu İzleyici uyarısı: {weather.Description}, Esinti: {windGustKmH:F1} km/s");
+                $"Automated Meteorological Alert: {weather.Description}, Gusts: {windGustKmH:F1} km/h");
 
             if (result.Success && result.Data?.NotifiedUsersCount > 0)
             {
-                _logger.LogCritical("🚨 Kriz servisi başarıyla tetiklendi: {Message}", result.Data.Message);
+                _logger.LogCritical("Crisis workflow successfully triggered: {Message}", result.Data.Message);
             }
         }
         else
         {
-            // Rüzgâr güvenli seviyedeyse ve daha önce kriz açılmışsa servise normale dön çağrısı yap
             var statusResult = await crisisService.GetCrisisStatusAsync();
             if (statusResult.Data?.IsCrisisActive == true)
             {
                 var resolveResult = await crisisService.ResolveWindCrisisAsync(cityCode, effectiveWindSpeed);
                 if (resolveResult.Success)
                 {
-                    _logger.LogInformation("✅ Kriz çözümü tamamlandı: {Message}", resolveResult.Data?.Message);
+                    _logger.LogInformation("Crisis condition resolved: {Message}", resolveResult.Data?.Message);
                 }
             }
         }

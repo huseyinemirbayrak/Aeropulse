@@ -11,7 +11,6 @@ public class Notification : BaseEntity
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public NotificationType NotificationType { get; set; }
 
-    // Navigation properties
     public FaultReport? FaultReport { get; set; }
     public User RecipientUser { get; set; } = null!;
 }

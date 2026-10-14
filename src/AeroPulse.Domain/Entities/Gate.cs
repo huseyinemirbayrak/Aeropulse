@@ -4,7 +4,7 @@ namespace AeroPulse.Domain.Entities;
 
 public class Gate : BaseEntity
 {
-    public string GateNumber { get; set; } = string.Empty; // e.g., "A1", "A2", "B4", "Stand-101"
+    public string GateNumber { get; set; } = string.Empty;
     public string TerminalCode { get; set; } = "T1";
     public bool HasJetBridge { get; set; } = true;
     public GateStatus Status { get; set; } = GateStatus.Available;

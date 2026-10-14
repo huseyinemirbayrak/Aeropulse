@@ -21,7 +21,12 @@ import { Router, RouterModule } from '@angular/router';
 
       <div class="glass-card mt-3" style="max-width: 650px;">
         <div *ngIf="errorMessage" class="error-banner mb-3">
-          ⚠️ {{ errorMessage }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ errorMessage }}
         </div>
 
         <form (ngSubmit)="submitFault()">
@@ -111,7 +116,7 @@ export class FaultFormComponent implements OnInit {
       next: (res) => {
         this.submitting = false;
         if (res.success) {
-          this.notification.success('✅ Fault reported successfully!');
+          this.notification.success('Discrepancy report filed and routed to MRO control.');
           this.router.navigate(['/tech/my-faults']);
         } else {
           this.errorMessage = res.message || 'Failed to submit report.';

@@ -14,7 +14,6 @@ public class JetBridgeAssignment : BaseEntity
     public int PassengerCount { get; set; }
     public JetBridgeAssignmentStatus Status { get; set; } = JetBridgeAssignmentStatus.Planned;
 
-    // Navigation properties
     public JetBridge JetBridge { get; set; } = null!;
     public Aircraft Aircraft { get; set; } = null!;
     public Operation Operation { get; set; } = null!;

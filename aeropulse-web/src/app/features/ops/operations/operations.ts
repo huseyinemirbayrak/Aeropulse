@@ -10,121 +10,142 @@ import { ApiService } from '../../../core/api.service';
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <div class="dashboard animate-fade-in">
-      <!-- HEADER & ACTIONS -->
       <div class="header-actions mb-4">
         <div>
-          <h1 class="section-title mb-1">✈️ Uçuş & Turnaround Operasyonları</h1>
-          <p class="text-muted mb-0">Havalimanı aktif seferlerinin 45-60 dakikalık yer hizmeti (Redcap) ve biniş koordinasyonu</p>
+          <h1 class="section-title mb-1">Flight & Turnaround Operations</h1>
+          <p class="text-muted mb-0">Airside ground handling telemetry, turnaround milestone orchestration, and departure coordination</p>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-primary" (click)="loadOps()">🔄 Seferleri Yenile</button>
-          <a class="btn btn-outline" routerLink="/ops/dashboard">🛫 OCC Kuşbakışı Radar</a>
+          <button class="btn btn-primary" (click)="loadOps()">Refresh Schedule</button>
+          <a class="btn btn-outline" routerLink="/ops/dashboard">OCC Radar Console</a>
         </div>
       </div>
 
-      <!-- KPI METRİK KARTLARI -->
       <div class="grid grid-4 mb-4">
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper blue">✈️</div>
+          <div class="stat-icon-wrapper blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ operations.length }}</div>
-            <div class="stat-label">Toplam Aktif Sefer</div>
+            <div class="stat-label">Active Air Movements</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper amber">⏱️</div>
+          <div class="stat-icon-wrapper amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ inProgressCount }}</div>
-            <div class="stat-label">Dönüşte (Turnaround)</div>
+            <div class="stat-label">In Turnaround (Ramp)</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper green">✅</div>
+          <div class="stat-icon-wrapper green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ onTimePercentage }}%</div>
-            <div class="stat-label">Zamanında Kalkış Oranı</div>
+            <div class="stat-label">On-Time Performance (OTP)</div>
           </div>
         </div>
 
         <div class="glass-card stat-card">
-          <div class="stat-icon-wrapper purple">🚪</div>
+          <div class="stat-icon-wrapper purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
           <div class="stat-details">
             <div class="stat-num">{{ delayedCount }}</div>
-            <div class="stat-label">Gecikmeli Sefer</div>
+            <div class="stat-label">Delayed Flights</div>
           </div>
         </div>
       </div>
 
-      <!-- FİLTRE VE ARAMA ÇUBUĞU -->
       <div class="glass-card mb-4 filter-bar">
         <div class="search-input-wrapper">
-          <span class="search-icon">🔍</span>
+          <span class="search-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
-            placeholder="Uçuş No (TK1821), Kuyruk (TC-JHK), Kapı (A1) veya Model ara..."
+            placeholder="Search Flight No (TK1821), Tail (TC-JHK), Gate (A1), or Aircraft..."
             class="search-input"
           />
         </div>
 
         <div class="status-filters">
           <button class="filter-pill" [class.active]="selectedStatus === 'ALL'" (click)="selectedStatus = 'ALL'">
-            Tümü ({{ operations.length }})
+            All ({{ operations.length }})
           </button>
           <button class="filter-pill" [class.active]="selectedStatus === 'Scheduled'" (click)="selectedStatus = 'Scheduled'">
-            Planlandı
+            Scheduled
           </button>
           <button class="filter-pill" [class.active]="selectedStatus === 'InProgress'" (click)="selectedStatus = 'InProgress'">
-            Turnaround Sürüyor
+            In Turnaround
           </button>
           <button class="filter-pill" [class.active]="selectedStatus === 'Delayed'" (click)="selectedStatus = 'Delayed'">
-            Gecikmeli
+            Delayed
           </button>
           <button class="filter-pill" [class.active]="selectedStatus === 'Completed'" (click)="selectedStatus = 'Completed'">
-            Tamamlandı
+            Completed
           </button>
         </div>
       </div>
 
-      <!-- SEFERLER VE TURNAROUND LİSTESİ -->
       <div class="glass-card">
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>UÇUŞ & GÜZERGAH</th>
-                <th>UÇAK / KUYRUK</th>
-                <th>KAPI & PİST</th>
-                <th>VARIŞ / KALKIŞ</th>
-                <th>DURUM & GECİKME</th>
-                <th style="text-align: right; min-width: 320px;">OPERASYONEL MODÜLLER</th>
+                <th>FLIGHT & ROUTE</th>
+                <th>AIRCRAFT</th>
+                <th>GATE & RUNWAY</th>
+                <th>SCHEDULE</th>
+                <th>STATUS & DELAY</th>
+                <th style="text-align: right; min-width: 320px;">DISPATCH MODULES</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let op of filteredOperations">
                 <td>
                   <div class="d-flex align-items-center gap-2">
-                    <span class="flight-tag">✈️ {{ op.flightNumber }}</span>
+                    <span class="flight-tag">{{ op.flightNumber }}</span>
                   </div>
                   <div class="text-muted mt-1" style="font-size: 0.8rem;">
                     IST ➔ FRA / LHR / CDG
                   </div>
                 </td>
                 <td>
-                  <strong class="text-white">{{ op.aircraftTailNumber }}</strong>
-                  <div class="text-muted" style="font-size: 0.75rem;">{{ op.aircraftModel || 'Boeing 737-800' }}</div>
+                  <strong>{{ op.aircraftTailNumber }}</strong>
+                  <div class="text-muted" style="font-size: 0.75rem;">{{ op.aircraftModel || 'Commercial' }}</div>
                 </td>
                 <td>
                   <div class="d-flex align-items-center gap-1">
-                    <span class="gate-pill">🚪 {{ op.gateNo || 'Stand-101' }}</span>
-                    <span class="runway-pill">🛫 {{ op.assignedRunwayCode || '35L' }}</span>
+                    <span class="gate-pill">{{ op.gateNo || 'Stand-101' }}</span>
+                    <span class="runway-pill">{{ op.assignedRunwayCode || '35L' }}</span>
                   </div>
                 </td>
                 <td>
                   <div>{{ op.arrivalTime | date:'shortTime' }} - {{ op.departureTime | date:'shortTime' }}</div>
-                  <small class="text-muted">{{ op.arrivalTime | date:'dd.MM.yyyy' }}</small>
+                  <small class="text-muted">{{ op.arrivalTime | date:'mediumDate' }}</small>
                 </td>
                 <td>
                   <span class="badge" 
@@ -132,10 +153,10 @@ import { ApiService } from '../../../core/api.service';
                     [class.badge-warning]="op.status === 'InProgress'"
                     [class.badge-danger]="op.status === 'Delayed' || op.delayMinutes > 0"
                     [class.badge-success]="op.status === 'Completed'">
-                    {{ op.status === 'InProgress' ? 'Dönüşte (Turnaround)' : op.status }}
+                    {{ op.status === 'InProgress' ? 'In Turnaround' : op.status }}
                   </span>
                   <div *ngIf="op.delayMinutes > 0" class="text-danger mt-1" style="font-size: 0.75rem; font-weight: 600;">
-                    +{{ op.delayMinutes }} dk Gecikme
+                    +{{ op.delayMinutes }}m Delay
                   </div>
                 </td>
                 <td style="text-align: right;">
@@ -143,23 +164,23 @@ import { ApiService } from '../../../core/api.service';
                     <a 
                       [routerLink]="['/ops/turnaround', op.id]" 
                       class="btn btn-sm btn-primary action-btn" 
-                      title="Harekat Memuru Turnaround Süreci"
+                      title="Turnaround Checklist"
                     >
-                      ⏱️ Redcap
+                      Turnaround
                     </a>
                     <a 
                       [routerLink]="['/ops/gate-agent', op.id]" 
                       class="btn btn-sm btn-info action-btn" 
-                      title="Yolcu Hizmetleri & Biniş Ekranı"
+                      title="Gate Dispatch & Boarding"
                     >
-                      🚶‍♂️ Gate Agent
+                      Gate Agent
                     </a>
                     <a 
                       [routerLink]="['/ops/loadsheet', op.id]" 
                       class="btn btn-sm btn-outline action-btn" 
-                      title="Elektronik Yük ve Denge Formu"
+                      title="Weight & Balance Loadsheet"
                     >
-                      ⚖️ Loadsheet
+                      Loadsheet
                     </a>
                   </div>
                 </td>
@@ -167,7 +188,7 @@ import { ApiService } from '../../../core/api.service';
 
               <tr *ngIf="filteredOperations.length === 0">
                 <td colspan="6" class="text-center py-5 text-muted">
-                  Arama kriterlerine uygun uçuş operasyonu bulunamadı.
+                  No flight operations matched the specified filter criteria.
                 </td>
               </tr>
             </tbody>
@@ -181,6 +202,7 @@ import { ApiService } from '../../../core/api.service';
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
+      font-family: 'Inter', -apple-system, sans-serif;
     }
 
     .header-actions {
@@ -192,57 +214,56 @@ import { ApiService } from '../../../core/api.service';
     }
 
     .section-title {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.3px;
     }
 
-    /* GRID */
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.25rem;
+      gap: 1rem;
     }
 
-    /* STAT CARD */
     .stat-card {
       display: flex;
       align-items: center;
       gap: 1rem;
       padding: 1.25rem;
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
     }
 
     .stat-icon-wrapper {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
-    .stat-icon-wrapper.blue { background: rgba(0, 212, 255, 0.15); border: 1px solid rgba(0, 212, 255, 0.3); }
-    .stat-icon-wrapper.amber { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .stat-icon-wrapper.green { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .stat-icon-wrapper.purple { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .stat-icon-wrapper.blue { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .stat-icon-wrapper.amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .stat-icon-wrapper.green { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .stat-icon-wrapper.purple { background: #faf5ff; color: #9333ea; border: 1px solid #e9d5ff; }
 
     .stat-num {
       font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff;
+      font-weight: 700;
+      color: #0f172a;
       line-height: 1.2;
     }
 
     .stat-label {
-      font-size: 0.8rem;
-      color: #94a3b8;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
     }
 
-    /* FILTER BAR */
     .filter-bar {
       display: flex;
       justify-content: space-between;
@@ -250,9 +271,9 @@ import { ApiService } from '../../../core/api.service';
       flex-wrap: wrap;
       gap: 1rem;
       padding: 1rem 1.25rem;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
     }
 
     .search-input-wrapper {
@@ -266,26 +287,25 @@ import { ApiService } from '../../../core/api.service';
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.9rem;
-      color: #64748b;
+      font-size: 0.85rem;
+      color: #94a3b8;
     }
 
     .search-input {
       width: 100%;
-      padding: 0.6rem 0.8rem 0.6rem 2.2rem;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: #fff;
+      padding: 0.55rem 0.8rem 0.55rem 2.2rem;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      color: #0f172a;
       font-size: 0.875rem;
       outline: none;
-      transition: all 0.2s;
     }
 
     .search-input:focus {
-      border-color: #00d4ff;
-      background: rgba(30, 41, 59, 0.9);
-      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+      border-color: #0284c7;
+      background: #ffffff;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
     }
 
     .status-filters {
@@ -295,81 +315,82 @@ import { ApiService } from '../../../core/api.service';
     }
 
     .filter-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-      padding: 0.45rem 0.85rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
 
     .filter-pill:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      background: #e2e8f0;
     }
 
     .filter-pill.active {
-      background: rgba(0, 212, 255, 0.2);
-      border-color: #00d4ff;
-      color: #00d4ff;
-      font-weight: 700;
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
     }
 
-    /* DATA TABLE */
     .data-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.875rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
     }
 
     .data-table th {
-      padding: 0.85rem 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      color: #94a3b8;
+      padding: 0.75rem 1rem;
+      background: #f8fafc;
+      color: #475569;
       font-weight: 700;
       text-transform: uppercase;
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .data-table td {
-      padding: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
+      color: #0f172a;
     }
 
     .data-table tr:hover td {
-      background: rgba(0, 212, 255, 0.03);
+      background: #f8fafc;
     }
 
     .flight-tag {
       display: inline-block;
-      padding: 4px 10px;
-      background: rgba(0, 212, 255, 0.12);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      border-radius: 6px;
-      color: #00d4ff;
+      padding: 3px 8px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 4px;
+      color: #0284c7;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.8125rem;
     }
 
     .gate-pill {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 2px 8px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
+      color: #334155;
     }
 
     .runway-pill {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
-      padding: 2px 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
@@ -378,47 +399,50 @@ import { ApiService } from '../../../core/api.service';
     .action-buttons-group {
       display: flex;
       justify-content: flex-end;
-      gap: 0.4rem;
+      gap: 0.35rem;
       flex-wrap: wrap;
     }
 
     .action-btn {
       font-size: 0.75rem;
-      padding: 0.4rem 0.75rem;
-      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
       font-weight: 600;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-1px);
     }
 
     .btn-info {
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid #38bdf8;
-      color: #38bdf8;
+      background: #0284c7;
+      border: 1px solid #0284c7;
+      color: #ffffff;
     }
     .btn-info:hover {
-      background: rgba(56, 189, 248, 0.35);
-      color: #fff;
+      background: #0369a1;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
+    .btn-outline:hover {
+      background: #f8fafc;
     }
 
     .badge {
       display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
       font-weight: 600;
     }
-    .badge-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-info { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+    .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
     .py-5 { padding-top: 3rem; padding-bottom: 3rem; }
   `]

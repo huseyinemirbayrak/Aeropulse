@@ -6,19 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AeroPulse.Application.Services;
 
-/// <summary>
-/// Jet Bridge management service.
-/// 
-/// Most critical feature: CONFLICT CHECK
-/// When assigning a jet bridge, it checks if there is already another aircraft at that bridge.
-/// If yes:
-///   - Returns HTTP 409 Conflict
-///   - Suggests available alternative bridges in the same terminal
-/// 
-/// Status flow:
-///   Planned → AircraftLanded → BridgeConnected → DisembarkingComplete → Released
-///   On every transition, an event is published to the Event Bus + Cache is updated.
-/// </summary>
 public class JetBridgeService : IJetBridgeService
 {
     private readonly IAeroPulseDbContext _context;
@@ -26,9 +13,8 @@ public class JetBridgeService : IJetBridgeService
     private readonly ICacheService _cache;
     private readonly INotificationService _notificationService;
 
-    // Cache keys
-    private const string AVAILABLE_BRIDGES_CACHE_KEY = "jetbridges:available:{0}"; // {0} = terminalNo
-    private static readonly TimeSpan CACHE_TTL = TimeSpan.FromMinutes(2); // 2 minutes cache
+    private const string AVAILABLE_BRIDGES_CACHE_KEY = "jetbridges:available:{0}";
+    private static readonly TimeSpan CACHE_TTL = TimeSpan.FromMinutes(2);
 
     public JetBridgeService(
         IAeroPulseDbContext context,
@@ -41,8 +27,6 @@ public class JetBridgeService : IJetBridgeService
         _cache = cache;
         _notificationService = notificationService;
     }
-
-    // ===================== JET BRIDGE CRUD =====================
 
     public async Task<ApiResponse<List<JetBridgeDto>>> GetAllAsync(string? terminalNo = null)
     {
@@ -88,7 +72,6 @@ public class JetBridgeService : IJetBridgeService
         _context.JetBridges.Add(bridge);
         await _context.SaveChangesAsync();
 
-        // Clear cache (new bridge added)
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, request.TerminalNo));
 
         return ApiResponse<JetBridgeDto>.Ok(MapToDto(bridge), "Jet bridge added.");
@@ -107,7 +90,6 @@ public class JetBridgeService : IJetBridgeService
 
         await _context.SaveChangesAsync();
 
-        // Clear cache
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, oldTerminal));
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, bridge.TerminalNo));
 
@@ -127,8 +109,6 @@ public class JetBridgeService : IJetBridgeService
         await _context.SaveChangesAsync();
         return ApiResponse<bool>.Ok(true, "Jet bridge deleted.");
     }
-
-    // ===================== ASSIGNMENT CRUD =====================
 
     public async Task<ApiResponse<List<JetBridgeAssignmentDto>>> GetAllAssignmentsAsync(Guid? jetBridgeId = null)
     {
@@ -157,14 +137,6 @@ public class JetBridgeService : IJetBridgeService
         return ApiResponse<JetBridgeAssignmentDto>.Ok(MapAssignmentToDto(assignment));
     }
 
-    /// <summary>
-    /// Creates a new jet bridge assignment.
-    /// 
-    /// CONFLICT CHECK FLOW:
-    ///   1. Is there an existing assignment for the requested bridge + time range? → CheckAvailabilityAsync()
-    ///   2. If yes: Return 409 Conflict + alternative bridge suggestion
-    ///   3. If no: Create assignment, set bridge status to "Reserved", clear cache
-    /// </summary>
     public async Task<ApiResponse<JetBridgeAssignmentDto>> CreateAssignmentAsync(CreateJetBridgeAssignmentDto request)
     {
         var bridge = await _context.JetBridges.FindAsync(request.JetBridgeId);
@@ -173,7 +145,6 @@ public class JetBridgeService : IJetBridgeService
         if (bridge.StatusCode == JetBridgeStatus.UnderMaintenance)
             return ApiResponse<JetBridgeAssignmentDto>.Fail($"Jet bridge {bridge.BridgeNo} is under maintenance, assignment cannot be made.");
 
-        // ===== CONFLICT CHECK =====
         var conflictCheck = await CheckAvailabilityAsync(
             request.JetBridgeId,
             request.EstimatedArrivalTime,
@@ -182,8 +153,6 @@ public class JetBridgeService : IJetBridgeService
 
         if (conflictCheck.HasConflict)
         {
-            // The API controller will return 409 Conflict upon seeing this result
-            // Alternative bridges are in conflictCheck.AlternativeBridges
             return ApiResponse<JetBridgeAssignmentDto>.Fail(conflictCheck.Message);
         }
 
@@ -198,14 +167,12 @@ public class JetBridgeService : IJetBridgeService
             Status = JetBridgeAssignmentStatus.Planned
         };
 
-        // Set jet bridge status to "Reserved"
         bridge.StatusCode = JetBridgeStatus.Reserved;
         bridge.UpdatedAt = DateTime.UtcNow;
 
         _context.JetBridgeAssignments.Add(assignment);
         await _context.SaveChangesAsync();
 
-        // Clear cache
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, bridge.TerminalNo));
 
         var created = await _context.JetBridgeAssignments
@@ -217,13 +184,6 @@ public class JetBridgeService : IJetBridgeService
         return ApiResponse<JetBridgeAssignmentDto>.Ok(MapAssignmentToDto(created), "Jet bridge assignment created.");
     }
 
-    /// <summary>
-    /// Manages the status flow: Planned → AircraftLanded → BridgeConnected → DisembarkingComplete → Released
-    /// On each transition:
-    ///   - Notification is published to the Event Bus
-    ///   - In-app notification is sent to relevant users
-    ///   - Cache is updated
-    /// </summary>
     public async Task<ApiResponse<JetBridgeAssignmentDto>> UpdateAssignmentStatusAsync(Guid assignmentId, UpdateAssignmentStatusDto request)
     {
         var assignment = await _context.JetBridgeAssignments
@@ -240,7 +200,6 @@ public class JetBridgeService : IJetBridgeService
         assignment.Status = request.NewStatus;
         assignment.UpdatedAt = DateTime.UtcNow;
 
-        // Status-based specific actions
         switch (request.NewStatus)
         {
             case JetBridgeAssignmentStatus.AircraftLanded:
@@ -255,7 +214,6 @@ public class JetBridgeService : IJetBridgeService
 
             case JetBridgeAssignmentStatus.Released:
                 assignment.DisconnectionTime = DateTime.UtcNow;
-                // Jet bridge becomes available again
                 assignment.JetBridge.StatusCode = JetBridgeStatus.Available;
                 break;
         }
@@ -263,29 +221,13 @@ public class JetBridgeService : IJetBridgeService
         assignment.JetBridge.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        // Clear cache (bridge status changed)
         await _cache.RemoveAsync(string.Format(AVAILABLE_BRIDGES_CACHE_KEY, assignment.JetBridge.TerminalNo));
-
-        // ===== EVENT MESSAGE (EVENT BUS) + NOTIFICATION =====
         await PublishStatusChangeAsync(assignment, previousStatus, request.NewStatus);
 
         return ApiResponse<JetBridgeAssignmentDto>.Ok(MapAssignmentToDto(assignment),
             $"Jet bridge status updated to '{request.NewStatus}'.");
     }
 
-    /// <summary>
-    /// CONFLICT CHECK ALGORITHM
-    /// 
-    /// Logic: Do the two time periods overlap?
-    ///   A = [start, end] (new assignment)
-    ///   B = [existing.ETA, existing.DisconnectionTime] (existing assignment)
-    ///   Conflict = A.start < B.end AND A.end > B.start
-    /// 
-    /// Example: 
-    ///   Existing: 14:00 - 16:00
-    ///   New:      15:00 - 17:00  → CONFLICT EXISTS (15:00 < 16:00 and 17:00 > 14:00)
-    ///   New:      12:00 - 14:00  → NO CONFLICT (12:00 < 16:00 but 14:00 is not < 14:00)
-    /// </summary>
     public async Task<JetBridgeConflictResultDto> CheckAvailabilityAsync(Guid jetBridgeId, DateTime start, DateTime end, Guid? excludeAssignmentId = null)
     {
         var conflictingAssignment = await _context.JetBridgeAssignments
@@ -294,72 +236,58 @@ public class JetBridgeService : IJetBridgeService
             .Include(a => a.Operation)
             .Where(a =>
                 a.JetBridgeId == jetBridgeId &&
-                a.Status != JetBridgeAssignmentStatus.Released && // Released bridges do not conflict
+                a.Status != JetBridgeAssignmentStatus.Released && 
                 (excludeAssignmentId == null || a.Id != excludeAssignmentId) &&
-                start < (a.DisconnectionTime ?? a.EstimatedArrivalTime.AddHours(3)) && // A.start < B.end
-                end > a.EstimatedArrivalTime                                             // A.end > B.start
+                start < (a.DisconnectionTime ?? a.EstimatedArrivalTime.AddHours(3)) && 
+                end > a.EstimatedArrivalTime                                           
             )
             .FirstOrDefaultAsync();
 
         if (conflictingAssignment == null)
         {
-            // No conflict — bridge is available
             return new JetBridgeConflictResultDto { HasConflict = false, Message = "Jet bridge is available." };
         }
 
-        // Conflict exists — suggest alternative empty bridges in the same terminal
         var bridge = await _context.JetBridges.FindAsync(jetBridgeId);
         var alternatives = await GetAvailableBridgesForPeriodAsync(bridge!.TerminalNo, start, end, jetBridgeId);
 
         return new JetBridgeConflictResultDto
         {
             HasConflict = true,
-            Message = $"⚠️ Bridge {bridge.BridgeNo} is occupied between {conflictingAssignment.EstimatedArrivalTime:HH:mm}-{(conflictingAssignment.DisconnectionTime ?? conflictingAssignment.EstimatedArrivalTime.AddHours(3)):HH:mm}! " +
+            Message = $"Bridge {bridge.BridgeNo} is occupied between {conflictingAssignment.EstimatedArrivalTime:HH:mm}-{(conflictingAssignment.DisconnectionTime ?? conflictingAssignment.EstimatedArrivalTime.AddHours(3)):HH:mm}. " +
                       (alternatives.Any()
-                          ? $"Alternative bridges: {string.Join(", ", alternatives.Select(a => a.BridgeNo))}"
-                          : "There are no available bridges at this terminal for that time."),
+                          ? $"Alternative available bridges: {string.Join(", ", alternatives.Select(a => a.BridgeNo))}"
+                          : "No alternative bridges available in this terminal for the specified interval."),
             ConflictingAssignment = MapAssignmentToDto(conflictingAssignment),
             AlternativeBridges = alternatives.Select(MapToDto).ToList()
         };
     }
 
-    /// <summary>
-    /// Gets available bridges from cache.
-    /// If cache miss, reads from DB and caches (2 mins TTL).
-    /// </summary>
     public async Task<ApiResponse<List<JetBridgeDto>>> GetAvailableBridgesAsync(string terminalNo)
     {
         var cacheKey = string.Format(AVAILABLE_BRIDGES_CACHE_KEY, terminalNo);
 
-        // Check cache first
         var cached = await _cache.GetAsync<List<JetBridgeDto>>(cacheKey);
         if (cached != null)
             return ApiResponse<List<JetBridgeDto>>.Ok(cached, "Retrieved from cache.");
 
-        // Cache miss — read from DB
         var bridges = await _context.JetBridges
             .Where(j => j.TerminalNo == terminalNo && j.StatusCode == JetBridgeStatus.Available)
             .OrderBy(j => j.BridgeNo)
             .ToListAsync();
 
         var dtos = bridges.Select(MapToDto).ToList();
-
-        // Cache it
         await _cache.SetAsync(cacheKey, dtos, CACHE_TTL);
 
         return ApiResponse<List<JetBridgeDto>>.Ok(dtos, "Retrieved from database and cached.");
     }
 
-    // ===================== HELPER METHODS =====================
-
     private async Task<List<JetBridge>> GetAvailableBridgesForPeriodAsync(string terminalNo, DateTime start, DateTime end, Guid excludeBridgeId)
     {
-        // Get ALL bridges in the same terminal
         var allBridges = await _context.JetBridges
             .Where(j => j.TerminalNo == terminalNo && j.Id != excludeBridgeId && j.StatusCode != JetBridgeStatus.UnderMaintenance)
             .ToListAsync();
 
-        // Check conflict for each bridge
         var availableBridges = new List<JetBridge>();
         foreach (var bridge in allBridges)
         {
@@ -390,17 +318,16 @@ public class JetBridgeService : IJetBridgeService
         var message = newStatus switch
         {
             JetBridgeAssignmentStatus.BridgeConnected =>
-                $"✈️ Flight {assignment.Operation?.FlightNumber} connected to bridge {assignment.JetBridge.TerminalNo}/{assignment.JetBridge.BridgeNo} at {DateTime.UtcNow:HH:mm}. Passenger disembarking can start.",
+                $"Flight {assignment.Operation?.FlightNumber} connected to bridge {assignment.JetBridge.TerminalNo}/{assignment.JetBridge.BridgeNo} at {DateTime.UtcNow:HH:mm}. Deboarding authorized.",
             JetBridgeAssignmentStatus.AircraftLanded =>
-                $"🛬 Aircraft {assignment.Aircraft?.TailNumber} ({assignment.Operation?.FlightNumber}) landed. Jet bridge is being prepared.",
+                $"Aircraft {assignment.Aircraft?.TailNumber} ({assignment.Operation?.FlightNumber}) on-blocks. Boarding bridge positioning active.",
             JetBridgeAssignmentStatus.DisembarkingComplete =>
-                $"✅ Passenger disembarking completed for flight {assignment.Operation?.FlightNumber}. Aircraft can detach from bridge {assignment.JetBridge.BridgeNo}.",
+                $"Passenger disembarking completed for flight {assignment.Operation?.FlightNumber}. Bridge release authorized.",
             JetBridgeAssignmentStatus.Released =>
-                $"🔓 Bridge {assignment.JetBridge.BridgeNo} has been released. Available for new assignment.",
-            _ => $"Jet bridge status: {newStatus}"
+                $"Bridge {assignment.JetBridge.BridgeNo} released and cleared for subsequent assignments.",
+            _ => $"Jet bridge status transition: {newStatus}"
         };
 
-        // Publish to event bus
         await _messageBus.PublishAsync($"jetbridge.{eventType.ToLower()}", new BridgeStatusMessage
         {
             EventType = eventType,
@@ -410,7 +337,6 @@ public class JetBridgeService : IJetBridgeService
             Message = message
         });
 
-        // Send notification to operations manager + field technician on BridgeConnected
         if (newStatus == JetBridgeAssignmentStatus.BridgeConnected)
         {
             if (assignment.Operation?.OperationsManagerId.HasValue == true)

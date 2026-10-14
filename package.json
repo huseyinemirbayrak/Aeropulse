@@ -6,7 +6,7 @@
     "start": "node start.js",
     "dev": "node start.js",
     "backend": "dotnet run --project src/AeroPulse.API",
-    "frontend": "npm --prefix aeropulse-web start",
+    "frontend": "npm --prefix aeropulse-web run dev:web",
     "build": "dotnet build AeroPulse.slnx && npm --prefix aeropulse-web run build"
   },
   "author": "",

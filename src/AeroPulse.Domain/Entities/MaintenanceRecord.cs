@@ -14,7 +14,6 @@ public class MaintenanceRecord : BaseEntity
     public DateTime? NextScheduledDate { get; set; }
     public string Notes { get; set; } = string.Empty;
 
-    // Navigation properties
     public Aircraft Aircraft { get; set; } = null!;
     public Part? Part { get; set; }
     public User Engineer { get; set; } = null!;

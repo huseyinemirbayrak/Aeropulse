@@ -131,7 +131,6 @@ public class MaintenanceService : IMaintenanceService
         _context.MaintenanceRecords.Add(record);
         await _context.SaveChangesAsync();
 
-        // Reload with includes
         var created = await _context.MaintenanceRecords
             .Include(m => m.Aircraft)
             .Include(m => m.Part)

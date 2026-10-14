@@ -19,7 +19,6 @@ public class Operation : BaseEntity, ITenantEntity
     public string? AssignedRunwayCode { get; set; }
     public Guid? OperationsManagerId { get; set; }
 
-    // Navigation properties
     public Aircraft Aircraft { get; set; } = null!;
     public User? OperationsManager { get; set; }
     public ICollection<JetBridgeAssignment> JetBridgeAssignments { get; set; } = new List<JetBridgeAssignment>();

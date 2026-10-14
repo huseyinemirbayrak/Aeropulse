@@ -7,5 +7,5 @@ public enum GSEType
     BaggageTug,
     PassengerStairs,
     PushbackTruck,
-    GPU // Ground Power Unit
+    GPU
 }

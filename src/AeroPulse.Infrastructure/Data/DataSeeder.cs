@@ -9,9 +9,8 @@ public static class DataSeeder
     public static async Task SeedAsync(AeroPulseDbContext context)
     {
         if (await context.Users.AnyAsync())
-            return; // Already seeded
+            return;
 
-        // ===== USERS =====
         var adminUser = new User
         {
             Id = Guid.Parse("10000000-0000-0000-0000-000000000001"),
@@ -64,7 +63,6 @@ public static class DataSeeder
 
         context.Users.AddRange(adminUser, opsManager, mroEngineer1, mroEngineer2, fieldTech);
 
-        // ===== AIRCRAFT =====
         var aircraft1 = new Aircraft
         {
             Id = Guid.Parse("20000000-0000-0000-0000-000000000001"),
@@ -122,7 +120,6 @@ public static class DataSeeder
 
         context.Aircraft.AddRange(aircraft1, aircraft2, aircraft3, aircraft4, aircraft5);
 
-        // ===== PARTS =====
         var parts = new List<Part>
         {
             new Part { Id = Guid.Parse("30000000-0000-0000-0000-000000000001"), PartName = "CFM56-7B Engine", PartNumber = "CFM56-7B-001", AircraftId = aircraft1.Id, LifeSpanHours = 30000, UsedHours = 24500, CriticalThresholdHours = 25000, Location = "Left Wing", Manufacturer = "CFM International" },
@@ -137,41 +134,37 @@ public static class DataSeeder
 
         context.Parts.AddRange(parts);
 
-        // ===== MAINTENANCE RECORDS =====
         var maintenanceRecords = new List<MaintenanceRecord>
         {
-            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000001"), AircraftId = aircraft1.Id, PartId = parts[0].Id, WorkPerformed = "Engine borescope inspection - No findings", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-30), CertificateNo = "CERT-2026-001", MaintenanceType = MaintenanceType.Inspection, NextScheduledDate = DateTime.UtcNow.AddDays(60), Notes = "All parameters within limits" },
-            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000002"), AircraftId = aircraft1.Id, PartId = parts[1].Id, WorkPerformed = "Landing gear retraction test and lubrication", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-15), CertificateNo = "CERT-2026-002", MaintenanceType = MaintenanceType.Scheduled, NextScheduledDate = DateTime.UtcNow.AddDays(90), Notes = "Gear pins inspected and replaced" },
-            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000003"), AircraftId = aircraft2.Id, WorkPerformed = "A-Check comprehensive inspection", EngineerId = mroEngineer2.Id, Date = DateTime.UtcNow.AddDays(-7), CertificateNo = "CERT-2026-003", MaintenanceType = MaintenanceType.Scheduled, NextScheduledDate = DateTime.UtcNow.AddDays(120), Notes = "All items completed per maintenance manual" },
-            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000004"), AircraftId = aircraft3.Id, PartId = parts[4].Id, WorkPerformed = "Engine overhaul - Full teardown and rebuild", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-2), CertificateNo = "CERT-2026-004", MaintenanceType = MaintenanceType.Overhaul, NextScheduledDate = DateTime.UtcNow.AddDays(365), Notes = "Engine returned to zero-time" },
-            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000005"), AircraftId = aircraft3.Id, WorkPerformed = "C-Check structural inspection in progress", EngineerId = mroEngineer2.Id, Date = DateTime.UtcNow, CertificateNo = "CERT-2026-005", MaintenanceType = MaintenanceType.Inspection, NextScheduledDate = DateTime.UtcNow.AddDays(14), Notes = "In progress - fuselage section 41-46 pending" },
+            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000001"), AircraftId = aircraft1.Id, PartId = parts[0].Id, WorkPerformed = "Engine borescope inspection - Zero discrepancy findings", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-30), CertificateNo = "CERT-2026-001", MaintenanceType = MaintenanceType.Inspection, NextScheduledDate = DateTime.UtcNow.AddDays(60), Notes = "All parameters within structural limits" },
+            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000002"), AircraftId = aircraft1.Id, PartId = parts[1].Id, WorkPerformed = "Landing gear retraction cycling and lubrication service", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-15), CertificateNo = "CERT-2026-002", MaintenanceType = MaintenanceType.Scheduled, NextScheduledDate = DateTime.UtcNow.AddDays(90), Notes = "Gear pins inspected and certified" },
+            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000003"), AircraftId = aircraft2.Id, WorkPerformed = "A-Check routine comprehensive airframe inspection", EngineerId = mroEngineer2.Id, Date = DateTime.UtcNow.AddDays(-7), CertificateNo = "CERT-2026-003", MaintenanceType = MaintenanceType.Scheduled, NextScheduledDate = DateTime.UtcNow.AddDays(120), Notes = "All work items completed per AMM" },
+            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000004"), AircraftId = aircraft3.Id, PartId = parts[4].Id, WorkPerformed = "Engine overhaul - Full teardown and rebuild", EngineerId = mroEngineer1.Id, Date = DateTime.UtcNow.AddDays(-2), CertificateNo = "CERT-2026-004", MaintenanceType = MaintenanceType.Overhaul, NextScheduledDate = DateTime.UtcNow.AddDays(365), Notes = "Propulsion unit returned to zero-time baseline" },
+            new MaintenanceRecord { Id = Guid.Parse("40000000-0000-0000-0000-000000000005"), AircraftId = aircraft3.Id, WorkPerformed = "C-Check structural inspection in progress", EngineerId = mroEngineer2.Id, Date = DateTime.UtcNow, CertificateNo = "CERT-2026-005", MaintenanceType = MaintenanceType.Inspection, NextScheduledDate = DateTime.UtcNow.AddDays(14), Notes = "Fuselage frames 41-46 eddy current testing pending" },
         };
 
         context.MaintenanceRecords.AddRange(maintenanceRecords);
 
-        // ===== FAULT REPORTS =====
         var faultReports = new List<FaultReport>
         {
-            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000001"), AircraftId = aircraft1.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer1.Id, Priority = Priority.High, Status = FaultStatus.Open, OpenDate = DateTime.UtcNow.AddHours(-4), Description = "Hydraulic leak detected on left main landing gear actuator" },
-            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000002"), AircraftId = aircraft2.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer2.Id, Priority = Priority.Critical, Status = FaultStatus.UnderReview, OpenDate = DateTime.UtcNow.AddHours(-1), Description = "Engine vibration exceeding N1 limits on engine #2" },
-            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000003"), AircraftId = aircraft1.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer1.Id, Priority = Priority.Medium, Status = FaultStatus.Resolved, OpenDate = DateTime.UtcNow.AddDays(-3), CloseDate = DateTime.UtcNow.AddDays(-2), Description = "Cabin pressurization warning light intermittent", ResolutionNotes = "Replaced pressure transducer, test flight satisfactory" },
-            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000004"), AircraftId = aircraft3.Id, ReportedByTechnicianId = fieldTech.Id, Priority = Priority.Low, Status = FaultStatus.Open, OpenDate = DateTime.UtcNow.AddDays(-1), Description = "Minor paint chipping on left wing leading edge" },
+            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000001"), AircraftId = aircraft1.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer1.Id, Priority = Priority.High, Status = FaultStatus.Open, OpenDate = DateTime.UtcNow.AddHours(-4), Description = "Hydraulic fluid weepage detected on left main landing gear actuator seal" },
+            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000002"), AircraftId = aircraft2.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer2.Id, Priority = Priority.Critical, Status = FaultStatus.UnderReview, OpenDate = DateTime.UtcNow.AddHours(-1), Description = "Engine vibration telemetry exceeding advisory N1 threshold on engine 2" },
+            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000003"), AircraftId = aircraft1.Id, ReportedByTechnicianId = fieldTech.Id, AssignedEngineerId = mroEngineer1.Id, Priority = Priority.Medium, Status = FaultStatus.Resolved, OpenDate = DateTime.UtcNow.AddDays(-3), CloseDate = DateTime.UtcNow.AddDays(-2), Description = "Cabin pressurization warning annunciator intermittent trigger", ResolutionNotes = "Replaced pressure differential transducer, ground test satisfactory" },
+            new FaultReport { Id = Guid.Parse("50000000-0000-0000-0000-000000000004"), AircraftId = aircraft3.Id, ReportedByTechnicianId = fieldTech.Id, Priority = Priority.Low, Status = FaultStatus.Open, OpenDate = DateTime.UtcNow.AddDays(-1), Description = "Minor paint abrasion on left winglet leading edge composite" },
         };
 
         context.FaultReports.AddRange(faultReports);
 
-        // ===== OPERATIONS =====
         var operations = new List<Operation>
         {
             new Operation { Id = Guid.Parse("60000000-0000-0000-0000-000000000001"), AircraftId = aircraft1.Id, GateNo = "A12", ArrivalTime = DateTime.UtcNow.AddHours(-2), DepartureTime = DateTime.UtcNow.AddHours(1), Status = OperationStatus.InProgress, FlightNumber = "AP101", OperationsManagerId = opsManager.Id },
             new Operation { Id = Guid.Parse("60000000-0000-0000-0000-000000000002"), AircraftId = aircraft2.Id, GateNo = "B05", ArrivalTime = DateTime.UtcNow.AddHours(2), DepartureTime = DateTime.UtcNow.AddHours(5), Status = OperationStatus.Scheduled, FlightNumber = "AP205", OperationsManagerId = opsManager.Id },
-            new Operation { Id = Guid.Parse("60000000-0000-0000-0000-000000000003"), AircraftId = aircraft4.Id, GateNo = "C08", ArrivalTime = DateTime.UtcNow.AddHours(-5), DepartureTime = DateTime.UtcNow.AddHours(-2), Status = OperationStatus.Completed, FlightNumber = "SV310", DelayMinutes = 15, DelayReason = "Late inbound aircraft" },
+            new Operation { Id = Guid.Parse("60000000-0000-0000-0000-000000000003"), AircraftId = aircraft4.Id, GateNo = "C08", ArrivalTime = DateTime.UtcNow.AddHours(-5), DepartureTime = DateTime.UtcNow.AddHours(-2), Status = OperationStatus.Completed, FlightNumber = "SV310", DelayMinutes = 15, DelayReason = "Inbound flow control spacing restriction" },
             new Operation { Id = Guid.Parse("60000000-0000-0000-0000-000000000004"), AircraftId = aircraft1.Id, GateNo = "A12", ArrivalTime = DateTime.UtcNow.AddHours(6), DepartureTime = DateTime.UtcNow.AddHours(9), Status = OperationStatus.Scheduled, FlightNumber = "AP402" },
         };
 
         context.Operations.AddRange(operations);
 
-        // ===== JET BRIDGES =====
         var jetBridges = new List<JetBridge>
         {
             new JetBridge { Id = Guid.Parse("70000000-0000-0000-0000-000000000001"), BridgeNo = "JB-01", TerminalNo = "T1", StatusCode = JetBridgeStatus.Connected },
@@ -183,7 +176,6 @@ public static class DataSeeder
 
         context.JetBridges.AddRange(jetBridges);
 
-        // ===== JET BRIDGE ASSIGNMENTS =====
         var assignments = new List<JetBridgeAssignment>
         {
             new JetBridgeAssignment { Id = Guid.Parse("80000000-0000-0000-0000-000000000001"), JetBridgeId = jetBridges[0].Id, AircraftId = aircraft1.Id, OperationId = operations[0].Id, EstimatedArrivalTime = DateTime.UtcNow.AddHours(-2), ActualArrivalTime = DateTime.UtcNow.AddHours(-2).AddMinutes(5), ConnectionTime = DateTime.UtcNow.AddHours(-2).AddMinutes(10), PassengerCount = 175, Status = JetBridgeAssignmentStatus.BridgeConnected },
@@ -192,7 +184,6 @@ public static class DataSeeder
 
         context.JetBridgeAssignments.AddRange(assignments);
 
-        // ===== NOTIFICATIONS =====
         var notifications = new List<Notification>
         {
             new Notification { RecipientUserId = mroEngineer1.Id, FaultReportId = faultReports[0].Id, Message = "New high-priority fault assigned: Hydraulic leak on TC-AER", NotificationType = NotificationType.FaultAssigned, Date = DateTime.UtcNow.AddHours(-4) },
@@ -320,7 +311,6 @@ public static class DataSeeder
 
     public static async Task EnsureOperationalDataAsync(AeroPulseDbContext context)
     {
-        // 1. ===== RUNWAYS =====
         if (!await context.Runways.AnyAsync())
         {
             context.Runways.AddRange(
@@ -333,7 +323,6 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
 
-        // 2. ===== GATES =====
         if (!await context.Gates.AnyAsync())
         {
             var firstAircraft = await context.Aircraft.FirstOrDefaultAsync();
@@ -350,7 +339,6 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
 
-        // ===== JET BRIDGES =====
         if (!await context.JetBridges.AnyAsync())
         {
             var op = await context.Operations.FirstOrDefaultAsync();
@@ -380,23 +368,21 @@ public static class DataSeeder
             await context.SaveChangesAsync();
         }
 
-        // 3. ===== GSE (Yer Destek Ekipmanları) =====
         if (!await context.GroundSupportEquipments.AnyAsync())
         {
             context.GroundSupportEquipments.AddRange(
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-01", Name = "Cobus 3000 Yolcu Otobüsü #1", Type = GSEType.PassengerBus, Status = GSEStatus.Idle, FuelLevelPercentage = 92, ApronZone = "Terminal 1 Ramp", OperatorName = "Ahmet Yılmaz", Latitude = 41.2753, Longitude = 28.7519 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-02", Name = "Cobus 3000 Yolcu Otobüsü #2", Type = GSEType.PassengerBus, Status = GSEStatus.Busy, FuelLevelPercentage = 64, ApronZone = "Stand-102", OperatorName = "Mehmet Demir", CurrentTaskDescription = "AP888 Yolcu Transferi", Latitude = 41.2760, Longitude = 28.7530 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-03", Name = "Cobus 2700 Yolcu Otobüsü #3", Type = GSEType.PassengerBus, Status = GSEStatus.OutOfService, FuelLevelPercentage = 20, ApronZone = "Bakım Hangarı", OperatorName = "Serviste", CurrentTaskDescription = "Fren sistemi revizyonu", Latitude = 41.2710, Longitude = 28.7480 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-01", Name = "Jet A-1 Yakıt Tankeri 35.000L", Type = GSEType.FuelTanker, Status = GSEStatus.Busy, FuelLevelPercentage = 78, ApronZone = "Gate A1", OperatorName = "Can Kılıç", CurrentTaskDescription = "TK1984 Yakıt İkmali (8.500 kg)", Latitude = 41.2748, Longitude = 28.7512 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-02", Name = "Jet A-1 Yakıt Tankeri 25.000L", Type = GSEType.FuelTanker, Status = GSEStatus.Idle, FuelLevelPercentage = 95, ApronZone = "Güney Yakıt Deposu", OperatorName = "Emre Ak", Latitude = 41.2705, Longitude = 28.7550 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-01", Name = "Charlatte Bagaj Traktörü #1", Type = GSEType.BaggageTug, Status = GSEStatus.Busy, FuelLevelPercentage = 85, ApronZone = "Gate A1", OperatorName = "Ali Kaya", CurrentTaskDescription = "TK1984 Bagaj Yükleme", Latitude = 41.2747, Longitude = 28.7515 },
-                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-02", Name = "Charlatte Bagaj Traktörü #2", Type = GSEType.BaggageTug, Status = GSEStatus.Idle, FuelLevelPercentage = 90, ApronZone = "Bagaj Tasnif Alanı", OperatorName = "Hasan Çelik", Latitude = 41.2730, Longitude = 28.7525 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-01", Name = "Cobus 3000 Passenger Bus #1", Type = GSEType.PassengerBus, Status = GSEStatus.Idle, FuelLevelPercentage = 92, ApronZone = "Terminal 1 Ramp", OperatorName = "Ahmet Yilmaz", Latitude = 41.2753, Longitude = 28.7519 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-02", Name = "Cobus 3000 Passenger Bus #2", Type = GSEType.PassengerBus, Status = GSEStatus.Busy, FuelLevelPercentage = 64, ApronZone = "Stand-102", OperatorName = "Mehmet Demir", CurrentTaskDescription = "AP888 Passenger Shuttle Transfer", Latitude = 41.2760, Longitude = 28.7530 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "BUS-03", Name = "Cobus 2700 Passenger Bus #3", Type = GSEType.PassengerBus, Status = GSEStatus.OutOfService, FuelLevelPercentage = 20, ApronZone = "Maintenance Hangar", OperatorName = "In Maintenance", CurrentTaskDescription = "Braking hydraulic overhaul", Latitude = 41.2710, Longitude = 28.7480 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-01", Name = "Jet A-1 Fuel Tanker 35,000L", Type = GSEType.FuelTanker, Status = GSEStatus.Busy, FuelLevelPercentage = 78, ApronZone = "Gate A1", OperatorName = "Can Kilic", CurrentTaskDescription = "TK1984 Jet A-1 Fuel Uplift (8,500 kg)", Latitude = 41.2748, Longitude = 28.7512 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TANKER-02", Name = "Jet A-1 Fuel Tanker 25,000L", Type = GSEType.FuelTanker, Status = GSEStatus.Idle, FuelLevelPercentage = 95, ApronZone = "South Fuel Depot", OperatorName = "Emre Ak", Latitude = 41.2705, Longitude = 28.7550 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-01", Name = "Charlatte Baggage Tug #1", Type = GSEType.BaggageTug, Status = GSEStatus.Busy, FuelLevelPercentage = 85, ApronZone = "Gate A1", OperatorName = "Ali Kaya", CurrentTaskDescription = "TK1984 Outbound Baggage Loading", Latitude = 41.2747, Longitude = 28.7515 },
+                new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "TUG-02", Name = "Charlatte Baggage Tug #2", Type = GSEType.BaggageTug, Status = GSEStatus.Idle, FuelLevelPercentage = 90, ApronZone = "Baggage Sorting Facility", OperatorName = "Hasan Celik", Latitude = 41.2730, Longitude = 28.7525 },
                 new GroundSupportEquipment { Id = Guid.NewGuid(), Code = "PUSHBACK-01", Name = "Trepel Towbarless Pushback", Type = GSEType.PushbackTruck, Status = GSEStatus.Idle, FuelLevelPercentage = 80, ApronZone = "Gate A2", OperatorName = "Murat Polat", Latitude = 41.2745, Longitude = 28.7510 }
             );
             await context.SaveChangesAsync();
         }
 
-        // 4. ===== TURNAROUND TASKS & MANIFEST =====
         var activeOp = await context.Operations.FirstOrDefaultAsync(o => o.Status == OperationStatus.InProgress)
                     ?? await context.Operations.FirstOrDefaultAsync();
 
@@ -419,7 +405,7 @@ public static class DataSeeder
                     ActualStartTime = activeOp.ArrivalTime,
                     ActualEndTime = activeOp.ArrivalTime.AddMinutes(18),
                     ProgressPercentage = 100,
-                    Notes = "Tüm gelen bagajlar boşaltıldı ve tasnif bandına aktarıldı."
+                    Notes = "All inbound baggage offloaded to arrivals sorting carousel."
                 },
                 new TurnaroundTask
                 {
@@ -432,7 +418,7 @@ public static class DataSeeder
                     ActualStartTime = activeOp.ArrivalTime.AddMinutes(15),
                     ProgressPercentage = 65,
                     AssignedGSEId = tanker?.Id,
-                    Notes = "Hedef: 8.500 kg Jet A-1. Mevcut: 5.500 kg basıldı."
+                    Notes = "Target: 8,500 kg Jet A-1. Current uplift: 5,500 kg pumped."
                 },
                 new TurnaroundTask
                 {
@@ -445,7 +431,7 @@ public static class DataSeeder
                     ActualStartTime = activeOp.ArrivalTime.AddMinutes(10),
                     ActualEndTime = activeOp.ArrivalTime.AddMinutes(28),
                     ProgressPercentage = 100,
-                    Notes = "Kabin dezenfeksiyonu ve çöp toplama tamamlandı."
+                    Notes = "Cabin sanitization, galley replenishment and waste collection completed."
                 },
                 new TurnaroundTask
                 {
@@ -457,7 +443,7 @@ public static class DataSeeder
                     ScheduledStartTime = activeOp.ArrivalTime.AddMinutes(20),
                     ActualStartTime = activeOp.ArrivalTime.AddMinutes(22),
                     ProgressPercentage = 80,
-                    Notes = "Galley arabaları ve ikram paketleri yükleniyor."
+                    Notes = "Galley service carts and meal kits loaded into forward/aft service doors."
                 },
                 new TurnaroundTask
                 {
@@ -471,7 +457,7 @@ public static class DataSeeder
                     ProgressPercentage = 45,
                     AssignedGSEId = tug?.Id,
                     AssignedUserId = technician?.Id,
-                    Notes = "Giden bagajlar ön ve arka ambara yükleniyor (130/154 adet)."
+                    Notes = "Outbound baggage loading to forward/aft cargo holds (130/154 pieces)."
                 },
                 new TurnaroundTask
                 {
@@ -483,7 +469,7 @@ public static class DataSeeder
                     ScheduledStartTime = activeOp.DepartureTime.AddMinutes(-35),
                     ActualStartTime = activeOp.DepartureTime.AddMinutes(-35),
                     ProgressPercentage = 70,
-                    Notes = "Öncelikli yolcular ve grup 1-2 binişi tamamlandı (162/180 yolcu)."
+                    Notes = "Priority passengers and zones 1-2 boarding complete (162/180 pax)."
                 },
                 new TurnaroundTask
                 {
@@ -495,11 +481,10 @@ public static class DataSeeder
                     ScheduledStartTime = activeOp.DepartureTime,
                     ProgressPercentage = 0,
                     AssignedGSEId = pushback?.Id,
-                    Notes = "Körük ayrıldıktan ve takozlar alındıktan sonra başlayacak."
+                    Notes = "Standby pending jet bridge retraction and wheel chock removal."
                 }
             );
 
-            // Manifest
             context.PassengerManifests.Add(new PassengerManifest
             {
                 Id = Guid.NewGuid(),
@@ -523,7 +508,6 @@ public static class DataSeeder
 
     public static async Task EnsureTenantDataAsync(AeroPulseDbContext context)
     {
-        // 1. Dinamik SQLite Şema Güvencesi: Tablolar ve Kolonlar var mı kontrol et
         try
         {
             await context.Database.ExecuteSqlRawAsync(@"
@@ -553,7 +537,6 @@ public static class DataSeeder
                 }
                 catch
                 {
-                    // Kolon zaten varsa SQLite hata fırlatır, bu beklenen ve güvenli bir durumdur.
                 }
             }
         }
@@ -562,7 +545,6 @@ public static class DataSeeder
             Console.WriteLine($"[Tenant Schema Check] {ex.Message}");
         }
 
-        // 2. 5 Temel Havayolu ve Yer Hizmetleri Kiracılarını Ekle
         var thyId = Guid.Parse("a0000000-0000-0000-0000-000000000001");
         var pgsId = Guid.Parse("a0000000-0000-0000-0000-000000000002");
         var tgsId = Guid.Parse("a0000000-0000-0000-0000-000000000003");
@@ -578,10 +560,10 @@ public static class DataSeeder
             {
                 Id = thyId,
                 Code = "THY",
-                Name = "Türk Hava Yolları",
+                Name = "Turkish Airlines",
                 Type = TenantType.Airline,
                 PrimaryColor = "#e30a17",
-                Description = "Türkiye'nin bayrak taşıyıcı havayolu şirketi (TK)",
+                Description = "National flag carrier airline (TK)",
                 ContactEmail = "occ@thy.com"
             },
             new Tenant
@@ -591,7 +573,7 @@ public static class DataSeeder
                 Name = "Pegasus Airlines",
                 Type = TenantType.Airline,
                 PrimaryColor = "#f59e0b",
-                Description = "Türkiye'nin lider düşük maliyetli havayolu şirketi (PC)",
+                Description = "Leading scheduled low-cost airline (PC)",
                 ContactEmail = "ops@flypgs.com"
             },
             new Tenant
@@ -601,7 +583,7 @@ public static class DataSeeder
                 Name = "SunExpress",
                 Type = TenantType.Airline,
                 PrimaryColor = "#f97316",
-                Description = "Tatil ve turizm odaklı uluslararası havayolu (XQ)",
+                Description = "International leisure carrier (XQ)",
                 ContactEmail = "ops@sunexpress.com"
             },
             new Tenant
@@ -611,7 +593,7 @@ public static class DataSeeder
                 Name = "AJet (AnadoluJet)",
                 Type = TenantType.Airline,
                 PrimaryColor = "#0284c7",
-                Description = "Türkiye içi ve bölgesel ekonomik havayolu (VF)",
+                Description = "Regional economic airline (VF)",
                 ContactEmail = "occ@ajet.com"
             },
             new Tenant
@@ -621,7 +603,7 @@ public static class DataSeeder
                 Name = "Lufthansa",
                 Type = TenantType.Airline,
                 PrimaryColor = "#0f172a",
-                Description = "Almanya bayrak taşıyıcısı ve Star Alliance üyesi (LH)",
+                Description = "German flag carrier and Star Alliance founding member (LH)",
                 ContactEmail = "operations@lufthansa.com"
             },
             new Tenant
@@ -631,27 +613,27 @@ public static class DataSeeder
                 Name = "Turkish Ground Services",
                 Type = TenantType.GroundHandler,
                 PrimaryColor = "#2563eb",
-                Description = "Apron ramp, otobüs ve bagaj yer hizmetleri taşeronu",
+                Description = "Ramp handling, passenger bus, and baggage operations contractor",
                 ContactEmail = "ramp@tgs.aero"
             },
             new Tenant
             {
                 Id = clbId,
                 Code = "CLB",
-                Name = "Çelebi Havacılık",
+                Name = "Celebi Aviation",
                 Type = TenantType.GroundHandler,
                 PrimaryColor = "#10b981",
-                Description = "Apron yakıt ikmali, de-icing ve yer destek hizmetleri",
+                Description = "Apron refueling, de-icing, and ground support services contractor",
                 ContactEmail = "operations@celebiaviation.com"
             },
             new Tenant
             {
                 Id = igaId,
                 Code = "IGA",
-                Name = "İGA / Havalimanı Otoritesi",
+                Name = "IGA Airport Authority",
                 Type = TenantType.AirportAuthority,
                 PrimaryColor = "#8b5cf6",
-                Description = "Havalimanı Operasyon Kontrol Merkezi (OCC) & Genel Bakış",
+                Description = "Airport Operations Control Center (OCC) & Aerodrome Authority",
                 ContactEmail = "occ@igairport.com"
             }
         };
@@ -666,7 +648,6 @@ public static class DataSeeder
         }
         await context.SaveChangesAsync();
 
-        // 3. Havayolları Veri Desteği (Uçaklar, Seferler, Ramp Görevleri, Arızalar ve MRO Bakım)
         try
         {
             var engineer = await context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.MROEngineer);
@@ -675,12 +656,11 @@ public static class DataSeeder
             var tug = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "TUG-01");
             var pushback = await context.GroundSupportEquipments.FirstOrDefaultAsync(g => g.Code == "PUSHBACK-01");
 
-            // --- A. TÜRK HAVA YOLLARI (THY) ---
             var thyPlanes = new[]
             {
-                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-LGA", Model = "Airbus A350-900", ManufactureYear = 2021, StatusCode = AircraftStatus.Active, TotalFlightHours = 9400, Operator = "Türk Hava Yolları", TenantId = thyId },
-                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JRO", Model = "Airbus A321neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 4800, Operator = "Türk Hava Yolları", TenantId = thyId },
-                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JFH", Model = "Boeing 737-800", ManufactureYear = 2018, StatusCode = AircraftStatus.InMaintenance, TotalFlightHours = 18200, Operator = "Türk Hava Yolları", TenantId = thyId }
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-LGA", Model = "Airbus A350-900", ManufactureYear = 2021, StatusCode = AircraftStatus.Active, TotalFlightHours = 9400, Operator = "Turkish Airlines", TenantId = thyId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JRO", Model = "Airbus A321neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 4800, Operator = "Turkish Airlines", TenantId = thyId },
+                new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JFH", Model = "Boeing 737-800", ManufactureYear = 2018, StatusCode = AircraftStatus.InMaintenance, TotalFlightHours = 18200, Operator = "Turkish Airlines", TenantId = thyId }
             };
             foreach (var p in thyPlanes)
             {
@@ -689,7 +669,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- B. PEGASUS AIRLINES (PGS) ---
             var pgsPlanes = new[]
             {
                 new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-PGX", Model = "Airbus A321neo", ManufactureYear = 2022, StatusCode = AircraftStatus.Active, TotalFlightHours = 6400, Operator = "Pegasus Airlines", TenantId = pgsId },
@@ -703,7 +682,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- C. SUNEXPRESS (SXS) ---
             var sxsPlanes = new[]
             {
                 new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-SOA", Model = "Boeing 737-800", ManufactureYear = 2020, StatusCode = AircraftStatus.Active, TotalFlightHours = 8900, Operator = "SunExpress", TenantId = sxsId },
@@ -716,7 +694,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- D. AJET (AJT) ---
             var ajtPlanes = new[]
             {
                 new Aircraft { Id = Guid.NewGuid(), TailNumber = "TC-JVD", Model = "Boeing 737-800", ManufactureYear = 2019, StatusCode = AircraftStatus.Active, TotalFlightHours = 12500, Operator = "AJet", TenantId = ajtId },
@@ -729,7 +706,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- E. LUFTHANSA (DLH) ---
             var dlhPlanes = new[]
             {
                 new Aircraft { Id = Guid.NewGuid(), TailNumber = "D-AIXP", Model = "Airbus A350-900", ManufactureYear = 2020, StatusCode = AircraftStatus.Active, TotalFlightHours = 10100, Operator = "Lufthansa", TenantId = dlhId },
@@ -742,7 +718,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- OPERASYONLAR (UÇUŞLAR) ---
             var tkPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-LGA");
             var tkPlane2 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-JRO");
             var pgPlane1 = await context.Aircraft.IgnoreQueryFilters().FirstAsync(a => a.TailNumber == "TC-PGX");
@@ -753,25 +728,20 @@ public static class DataSeeder
 
             var flights = new[]
             {
-                // THY Uçuşları
                 new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane1.Id, FlightNumber = "TK1984", GateNo = "A1", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddMinutes(-40), DepartureTime = DateTime.UtcNow.AddMinutes(50), Status = OperationStatus.InProgress, TenantId = thyId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane2.Id, FlightNumber = "TK2026", GateNo = "A2", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(45), DepartureTime = DateTime.UtcNow.AddMinutes(135), Status = OperationStatus.Scheduled, TenantId = thyId },
-                new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane1.Id, FlightNumber = "TK1453", GateNo = "A3", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddMinutes(-90), DepartureTime = DateTime.UtcNow.AddMinutes(30), Status = OperationStatus.Delayed, DelayMinutes = 35, DelayReason = "Geç gelen uçak bağlantısı", TenantId = thyId },
+                new Operation { Id = Guid.NewGuid(), AircraftId = tkPlane1.Id, FlightNumber = "TK1453", GateNo = "A3", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddMinutes(-90), DepartureTime = DateTime.UtcNow.AddMinutes(30), Status = OperationStatus.Delayed, DelayMinutes = 35, DelayReason = "Inbound connection rotation delay", TenantId = thyId },
 
-                // Pegasus Uçuşları
                 new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane1.Id, FlightNumber = "PC202", GateNo = "B1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-25), DepartureTime = DateTime.UtcNow.AddMinutes(45), Status = OperationStatus.InProgress, TenantId = pgsId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane2.Id, FlightNumber = "PC303", GateNo = "B2", AssignedRunwayCode = "17R", ArrivalTime = DateTime.UtcNow.AddMinutes(30), DepartureTime = DateTime.UtcNow.AddMinutes(90), Status = OperationStatus.Scheduled, TenantId = pgsId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = pgPlane1.Id, FlightNumber = "PC404", GateNo = "B4", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddHours(-3), DepartureTime = DateTime.UtcNow.AddHours(-1), Status = OperationStatus.Completed, TenantId = pgsId },
 
-                // SunExpress Uçuşları
                 new Operation { Id = Guid.NewGuid(), AircraftId = sxPlane1.Id, FlightNumber = "XQ101", GateNo = "C1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-20), DepartureTime = DateTime.UtcNow.AddMinutes(55), Status = OperationStatus.InProgress, TenantId = sxsId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = sxPlane1.Id, FlightNumber = "XQ202", GateNo = "C2", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddMinutes(60), DepartureTime = DateTime.UtcNow.AddMinutes(130), Status = OperationStatus.Scheduled, TenantId = sxsId },
 
-                // AJet Uçuşları
                 new Operation { Id = Guid.NewGuid(), AircraftId = ajPlane1.Id, FlightNumber = "VF401", GateNo = "D1", AssignedRunwayCode = "35R", ArrivalTime = DateTime.UtcNow.AddMinutes(-30), DepartureTime = DateTime.UtcNow.AddMinutes(40), Status = OperationStatus.InProgress, TenantId = ajtId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = ajPlane1.Id, FlightNumber = "VF502", GateNo = "D2", AssignedRunwayCode = "17R", ArrivalTime = DateTime.UtcNow.AddHours(1), DepartureTime = DateTime.UtcNow.AddHours(2), Status = OperationStatus.Scheduled, TenantId = ajtId },
 
-                // Lufthansa Uçuşları
                 new Operation { Id = Guid.NewGuid(), AircraftId = lhPlane1.Id, FlightNumber = "LH1300", GateNo = "E1", AssignedRunwayCode = "35L", ArrivalTime = DateTime.UtcNow.AddMinutes(-35), DepartureTime = DateTime.UtcNow.AddMinutes(50), Status = OperationStatus.InProgress, TenantId = dlhId },
                 new Operation { Id = Guid.NewGuid(), AircraftId = lhPlane1.Id, FlightNumber = "LH1305", GateNo = "E2", AssignedRunwayCode = "17L", ArrivalTime = DateTime.UtcNow.AddHours(2), DepartureTime = DateTime.UtcNow.AddHours(3), Status = OperationStatus.Scheduled, TenantId = dlhId }
             };
@@ -792,7 +762,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- RAMP TURNAROUND GÖREVLERİ & YOLCU MANİFESTOSU ---
             var inProgressFlights = await context.Operations.IgnoreQueryFilters()
                 .Where(o => o.Status == OperationStatus.InProgress)
                 .ToListAsync();
@@ -814,7 +783,7 @@ public static class DataSeeder
                             ActualStartTime = op.ArrivalTime,
                             ActualEndTime = op.ArrivalTime.AddMinutes(18),
                             ProgressPercentage = 100,
-                            Notes = $"{op.FlightNumber} gelen bagajlar boşaltıldı."
+                            Notes = $"{op.FlightNumber} inbound baggage offloaded."
                         },
                         new TurnaroundTask
                         {
@@ -828,7 +797,7 @@ public static class DataSeeder
                             ActualStartTime = op.ArrivalTime.AddMinutes(12),
                             ProgressPercentage = 75,
                             AssignedGSEId = tanker?.Id,
-                            Notes = $"{op.FlightNumber} için 6.800 kg Jet A-1 ikmali devam ediyor."
+                            Notes = $"{op.FlightNumber} 6,800 kg Jet A-1 uplift in progress."
                         },
                         new TurnaroundTask
                         {
@@ -842,7 +811,7 @@ public static class DataSeeder
                             ActualStartTime = op.ArrivalTime.AddMinutes(5),
                             ActualEndTime = op.ArrivalTime.AddMinutes(22),
                             ProgressPercentage = 100,
-                            Notes = "Kabin temizliği ve dezenfeksiyon tamamlandı."
+                            Notes = "Cabin sanitization and security inspection completed."
                         },
                         new TurnaroundTask
                         {
@@ -855,7 +824,7 @@ public static class DataSeeder
                             ScheduledStartTime = op.ArrivalTime.AddMinutes(15),
                             ActualStartTime = op.ArrivalTime.AddMinutes(18),
                             ProgressPercentage = 85,
-                            Notes = "İkram servis arabaları kabine yüklendi."
+                            Notes = "Catering service trolleys stowed in galleys."
                         },
                         new TurnaroundTask
                         {
@@ -870,7 +839,7 @@ public static class DataSeeder
                             ProgressPercentage = 60,
                             AssignedGSEId = tug?.Id,
                             AssignedUserId = technician?.Id,
-                            Notes = "Giden bagajlar kargoya yükleniyor."
+                            Notes = "Outbound baggage loading into cargo compartments."
                         },
                         new TurnaroundTask
                         {
@@ -883,7 +852,7 @@ public static class DataSeeder
                             ScheduledStartTime = op.DepartureTime.AddMinutes(-35),
                             ActualStartTime = op.DepartureTime.AddMinutes(-35),
                             ProgressPercentage = 65,
-                            Notes = "Yolcu alımı devam ediyor."
+                            Notes = "Passenger gate boarding in progress."
                         },
                         new TurnaroundTask
                         {
@@ -896,7 +865,7 @@ public static class DataSeeder
                             ScheduledStartTime = op.DepartureTime,
                             ProgressPercentage = 0,
                             AssignedGSEId = pushback?.Id,
-                            Notes = "Körük ayrılışı sonrası hazır bekliyor."
+                            Notes = "Pushback tug connected, awaiting clearance."
                         }
                     );
                 }
@@ -908,10 +877,10 @@ public static class DataSeeder
                         Id = Guid.NewGuid(),
                         OperationId = op.Id,
                         FlightNumber = op.FlightNumber,
-                        Destination = op.FlightNumber.StartsWith("TK") ? "Londra LHR" :
+                        Destination = op.FlightNumber.StartsWith("TK") ? "London LHR" :
                                       op.FlightNumber.StartsWith("PC") ? "Paris CDG" :
                                       op.FlightNumber.StartsWith("XQ") ? "Frankfurt FRA" :
-                                      op.FlightNumber.StartsWith("VF") ? "Trabzon TZX" : "Münih MUC",
+                                      op.FlightNumber.StartsWith("VF") ? "Trabzon TZX" : "Munich MUC",
                         GateNo = op.GateNo,
                         TotalBooked = 186,
                         BoardedCount = 142,
@@ -926,14 +895,13 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- ARIZA RAPORLARI (TEKNİK SERVİS) ---
             var faultSeed = new[]
             {
-                new { Tail = "TC-JFH", Desc = "Sol motor hidrolik basınç regülatöründe aralıklarla basınç düşüşü gözlendi.", Priority = Priority.Critical, TenantId = thyId },
-                new { Tail = "TC-CPY", Desc = "Burun iniş takımı pozisyon gösterge mikro-anahtarı arızalı, kontrol gerekli.", Priority = Priority.High, TenantId = pgsId },
-                new { Tail = "TC-SOA", Desc = "Kabin iklimlendirme pack-1 akış regülatörü ayar kontrolü.", Priority = Priority.Medium, TenantId = sxsId },
-                new { Tail = "TC-JVD", Desc = "Yardımcı güç ünitesi (APU) yağ seviyesi düşük uyarısı.", Priority = Priority.High, TenantId = ajtId },
-                new { Tail = "D-AINZ", Desc = "Fren sıcaklık sensörü aralıklı sinyal kesintisi.", Priority = Priority.Medium, TenantId = dlhId }
+                new { Tail = "TC-JFH", Desc = "Intermittent hydraulic pressure fluctuations observed on left engine EDP regulator.", Priority = Priority.Critical, TenantId = thyId },
+                new { Tail = "TC-CPY", Desc = "Nose gear down-and-locked indicator proximity sensor disagreement.", Priority = Priority.High, TenantId = pgsId },
+                new { Tail = "TC-SOA", Desc = "Cabin air cycle machine Pack-1 flow control valve calibration required.", Priority = Priority.Medium, TenantId = sxsId },
+                new { Tail = "TC-JVD", Desc = "Auxiliary power unit (APU) low oil quantity advisory indicated.", Priority = Priority.High, TenantId = ajtId },
+                new { Tail = "D-AINZ", Desc = "Wheel brake temperature transducer intermittent signal discontinuity.", Priority = Priority.Medium, TenantId = dlhId }
             };
 
             foreach (var item in faultSeed)
@@ -956,7 +924,6 @@ public static class DataSeeder
             }
             await context.SaveChangesAsync();
 
-            // --- MRO PARÇA VE BAKIM KAYITLARI (MÜHENDİSLİK) ---
             var allPlanes = await context.Aircraft.IgnoreQueryFilters().ToListAsync();
             foreach (var p in allPlanes)
             {
@@ -966,13 +933,13 @@ public static class DataSeeder
                     {
                         Id = Guid.NewGuid(),
                         AircraftId = p.Id,
-                        PartName = $"{p.Model} Ana İniş Takımı Amortisör Paketi",
+                        PartName = $"{p.Model} Main Landing Gear Shock Strut Assembly",
                         PartNumber = $"LG-{p.TailNumber.Replace("-", "")}-01",
                         LifeSpanHours = 20000,
                         UsedHours = (int)(p.TotalFlightHours * 0.9),
                         CriticalThresholdHours = 18000,
                         Manufacturer = "Safran Landing Systems",
-                        Location = "Ana Hangarı Raf B-12",
+                        Location = "Main Hangar Bay B-12",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow.AddMonths(-12)
                     };
@@ -980,13 +947,13 @@ public static class DataSeeder
                     {
                         Id = Guid.NewGuid(),
                         AircraftId = p.Id,
-                        PartName = $"{p.Model} CFM LEAP-1 / GE Motor Türbini Bıçağı",
+                        PartName = $"{p.Model} CFM LEAP-1 / GE Turbine Blade Assembly",
                         PartNumber = $"ENG-{p.TailNumber.Replace("-", "")}-02",
                         LifeSpanHours = 15000,
                         UsedHours = (int)(p.TotalFlightHours * 0.85),
                         CriticalThresholdHours = 13500,
                         Manufacturer = "CFM International",
-                        Location = "Motor Deposu A-04",
+                        Location = "Engine Depot Bay A-04",
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow.AddMonths(-6)
                     };
@@ -1003,11 +970,11 @@ public static class DataSeeder
                                 PartId = part1.Id,
                                 EngineerId = engineer.Id,
                                 MaintenanceType = MaintenanceType.Scheduled,
-                                WorkPerformed = $"{p.TailNumber} A-Check 500 saatlik genel gövde ve hidrolik muayenesi tamamlandı.",
+                                WorkPerformed = $"{p.TailNumber} A-Check 500-hour comprehensive airframe and hydraulic inspection completed.",
                                 CertificateNo = $"CERT-MRO-{DateTime.UtcNow.Year}-{(int)p.TotalFlightHours % 999:D3}",
                                 Date = DateTime.UtcNow.AddDays(-10),
                                 NextScheduledDate = DateTime.UtcNow.AddDays(20),
-                                Notes = "Uçuşa elverişlilik sertifikası onaylandı."
+                                Notes = "Certificate of Release to Service (CRS) issued."
                             },
                             new MaintenanceRecord
                             {
@@ -1016,11 +983,11 @@ public static class DataSeeder
                                 PartId = part2.Id,
                                 EngineerId = engineer.Id,
                                 MaintenanceType = MaintenanceType.Overhaul,
-                                WorkPerformed = $"{p.TailNumber} motor boroskop kontrolü ve yakıt nozul temizliği yapıldı.",
+                                WorkPerformed = $"{p.TailNumber} engine borescope inspection and fuel nozzle flush performed.",
                                 CertificateNo = $"CERT-ENG-{DateTime.UtcNow.Year}-{(int)p.TotalFlightHours % 888:D3}",
                                 Date = DateTime.UtcNow.AddDays(-3),
                                 NextScheduledDate = DateTime.UtcNow.AddDays(5),
-                                Notes = "7 gün içerisinde periyodik titreşim analizi tekrarlanacak."
+                                Notes = "Spectral vibration analysis scheduled within 7 days."
                             }
                         );
                     }
